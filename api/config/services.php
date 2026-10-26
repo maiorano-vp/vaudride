@@ -37,4 +37,8 @@ return [
         ],
     ],
 
+    'courses' => [
+        'cdn_url' => env('COURSE_CDN_URL', 'http://localhost:3000/courses'),
+    ],
+
 ];
