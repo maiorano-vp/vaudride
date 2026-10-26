@@ -38,3 +38,9 @@ it('keeps the two-factor secret and recovery codes encrypted at rest', function 
         ->and($user->fresh()->getAppAuthenticationSecret())->toBe('JBSWY3DPEHPK3PXP')
         ->and($user->fresh()->getAppAuthenticationRecoveryCodes())->toBe(['abcd-1234']);
 });
+
+it('names the signed-in admin by their nickname in the panel', function (): void {
+    $admin = User::factory()->create(['nickname' => 'Vaud Digital', 'is_admin' => true])->fresh();
+
+    expect(Filament::getUserName($admin))->toBe('Vaud Digital');
+});

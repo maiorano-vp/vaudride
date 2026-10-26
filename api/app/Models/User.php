@@ -9,6 +9,7 @@ use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -41,7 +42,7 @@ use Laravel\Sanctum\HasApiTokens;
     'app_authentication_secret',
     'app_authentication_recovery_codes',
 ])]
-final class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, MustVerifyEmail
+final class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasName, MustVerifyEmail
 {
     use HasApiTokens;
 
@@ -70,6 +71,12 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    /** Filament looks for a `name` column by default: ours is the nickname. */
+    public function getFilamentName(): string
+    {
+        return $this->nickname;
     }
 
     public function canAccessPanel(Panel $panel): bool
