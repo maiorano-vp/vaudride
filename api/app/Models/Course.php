@@ -60,6 +60,14 @@ final class Course extends Model
     }
 
     /**
+     * @return HasMany<Ride, $this>
+     */
+    public function rides(): HasMany
+    {
+        return $this->hasMany(Ride::class);
+    }
+
+    /**
      * @return HasMany<Segment, $this>
      */
     public function segments(): HasMany
