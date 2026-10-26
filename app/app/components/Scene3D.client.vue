@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import type { Property } from 'cesium'
 import { pointAt, type CourseProfile } from '~/lib/course/profile'
 import { bearingRad, distanceAfter, interpolateAt, lerpAngle } from '~/lib/scene/camera'
+import { createCyclist } from '~/lib/scene/cyclist'
+import { DEFAULT_KIT, sanitizeKit, type Kit } from '~/lib/kit/kit'
 import { clamp, distanceM as metersBetween, pushWindow, ringAround } from '~/lib/scene/mix'
 import { isPhotorealistic, SceneSource, usesGoogle, usesSwissBuildings } from '~/lib/scene/source'
 
 const props = withDefaults(
-  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string }>(),
-  { source: SceneSource.Swisstopo, googleKey: '', ionToken: '' },
+  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string; kit?: Kit; cadenceRpm?: number }>(),
+  { source: SceneSource.Swisstopo, googleKey: '', ionToken: '', kit: () => DEFAULT_KIT, cadenceRpm: undefined },
 )
 
 const TERRAIN_URL = 'https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/'
@@ -178,45 +179,16 @@ async function start() {
   const frustum = viewer.camera.frustum as InstanceType<typeof Cesium.PerspectiveFrustum>
   let fovDeg = FOV_DEG
 
-  // Cyclist built from primitives, posed each frame: x = forward, y = up, z = right (local frame)
   let avatar = Cesium.Cartesian3.fromDegrees(points[0]!.lon, points[0]!.lat, hs[0]!)
   let heading = bearingRad(points[0]!.lat, points[0]!.lon, points[1]!.lat, points[1]!.lon)
   const photoreal = isPhotorealistic(props.source)
   const basePitch = photoreal ? PHOTO_CAMERA_PITCH_RAD : CAMERA_PITCH_RAD
   let pitch = basePitch
-  let enu = Cesium.Transforms.eastNorthUpToFixedFrame(avatar)
-  let orientation = Cesium.Quaternion.IDENTITY.clone()
 
-  const part = (f: number, u: number, r: number) => {
-    const sin = Math.sin(heading)
-    const cos = Math.cos(heading)
-    const local = new Cesium.Cartesian3(
-      (f * sin + r * cos) * AVATAR_SCALE,
-      (f * cos - r * sin) * AVATAR_SCALE,
-      u * AVATAR_SCALE,
-    )
-    return Cesium.Matrix4.multiplyByPoint(enu, local, new Cesium.Cartesian3())
-  }
-  const parts: unknown[] = [] // the avatar's entities, left out when measuring the mesh height
-  const addPart = (f: number, u: number, r: number, graphics: Record<string, unknown>) =>
-    parts.push(
-      viewer.entities.add({
-        position: new Cesium.CallbackPositionProperty(() => part(f, u, r), false),
-        orientation: new Cesium.CallbackProperty(() => orientation, false) as unknown as Property,
-        ...graphics,
-      }),
-    )
-  const s = AVATAR_SCALE
-  const black = Cesium.Color.fromCssColorString('#222')
-  const jersey = Cesium.Color.fromCssColorString('#0a7d3b')
-  const wheel = { cylinder: { length: 0.05 * s, topRadius: 0.34 * s, bottomRadius: 0.34 * s, material: black } }
-  addPart(-0.55, 0.34, 0, wheel)
-  addPart(0.55, 0.34, 0, wheel)
-  addPart(0, 0.58, 0, { box: { dimensions: new Cesium.Cartesian3(1.0 * s, 0.05 * s, 0.05 * s), material: black } })
-  addPart(-0.05, 1.05, 0, { ellipsoid: { radii: new Cesium.Cartesian3(0.32 * s, 0.24 * s, 0.18 * s), material: jersey } })
-  addPart(0.28, 1.34, 0, { ellipsoid: { radii: new Cesium.Cartesian3(0.11 * s, 0.11 * s, 0.1 * s), material: Cesium.Color.WHITE } })
-  addPart(0.1, 0.8, 0.1, { ellipsoid: { radii: new Cesium.Cartesian3(0.07 * s, 0.3 * s, 0.07 * s), material: black } })
-  addPart(0.1, 0.8, -0.1, { ellipsoid: { radii: new Cesium.Cartesian3(0.07 * s, 0.3 * s, 0.07 * s), material: black } })
+  // The cyclist: a glTF model in the player's kit. The scene still works if it cannot be loaded.
+  const cyclist = await createCyclist(Cesium, scene, sanitizeKit(props.kit), AVATAR_SCALE).catch(() => undefined)
+  const excluded = cyclist ? [cyclist.model] : [] // left out when measuring the mesh height
+  let lastFrame = performance.now()
 
   // Photoreal mesh: its heights differ from the swisstopo terrain (datum, trees, roofs), which would put the
   // rider and camera under the surface. Measure the mesh under the rider and shift every height by that offset.
@@ -263,14 +235,10 @@ async function start() {
     if (clip && metersBetween(hole.lat, hole.lon, here.lat, here.lon) > MIX_HOLE_MOVE_M) moveHole(here.lon, here.lat)
 
     avatar = Cesium.Cartesian3.fromDegrees(here.lon, here.lat, interpolateAt(ds, hs, d) + heightOffset)
-    enu = Cesium.Transforms.eastNorthUpToFixedFrame(avatar)
-    // local axes in the ENU frame: x forward, y up, z right
-    const fwd = new Cesium.Cartesian3(Math.sin(heading), Math.cos(heading), 0)
-    const up = new Cesium.Cartesian3(0, 0, 1)
-    const right = new Cesium.Cartesian3(Math.cos(heading), -Math.sin(heading), 0)
-    const local = Cesium.Matrix3.fromArray([fwd.x, fwd.y, fwd.z, up.x, up.y, up.z, right.x, right.y, right.z])
-    const world = Cesium.Matrix3.multiply(Cesium.Matrix4.getMatrix3(enu, new Cesium.Matrix3()), local, new Cesium.Matrix3())
-    orientation = Cesium.Quaternion.fromRotationMatrix(world, orientation)
+    const frameNow = performance.now()
+    cyclist?.place(avatar, heading)
+    cyclist?.animate(Math.min((frameNow - lastFrame) / 1000, 0.25), props.speedMs, props.cadenceRpm ?? props.speedMs * 6)
+    lastFrame = frameNow
 
     // steeper road → look a little further down so the camera keeps clear of the slope behind
     pitch += (basePitch - 0.6 * Math.atan(here.grade / 100) - pitch) * 0.05
@@ -292,7 +260,7 @@ async function start() {
     if (isPhotorealistic(props.source)) {
       if (now - lastMeasure < 200) return
       lastMeasure = now
-      const mesh = scene.sampleHeight(Cesium.Cartographic.fromDegrees(rider.lon, rider.lat), parts as never[])
+      const mesh = scene.sampleHeight(Cesium.Cartographic.fromDegrees(rider.lon, rider.lat), excluded as never[])
       if (mesh === undefined) return
       const wanted = clamp(mesh - rider.ground, MAX_HEIGHT_OFFSET_M)
       heightOffset = offsetKnown ? heightOffset + (wanted - heightOffset) * 0.2 : wanted
@@ -304,7 +272,7 @@ async function start() {
       const globeShown = scene.globe.show
       scene.globe.show = false
       swiss.forEach((t) => (t.show = false))
-      const mesh = scene.sampleHeight(Cesium.Cartographic.fromDegrees(ahead.lon, ahead.lat), parts as never[])
+      const mesh = scene.sampleHeight(Cesium.Cartographic.fromDegrees(ahead.lon, ahead.lat), excluded as never[])
       scene.globe.show = globeShown
       swiss.forEach((t) => (t.show = true))
       if (mesh === undefined) return

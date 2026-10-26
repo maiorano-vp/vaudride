@@ -93,6 +93,7 @@ const simPower = computed({
       :source="source"
       :google-key="googleMapsKey"
       :ion-token="cesiumIonToken"
+      :cadence-rpm="cadenceRpm"
     />
 
     <details class="panel" :open="trainer.connection.value === 'idle'">
