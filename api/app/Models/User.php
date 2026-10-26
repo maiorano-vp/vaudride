@@ -27,6 +27,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read CarbonInterface|null $email_verified_at
  * @property-read string $password
  * @property-read bool $is_admin
+ * @property-read array<string, string>|null $avatar
  * @property-read string|null $app_authentication_secret
  * @property-read list<string>|null $app_authentication_recovery_codes
  * @property-read string|null $remember_token
@@ -62,6 +63,7 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'avatar' => 'array',
             'app_authentication_secret' => 'encrypted',
             'app_authentication_recovery_codes' => 'encrypted:array',
             'remember_token' => 'string',

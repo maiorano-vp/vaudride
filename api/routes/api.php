@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\RideController;
 use App\Http\Controllers\Api\V1\ShowStravaController;
 use App\Http\Controllers\Api\V1\StravaCallbackController;
 use App\Http\Controllers\Api\V1\StravaConnectController;
+use App\Http\Controllers\Api\V1\UpdateAvatarController;
 use App\Http\Controllers\Api\V1\UploadRideToStravaController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,7 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('auth/logout', LogoutController::class)->name('auth.logout');
         Route::get('me', MeController::class)->name('me');
+        Route::put('me/avatar', UpdateAvatarController::class)->name('me.avatar');
         Route::post('broadcasting/auth', AuthorizeLiveChannelController::class)->middleware('throttle:30,1')->name('broadcasting.auth');
         Route::apiResource('rides', RideController::class)->only(['index', 'store', 'show']);
         Route::get('rides/{ride}/export/{format}', ExportRideController::class)->whereIn('format', ['fit', 'tcx'])->name('rides.export');
