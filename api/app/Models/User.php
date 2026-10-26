@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -62,5 +63,13 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function rides(): HasMany
     {
         return $this->hasMany(Ride::class);
+    }
+
+    /**
+     * @return HasOne<StravaConnection, $this>
+     */
+    public function stravaConnection(): HasOne
+    {
+        return $this->hasOne(StravaConnection::class);
     }
 }

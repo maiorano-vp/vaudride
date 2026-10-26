@@ -41,4 +41,13 @@ return [
         'cdn_url' => env('COURSE_CDN_URL', 'http://localhost:3000/courses'),
     ],
 
+    'strava' => [
+        'client_id' => env('STRAVA_CLIENT_ID', ''),
+        'client_secret' => env('STRAVA_CLIENT_SECRET', ''),
+    ],
+
+    'frontend' => [
+        'url' => env('APP_FRONTEND_URL', 'http://localhost:3000'),
+    ],
+
 ];

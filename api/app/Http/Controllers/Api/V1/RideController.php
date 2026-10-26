@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Actions\RecordRide;
 use App\Http\Requests\Api\V1\StoreRideRequest;
 use App\Http\Resources\Api\V1\RideResource;
+use App\Jobs\UploadRideToStrava;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -38,6 +39,10 @@ final readonly class RideController
             $request->integer('elevation_gain_m'),
             $samples,
         );
+
+        if ($request->boolean('upload_to_strava') && $this->user($request)->stravaConnection()->exists()) {
+            UploadRideToStrava::dispatch($ride);
+        }
 
         return new RideResource($ride->load('course'))->response()->setStatusCode(Response::HTTP_CREATED);
     }

@@ -22,6 +22,7 @@ final class StoreRideRequest extends FormRequest
             'course' => ['required', 'string', Rule::exists('courses', 'slug')->where('published', true)],
             'started_at' => ['required', 'date', 'before_or_equal:now'],
             'elevation_gain_m' => ['required', 'integer', 'min:0', 'max:10000'],
+            'upload_to_strava' => ['sometimes', 'boolean'],
             'samples' => ['required', 'array', 'min:2', 'max:20000'],
             'samples.*.t' => ['required', 'integer', 'min:0'],
             'samples.*.d' => ['required', 'numeric', 'min:0'],

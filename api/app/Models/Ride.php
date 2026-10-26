@@ -23,6 +23,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read int|null $avg_power_w
  * @property-read int|null $max_power_w
  * @property-read int|null $avg_heart_rate
+ * @property-read int|null $strava_upload_id
+ * @property-read int|null $strava_activity_id
+ * @property-read string|null $strava_error
  * @property-read list<array{t: int, d: float, p: int, c?: int|null, h?: int|null, s: float}> $samples
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
@@ -50,6 +53,9 @@ final class Ride extends Model
             'avg_power_w' => 'integer',
             'max_power_w' => 'integer',
             'avg_heart_rate' => 'integer',
+            'strava_upload_id' => 'integer',
+            'strava_activity_id' => 'integer',
+            'strava_error' => 'string',
             'samples' => 'array',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
@@ -81,7 +87,8 @@ final class Ride extends Model
     {
         $query->select([
             'id', 'user_id', 'course_id', 'started_at', 'duration_s', 'distance_m',
-            'elevation_gain_m', 'avg_power_w', 'max_power_w', 'avg_heart_rate', 'created_at', 'updated_at',
+            'elevation_gain_m', 'avg_power_w', 'max_power_w', 'avg_heart_rate', 'strava_upload_id', 'strava_activity_id',
+            'strava_error', 'created_at', 'updated_at',
         ]);
     }
 }

@@ -28,6 +28,8 @@ final class RideResource extends JsonResource
             'avg_power_w' => $this->avg_power_w,
             'max_power_w' => $this->max_power_w,
             'avg_heart_rate' => $this->avg_heart_rate,
+            'strava_activity_id' => $this->strava_activity_id,
+            'strava_error' => $this->strava_error,
             'samples' => $this->whenHas('samples'),
         ];
     }
