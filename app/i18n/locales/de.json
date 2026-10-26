@@ -37,7 +37,8 @@
     "notFound": "Strecke nicht gefunden.",
     "pause": "Pause",
     "resume": "Fortsetzen",
-    "paused": "Pausiert"
+    "paused": "Pausiert",
+    "loading": "Strecke wird geladen…"
   },
   "scene": {
     "show3d": "3D-Ansicht",

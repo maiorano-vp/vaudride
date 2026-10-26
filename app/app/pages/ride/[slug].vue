@@ -2,9 +2,11 @@
 import type { CourseProfile } from '~/lib/course/profile'
 
 const route = useRoute()
-// absolute URL: in dev, SSR-internal fetches cannot see public/ files
-const origin = useRequestURL().origin
-const { data: course } = await useFetch<CourseProfile>(`${origin}/courses/${route.params.slug}/profile.json`)
+// Client-side only: the page is client-driven (BLE, WebGL), and a Worker fetching its own public URL during SSR fails intermittently
+const { data: course, status } = useFetch<CourseProfile>(`/courses/${route.params.slug}/profile.json`, {
+  server: false,
+  retry: 2,
+})
 
 const { trainer, powerMeter, strap } = useDevices()
 
@@ -117,7 +119,8 @@ const simPower = computed({
     <p v-if="state.finished" class="finished" role="status">{{ $t('ride.finished') }}</p>
     <small v-if="view === '2d'">{{ course.attribution }}</small>
   </div>
-  <p v-else>{{ $t('ride.notFound') }}</p>
+  <p v-else-if="status === 'error'">{{ $t('ride.notFound') }}</p>
+  <p v-else>{{ $t('ride.loading') }}</p>
 </template>
 
 <style scoped>
