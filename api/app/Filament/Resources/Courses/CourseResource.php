@@ -9,6 +9,7 @@ use App\Filament\Resources\Courses\Pages\CreateCourse;
 use App\Filament\Resources\Courses\Pages\EditCourse;
 use App\Filament\Resources\Courses\Pages\ListCourses;
 use App\Filament\Resources\Courses\RelationManagers\PoisRelationManager;
+use App\Filament\Resources\Courses\RelationManagers\SegmentsRelationManager;
 use App\Models\Course;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
@@ -92,7 +93,7 @@ final class CourseResource extends Resource
 
     public static function getRelations(): array
     {
-        return [PoisRelationManager::class];
+        return [SegmentsRelationManager::class, PoisRelationManager::class];
     }
 
     public static function getPages(): array

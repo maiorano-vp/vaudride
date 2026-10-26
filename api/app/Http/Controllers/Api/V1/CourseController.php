@@ -18,7 +18,7 @@ final readonly class CourseController
     public function show(string $slug): CourseResource
     {
         return new CourseResource(
-            Course::query()->where('published', true)->where('slug', $slug)->with('pois')->firstOrFail(),
+            Course::query()->where('published', true)->where('slug', $slug)->with(['pois', 'segments' => fn ($query) => $query->where('published', true)])->firstOrFail(),
         );
     }
 }

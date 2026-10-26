@@ -56,4 +56,12 @@ final class Course extends Model
     {
         return $this->hasMany(Poi::class)->orderBy('distance_m');
     }
+
+    /**
+     * @return HasMany<Segment, $this>
+     */
+    public function segments(): HasMany
+    {
+        return $this->hasMany(Segment::class)->orderBy('start_m');
+    }
 }
