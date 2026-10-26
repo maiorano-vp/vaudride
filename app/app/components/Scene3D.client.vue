@@ -50,6 +50,7 @@ const FOV_DEG = 70
 const FOV_SPEED_GAIN = 1.2 // degrees of extra field of view per m/s: speed feels faster
 const FOV_MAX_EXTRA_DEG = 12
 const AVATAR_SCALE = 1.6
+const MAX_HEIGHT_OFFSET_M = 150 // sanity bound on the correction between the mesh and the terrain heights
 const SAMPLE_EVERY = 8 // route points between terrain height samples (~40 m)
 
 const container = ref<HTMLDivElement>()
@@ -175,12 +176,15 @@ async function start() {
     )
     return Cesium.Matrix4.multiplyByPoint(enu, local, new Cesium.Cartesian3())
   }
+  const parts: unknown[] = [] // the avatar's entities, left out when measuring the mesh height
   const addPart = (f: number, u: number, r: number, graphics: Record<string, unknown>) =>
-    viewer.entities.add({
-      position: new Cesium.CallbackPositionProperty(() => part(f, u, r), false),
-      orientation: new Cesium.CallbackProperty(() => orientation, false) as unknown as Property,
-      ...graphics,
-    })
+    parts.push(
+      viewer.entities.add({
+        position: new Cesium.CallbackPositionProperty(() => part(f, u, r), false),
+        orientation: new Cesium.CallbackProperty(() => orientation, false) as unknown as Property,
+        ...graphics,
+      }),
+    )
   const s = AVATAR_SCALE
   const black = Cesium.Color.fromCssColorString('#222')
   const jersey = Cesium.Color.fromCssColorString('#0a7d3b')
@@ -193,6 +197,12 @@ async function start() {
   addPart(0.1, 0.8, 0.1, { ellipsoid: { radii: new Cesium.Cartesian3(0.07 * s, 0.3 * s, 0.07 * s), material: black } })
   addPart(0.1, 0.8, -0.1, { ellipsoid: { radii: new Cesium.Cartesian3(0.07 * s, 0.3 * s, 0.07 * s), material: black } })
 
+  // Photoreal mesh: its heights differ from the swisstopo terrain (datum, trees, roofs), which would put the
+  // rider and camera under the surface. Measure the mesh under the rider and shift every height by that offset.
+  let heightOffset = 0
+  let offsetKnown = false
+  let lastMeasure = 0
+
   viewer.scene.preRender.addEventListener(() => {
     const d = distanceAfter(base.d, props.speedMs, (performance.now() - base.t) / 1000, total)
     const here = pointAt(props.course, d)
@@ -203,7 +213,17 @@ async function start() {
       : bearingRad(behind.lat, behind.lon, here.lat, here.lon)
     heading = lerpAngle(heading, target, 0.05)
 
-    avatar = Cesium.Cartesian3.fromDegrees(here.lon, here.lat, interpolateAt(ds, hs, d))
+    if (isPhotorealistic(props.source) && scene.sampleHeightSupported && performance.now() - lastMeasure > 200) {
+      lastMeasure = performance.now()
+      const mesh = scene.sampleHeight(Cesium.Cartographic.fromDegrees(here.lon, here.lat), parts as never[])
+      if (mesh !== undefined) {
+        const wanted = Math.max(-MAX_HEIGHT_OFFSET_M, Math.min(MAX_HEIGHT_OFFSET_M, mesh - interpolateAt(ds, hs, d)))
+        heightOffset = offsetKnown ? heightOffset + (wanted - heightOffset) * 0.2 : wanted
+        offsetKnown = true
+      }
+    }
+
+    avatar = Cesium.Cartesian3.fromDegrees(here.lon, here.lat, interpolateAt(ds, hs, d) + heightOffset)
     enu = Cesium.Transforms.eastNorthUpToFixedFrame(avatar)
     // local axes in the ENU frame: x forward, y up, z right
     const fwd = new Cesium.Cartesian3(Math.sin(heading), Math.cos(heading), 0)
@@ -218,7 +238,7 @@ async function start() {
     const lookAt = Cesium.Cartesian3.fromDegrees(
       pointAt(props.course, Math.min(d + TARGET_AHEAD_M, total)).lon,
       pointAt(props.course, Math.min(d + TARGET_AHEAD_M, total)).lat,
-      interpolateAt(ds, hs, Math.min(d + TARGET_AHEAD_M, total)) + 1.5,
+      interpolateAt(ds, hs, Math.min(d + TARGET_AHEAD_M, total)) + heightOffset + 1.5,
     )
     fovDeg += (FOV_DEG + Math.min(props.speedMs * FOV_SPEED_GAIN, FOV_MAX_EXTRA_DEG) - fovDeg) * 0.05
     frustum.fov = Cesium.Math.toRadians(fovDeg)
