@@ -179,7 +179,8 @@
     "resume": "Continuer",
     "end": "Terminer",
     "courses": "Parcours",
-    "efforts": "Segments"
+    "efforts": "Segments",
+    "share": "Partager l'image"
   },
   "rides": {
     "title": "Mes sorties",

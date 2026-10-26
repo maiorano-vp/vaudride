@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { RideSummary } from '~/lib/ride/recorder'
 import type { SaveState, SegmentEffort } from '~/composables/useRideRecording'
+import type { CourseProfile } from '~/lib/course/profile'
+import { fileSlug } from '~/lib/course/gpx'
+import { renderCard, shareCard } from '~/lib/share/card'
 import { segmentName } from '~/lib/segments/tracker'
 
 const props = defineProps<{
@@ -10,6 +13,8 @@ const props = defineProps<{
   saveState: SaveState
   finished: boolean
   efforts: SegmentEffort[]
+  courseName: string
+  courseProfile?: CourseProfile
 }>()
 const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ save: [uploadToStrava: boolean]; restart: [] }>()
@@ -22,6 +27,29 @@ const showBoard = (e: SegmentEffort) => {
   boardOpen.value = true
 }
 const toStrava = ref(false)
+const { t } = useI18n()
+const sharing = ref(false)
+
+async function shareImage() {
+  if (!props.courseProfile) return
+  sharing.value = true
+  try {
+    const blob = await renderCard({
+      courseName: props.courseName,
+      distanceM: props.summary.distanceM,
+      durationS: props.summary.durationS,
+      elevationGainM: props.elevationGainM,
+      avgPowerW: props.summary.avgPowerW,
+      profile: props.courseProfile.points,
+      courseDistanceM: props.courseProfile.distance_m,
+      ridden: props.summary.distanceM,
+      labels: { distance: t('summary.distance'), time: t('summary.time'), climb: t('summary.climb'), power: t('summary.avgPower') },
+    })
+    await shareCard(blob, props.courseName, `${fileSlug(props.courseName)}.png`)
+  } finally {
+    sharing.value = false
+  }
+}
 const { data: strava } = useAsyncData('strava', () => $fetch<{ connected: boolean }>('/api/strava').catch(() => ({ connected: false })), {
   server: false,
   lazy: true,
@@ -76,6 +104,14 @@ const rows = computed(() => [
     <template #footer>
       <div class="flex w-full flex-wrap justify-between gap-2">
         <UButton color="neutral" variant="ghost" :label="$t(finished ? 'ride.restart' : 'summary.resume')" @click="finished ? emit('restart') : (open = false)" />
+        <UButton
+          v-if="recordable && courseProfile"
+          color="neutral"
+          variant="outline"
+          :loading="sharing"
+          :label="$t('summary.share')"
+          @click="shareImage"
+        />
         <UButton
           v-if="saveState !== 'saved'"
           :disabled="!recordable"

@@ -39,9 +39,11 @@ onMounted(() => {
 // timed segments (climbs) of the course, loaded alongside; the ride works without them
 const { data: courseInfo } = useAsyncData(
   `course-info-${slug}`,
-  () => $fetch<{ data: { segments?: Segment[]; pois?: Poi[] } }>(`/api/courses/${slug}`).catch(() => undefined),
+  () => $fetch<{ data: { name?: Record<string, string>; segments?: Segment[]; pois?: Poi[] } }>(`/api/courses/${slug}`).catch(() => undefined),
   { server: false },
 )
+const { locale } = useI18n()
+const courseName = computed(() => courseInfo.value?.data.name?.[locale.value] ?? courseInfo.value?.data.name?.fr ?? course.value?.name ?? '')
 const segments = computed(() => courseInfo.value?.data.segments ?? [])
 const pois = computed(() => courseInfo.value?.data.pois ?? [])
 const poiNearby = computed(() => nearbyPoi(state.value.distanceM, pois.value))
@@ -173,6 +175,8 @@ const simPower = computed({
       :recordable="recording.recordable.value"
       :save-state="recording.saveState.value"
       :efforts="recording.efforts.value"
+      :course-name="courseName"
+      :course-profile="course ?? undefined"
       :finished="state.finished"
       @save="recording.save($event)"
       @restart="restart()"
