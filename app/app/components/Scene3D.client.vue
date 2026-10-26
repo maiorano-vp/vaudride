@@ -2,8 +2,12 @@
 import type { Property } from 'cesium'
 import { pointAt, type CourseProfile } from '~/lib/course/profile'
 import { bearingRad, distanceAfter, interpolateAt, lerpAngle } from '~/lib/scene/camera'
+import { SceneSource } from '~/lib/scene/source'
 
-const props = defineProps<{ course: CourseProfile; distanceM: number; speedMs: number }>()
+const props = withDefaults(
+  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string }>(),
+  { source: SceneSource.Swisstopo, googleKey: '' },
+)
 
 const TERRAIN_URL = 'https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/'
 const IMAGERY_URL = 'https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.swissimage/default/current/3857/{z}/{x}/{y}.jpeg'
@@ -93,6 +97,8 @@ async function start() {
       positions: Cesium.Cartesian3.fromDegreesArray(points.flatMap((p) => [p.lon, p.lat])),
       width: 4,
       clampToGround: true,
+      // drape on the photogrammetry mesh when the globe is hidden (Google), on terrain and 3D tiles otherwise
+      classificationType: props.source === SceneSource.Google ? Cesium.ClassificationType.CESIUM_3D_TILE : Cesium.ClassificationType.BOTH,
       material: Cesium.Color.fromCssColorString('#e63946').withAlpha(0.75),
     },
   })
@@ -127,6 +133,13 @@ async function start() {
   scene.fog.minimumBrightness = 0.12
   if (scene.msaaSupported) scene.msaaSamples = 4 // smooth road, building and avatar edges
 
+  if (props.source === SceneSource.Google) {
+    // Google's mesh replaces the globe; swisstopo terrain still gives the heights the avatar and camera ride on.
+    // showCreditsOnScreen: Google's attribution must stay visible.
+    scene.globe.show = false
+    scene.primitives.add(await Cesium.createGooglePhotorealistic3DTileset({ key: props.googleKey }, { showCreditsOnScreen: true }))
+  }
+
   // Real 3D buildings and trees (swisstopo 3D Tiles); added as they load so the scene never waits on them
   const addTileset = (url: string, customShader?: InstanceType<typeof Cesium.CustomShader>) =>
     Cesium.Cesium3DTileset.fromUrl(url, { maximumScreenSpaceError: 6 })
@@ -135,8 +148,10 @@ async function start() {
         viewer.scene.primitives.add(tileset)
       })
       .catch(() => {}) // optional layers: the terrain scene still works without them
-  void addTileset(BUILDINGS_URL, new Cesium.CustomShader({ fragmentShaderText: BUILDING_SHADER }))
-  void addTileset(VEGETATION_URL)
+  if (props.source === SceneSource.Swisstopo) {
+    void addTileset(BUILDINGS_URL, new Cesium.CustomShader({ fragmentShaderText: BUILDING_SHADER }))
+    void addTileset(VEGETATION_URL)
+  }
   const frustum = viewer.camera.frustum as InstanceType<typeof Cesium.PerspectiveFrustum>
   let fovDeg = FOV_DEG
 

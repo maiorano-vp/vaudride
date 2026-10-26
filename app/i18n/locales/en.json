@@ -44,7 +44,13 @@
     "show3d": "3D view",
     "show2d": "2D view",
     "loading": "Loading 3D scene…",
-    "error": "Could not load the 3D scene. Use the 2D view."
+    "error": "Could not load the 3D scene. Use the 2D view.",
+    "source": {
+      "label": "3D source",
+      "swisstopo": "swisstopo (terrain and buildings)",
+      "light": "Light (terrain only)",
+      "google": "Google (photorealistic)"
+    }
   },
   "auth": {
     "loginTitle": "Sign in",

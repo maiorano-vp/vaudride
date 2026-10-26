@@ -44,7 +44,13 @@
     "show3d": "3D-Ansicht",
     "show2d": "2D-Ansicht",
     "loading": "3D-Szene wird geladen…",
-    "error": "Die 3D-Szene konnte nicht geladen werden. Verwenden Sie die 2D-Ansicht."
+    "error": "Die 3D-Szene konnte nicht geladen werden. Verwenden Sie die 2D-Ansicht.",
+    "source": {
+      "label": "3D-Quelle",
+      "swisstopo": "swisstopo (Gelände und Gebäude)",
+      "light": "Leicht (nur Gelände)",
+      "google": "Google (fotorealistisch)"
+    }
   },
   "auth": {
     "loginTitle": "Anmelden",

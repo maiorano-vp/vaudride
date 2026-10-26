@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CourseProfile } from '~/lib/course/profile'
+import { availableSceneSources, resolveSceneSource, type SceneSource } from '~/lib/scene/source'
 
 const route = useRoute()
 // Client-side only: the page is client-driven (BLE, WebGL), and a Worker fetching its own public URL during SSR fails intermittently.
@@ -18,6 +19,18 @@ const { data: course, status } = useAsyncData(
 )
 
 const { trainer, powerMeter, strap } = useDevices()
+
+// 3D source: remembered per browser; Google is only offered when a key is configured
+const { googleMapsKey } = useRuntimeConfig().public
+const { t } = useI18n()
+const storedSource = useCookie<string>('scene-source', { maxAge: 60 * 60 * 24 * 365 })
+const source = computed({
+  get: () => resolveSceneSource(storedSource.value, !!googleMapsKey),
+  set: (v: SceneSource) => (storedSource.value = v),
+})
+const sourceItems = computed(() =>
+  availableSceneSources(!!googleMapsKey).map((s) => ({ value: s, label: t(`scene.source.${s}`) })),
+)
 
 const powerW = computed(() => trainer.data.value.powerW ?? powerMeter.data.value.powerW ?? 0)
 const cadenceRpm = computed(() => trainer.data.value.cadenceRpm ?? powerMeter.data.value.cadenceRpm)
@@ -59,7 +72,16 @@ const simPower = computed({
 
 <template>
   <div v-if="course" class="stage" :class="{ immersive: view === '3d' }">
-    <Scene3D v-if="view === '3d'" class="fill" :course="course" :distance-m="state.distanceM" :speed-ms="state.speedMs" />
+    <Scene3D
+      v-if="view === '3d'"
+      :key="source"
+      class="fill"
+      :course="course"
+      :distance-m="state.distanceM"
+      :speed-ms="state.speedMs"
+      :source="source"
+      :google-key="googleMapsKey"
+    />
 
     <details class="panel" :open="trainer.connection.value === 'idle'">
       <summary>{{ course.name }} · {{ $t('ble.devices') }}</summary>
@@ -92,6 +114,10 @@ const simPower = computed({
           @click="view = view === '3d' ? '2d' : '3d'"
         />
       </div>
+      <label v-if="view === '3d'" class="mt-2 flex items-center gap-2">
+        {{ $t('scene.source.label') }}
+        <USelect v-model="source" :items="sourceItems" size="sm" class="min-w-56" />
+      </label>
       <UserMenu class="mt-2" />
       <label v-if="sim">
         {{ $t('ble.simPower') }} {{ simPower }} W
