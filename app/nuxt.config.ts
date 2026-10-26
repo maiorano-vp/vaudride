@@ -15,7 +15,7 @@ export default defineNuxtConfig({
   ui: { colorMode: false }, // light only: no color-mode module, no `dark` class
   // NUXT_API_BASE, NUXT_PUBLIC_PUSHER_KEY (public key; the secret stays on the API)
   runtimeConfig: { apiBase: 'http://127.0.0.1:8000', public: { pusherKey: '', pusherCluster: 'eu' } },
-  nitro: { preset: 'cloudflare_module', cloudflare: { deployConfig: true, nodeCompat: true, wrangler: { name: 'vaudride', vars: { NUXT_API_BASE: 'https://vaudride.myvaud.dev' } } } },
+  nitro: { preset: 'cloudflare_module', cloudflare: { deployConfig: true, nodeCompat: true, wrangler: { name: 'vaudride', vars: { NUXT_API_BASE: 'https://vaudride.myvaud.dev', NUXT_PUBLIC_PUSHER_KEY: '80f62163e704d42f25a9' } } } },
   typescript: { strict: true },
   vite: { define: { CESIUM_BASE_URL: JSON.stringify('/cesium/') } },
   i18n: {
