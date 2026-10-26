@@ -16,6 +16,7 @@ const { t } = useI18n()
 const items = computed(() => [
   [{ label: user.value?.email, type: 'label' as const }],
   [
+    { label: t('intro.menu'), icon: 'i-lucide-bluetooth', to: '/intro' },
     { label: t('auth.account'), icon: 'i-lucide-settings', to: '/account' },
     {
       label: t('auth.logout'),

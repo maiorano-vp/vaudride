@@ -81,6 +81,7 @@
     "powerWait": "Warte auf Daten…",
     "step3": "3. Widerstand testen",
     "resistance": "Erhöhen Sie die Steigung: Der Widerstand muss steigen. Beim Verlassen der Seite wird sie auf 0 % zurückgesetzt.",
-    "start": "Strecke wählen"
+    "start": "Strecke wählen",
+    "menu": "Geräte verbinden"
   }
 }

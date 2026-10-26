@@ -81,6 +81,7 @@
     "powerWait": "Waiting for data…",
     "step3": "3. Test the resistance",
     "resistance": "Raise the grade: resistance should increase. It resets to 0 % when you leave the page.",
-    "start": "Choose a course"
+    "start": "Choose a course",
+    "menu": "Connect my devices"
   }
 }

@@ -81,6 +81,7 @@
     "powerWait": "En attente de données…",
     "step3": "3. Tester la résistance",
     "resistance": "Montez la pente : la résistance doit augmenter. Elle revient à 0 % en quittant la page.",
-    "start": "Choisir un parcours"
+    "start": "Choisir un parcours",
+    "menu": "Connecter mon matériel"
   }
 }
