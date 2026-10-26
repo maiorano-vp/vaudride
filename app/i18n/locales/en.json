@@ -205,7 +205,8 @@
       "station": "Station",
       "shop": "Shop",
       "activity": "Activity",
-      "service": "Practical service"
+      "service": "Practical service",
+      "other": "Other"
     }
   },
   "course": {
@@ -220,6 +221,9 @@
     "services": "Services",
     "lodging": "Where to stay",
     "nearStart": "near the start",
-    "nearFinish": "near the finish"
+    "nearFinish": "near the finish",
+    "filter": "Filter by category",
+    "filterAll": "All",
+    "noMatch": "No place in these categories."
   }
 }

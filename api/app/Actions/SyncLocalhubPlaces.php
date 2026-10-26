@@ -67,7 +67,7 @@ final readonly class SyncLocalhubPlaces
             return 0;
         }
 
-        LocalhubPlace::query()->upsert($rows, ['id'], ['title', 'summary', 'lat', 'lon', 'address', 'url', 'category', 'facts', 'synced_at']);
+        LocalhubPlace::query()->upsert($rows, ['id'], ['title', 'summary', 'lat', 'lon', 'address', 'url', 'image_url', 'image_credit', 'category', 'facts', 'synced_at']);
 
         return count($rows);
     }

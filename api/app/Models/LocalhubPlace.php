@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read float $lon
  * @property-read string|null $address
  * @property-read string|null $url
+ * @property-read string|null $image_url
+ * @property-read string|null $image_credit
  * @property-read PoiCategory $category
  * @property-read list<array{label: string, values: list<string>}>|null $facts
  * @property-read CarbonInterface $synced_at

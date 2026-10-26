@@ -103,7 +103,7 @@ describe('syncing the catalogue', function (): void {
 
         Http::assertSent(fn (Request $r) => $r->hasHeader('Authorization', 'Bearer secret-token')
             && str_starts_with($r->url(), 'https://localhub.test/api/v1/pois')
-            && $r['page'] === 1 && $r['pageSize'] === 100 && $r['fields'] === 'name,summary,location,links,attributes,assetCategory,rootAssetCategory');
+            && $r['page'] === 1 && $r['pageSize'] === 100 && $r['fields'] === 'name,summary,location,links,attributes,assetCategory,rootAssetCategory,images');
     });
 
     it('follows the pagination', function (): void {
@@ -392,5 +392,61 @@ describe('Local Hub categories', function (): void {
         syncHits([hit('1', 'Hôtel Les Trois Sapins', '', 1000), categorized('Le Café littéraire', 'j3l_poi_notlisted', 'j3l_poi_notlisted')]);
 
         expect(LocalhubPlace::query()->get()->pluck('category')->map->value->sort()->values()->all())->toBe(['food', 'lodging']);
+    });
+});
+
+describe('cover images', function (): void {
+    function image(string $id, string $file, int $sort, bool $cover = false, ?string $credit = '© Studio Jantet'): array
+    {
+        return ['id' => $id, 'url' => "https://sos.example/media/{$file}", 'copyright' => $credit, 'is_cover' => $cover ? 1 : 0, 'sort' => $sort, 'name' => [], 'legend' => []];
+    }
+
+    it('keeps the image flagged as cover, scaled by Local Hub, with its credit', function (): void {
+        syncHits([hit('1', 'Cave du Lac', 'vin', 4000, extra: ['images' => [
+            image('img-a', 'a.jpg', 1),
+            image('img-b', 'b.JPG', 2, cover: true, credit: 'Simon Contreras'),
+            image('img-c', 'c.jpg', 3),
+        ]])]);
+
+        $place = LocalhubPlace::query()->findOrFail('localhub:1');
+        expect($place->image_url)->toBe('https://localhub.test/api/image/img-b/scale/640')
+            ->and($place->image_credit)->toBe('Simon Contreras');
+    });
+
+    it('takes the first image by order when none is flagged, whatever the order in the list', function (): void {
+        syncHits([hit('1', 'Cave du Lac', 'vin', 4000, extra: ['images' => [image('img-2', 'b.png', 2), image('img-1', 'a.webp', 1)]])]);
+
+        expect(LocalhubPlace::query()->findOrFail('localhub:1')->image_url)->toEndWith('/img-1/scale/640');
+    });
+
+    it('never takes a document for an image', function (): void {
+        syncHits([hit('1', 'Circuit', 'vin', 4000, extra: ['images' => [image('pdf', 'circuit.pdf', 1, cover: true), image('photo', 'rue.jpg', 2)]])]);
+
+        expect(LocalhubPlace::query()->findOrFail('localhub:1')->image_url)->toEndWith('/photo/scale/640');
+    });
+
+    it('has no image when the place has none, and no credit when none is given', function (): void {
+        syncHits([
+            hit('1', 'Sans image', 'vin', 4000),
+            hit('2', 'Sans crédit', 'vin', 4100, extra: ['images' => [image('img', 'a.jpg', 1, cover: true, credit: '  ')]]),
+        ]);
+
+        expect(LocalhubPlace::query()->findOrFail('localhub:1')->only(['image_url', 'image_credit']))->toBe(['image_url' => null, 'image_credit' => null])
+            ->and(LocalhubPlace::query()->findOrFail('localhub:2')->image_credit)->toBeNull();
+    });
+
+    it('carries the image onto the imported point and out through the API', function (): void {
+        syncHits([hit('1', 'Cave du Lac', 'vin', 4000, extra: ['images' => [image('img', 'a.jpg', 1, cover: true)]])]);
+
+        resolve(ImportLocalhubPois::class)->handle($this->course);
+
+        $poi = $this->course->pois()->firstOrFail();
+        expect($poi->image_url)->toBe('https://localhub.test/api/image/img/scale/640')->and($poi->image_credit)->toBe('© Studio Jantet');
+
+        $this->course->update(['published' => true]);
+        $this->getJson('/api/v1/courses/a-course')
+            ->assertOk()
+            ->assertJsonPath('data.pois.0.image_url', 'https://localhub.test/api/image/img/scale/640')
+            ->assertJsonPath('data.pois.0.image_credit', '© Studio Jantet');
     });
 });

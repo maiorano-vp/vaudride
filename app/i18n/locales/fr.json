@@ -205,7 +205,8 @@
       "station": "Gare",
       "shop": "Commerce",
       "activity": "Activité",
-      "service": "Service pratique"
+      "service": "Service pratique",
+      "other": "Autre"
     }
   },
   "course": {
@@ -220,6 +221,9 @@
     "services": "Services",
     "lodging": "Où dormir",
     "nearStart": "près du départ",
-    "nearFinish": "près de l’arrivée"
+    "nearFinish": "près de l’arrivée",
+    "filter": "Filtrer par catégorie",
+    "filterAll": "Tous",
+    "noMatch": "Aucun lieu dans ces catégories."
   }
 }

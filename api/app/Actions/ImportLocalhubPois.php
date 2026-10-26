@@ -88,6 +88,8 @@ final readonly class ImportLocalhubPois
                 'lon' => $place->lon,
                 'url' => $place->url,
                 'address' => $place->address,
+                'image_url' => $place->image_url,
+                'image_credit' => $place->image_credit,
                 'category' => $place->category,
                 'source' => 'localhub',
                 'external_id' => $place->id,

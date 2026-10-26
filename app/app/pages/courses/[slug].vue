@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { fileSlug, startLinks, toGpx } from '~/lib/course/gpx'
-import { poiDescription, poiTitle, sheetSection, type Poi } from '~/lib/pois/nearby'
+import { categoryCounts, filterPois, poiDescription, poiTitle, sheetSection, type Poi } from '~/lib/pois/nearby'
 import { segmentName, type Segment } from '~/lib/segments/tracker'
 
 interface CourseInfo {
@@ -22,9 +22,17 @@ const name = computed(() => course.value?.name[locale.value] || course.value?.na
 const description = computed(() => course.value?.description?.[locale.value] || course.value?.description?.fr || '')
 const pois = computed(() => [...(course.value?.pois ?? [])].sort((a, b) => a.distance_m - b.distance_m))
 const segments = computed(() => course.value?.segments ?? [])
+const selectedCategories = ref<string[]>([])
+const categories = computed(() => categoryCounts(pois.value))
+const shownPois = computed(() => filterPois(pois.value, selectedCategories.value))
+const toggleCategory = (category: string) => {
+  selectedCategories.value = selectedCategories.value.includes(category)
+    ? selectedCategories.value.filter((c) => c !== category)
+    : [...selectedCategories.value, category]
+}
 const sections = computed(() =>
   (['discover', 'services', 'lodging'] as const)
-    .map((key) => ({ key, pois: pois.value.filter((p) => sheetSection(p) === key) }))
+    .map((key) => ({ key, pois: shownPois.value.filter((p) => sheetSection(p) === key) }))
     .filter((s) => s.pois.length),
 )
 const links = computed(() => (profile.value ? startLinks(profile.value.points[0]!) : undefined))
@@ -74,7 +82,7 @@ function downloadGpx() {
     </dl>
     <p v-else-if="status === 'pending'" role="status">{{ $t('ride.loading') }}</p>
 
-    <ElevationProfile v-if="profile" :course="profile" :distance-m="0" :segments="segments" :pois="pois" />
+    <ElevationProfile v-if="profile" :course="profile" :distance-m="0" :segments="segments" :pois="shownPois" />
 
     <div class="flex flex-wrap gap-3">
       <UButton :to="`/ride/${slug}`" :label="$t('course.ride')" />
@@ -96,10 +104,37 @@ function downloadGpx() {
       </ul>
     </section>
 
+    <nav v-if="categories.length > 1" :aria-label="$t('course.filter')" class="flex flex-wrap items-center gap-2">
+      <UButton
+        size="md"
+        :variant="selectedCategories.length ? 'outline' : 'solid'"
+        color="neutral"
+        :label="$t('course.filterAll')"
+        :aria-pressed="!selectedCategories.length"
+        @click="selectedCategories = []"
+      />
+      <UButton
+        v-for="c in categories"
+        :key="c.category"
+        size="md"
+        color="neutral"
+        :variant="selectedCategories.includes(c.category) ? 'solid' : 'outline'"
+        :aria-pressed="selectedCategories.includes(c.category)"
+        :label="`${$t(`poi.category.${c.category}`)} (${c.count})`"
+        @click="toggleCategory(c.category)"
+      />
+    </nav>
+    <p v-if="pois.length && !sections.length" class="text-slate-500">{{ $t('course.noMatch') }}</p>
+
     <section v-for="section in sections" :key="section.key">
       <h2 class="mb-2 font-display text-xl uppercase tracking-wide text-vaud-800">{{ $t(`course.${section.key}`) }}</h2>
       <ul class="space-y-3">
-        <li v-for="p in section.pois" :key="p.id">
+        <li v-for="p in section.pois" :key="p.id" class="flex gap-3">
+          <figure v-if="p.image_url" class="m-0 flex-none">
+            <img :src="p.image_url" :alt="poiTitle(p, locale)" loading="lazy" class="h-20 w-28 rounded object-cover" >
+            <figcaption v-if="p.image_credit" class="mt-0.5 max-w-28 text-[0.65rem] leading-tight text-slate-500">{{ p.image_credit }}</figcaption>
+          </figure>
+          <div>
           <p class="m-0">
             <span class="font-semibold">{{ poiTitle(p, locale) }}</span>
             <span class="text-sm text-slate-500">
@@ -111,6 +146,7 @@ function downloadGpx() {
           <p v-if="p.address" class="m-0 text-sm text-slate-500">{{ p.address }}</p>
           <p v-if="poiDescription(p, locale)" class="m-0 text-sm">{{ poiDescription(p, locale) }}</p>
           <a v-if="p.url" :href="p.url" target="_blank" rel="noopener noreferrer" class="text-sm underline">{{ $t('poi.more') }}</a>
+          </div>
         </li>
       </ul>
     </section>

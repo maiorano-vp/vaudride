@@ -205,7 +205,8 @@
       "station": "Bahnhof",
       "shop": "Geschäft",
       "activity": "Aktivität",
-      "service": "Praktischer Service"
+      "service": "Praktischer Service",
+      "other": "Andere"
     }
   },
   "course": {
@@ -220,6 +221,9 @@
     "services": "Services",
     "lodging": "Übernachten",
     "nearStart": "in Startnähe",
-    "nearFinish": "in Zielnähe"
+    "nearFinish": "in Zielnähe",
+    "filter": "Nach Kategorie filtern",
+    "filterAll": "Alle",
+    "noMatch": "Keine Orte in diesen Kategorien."
   }
 }

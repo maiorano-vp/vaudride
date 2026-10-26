@@ -14,7 +14,7 @@ final readonly class LocalhubClient
     public const int PAGE_SIZE = 100;
 
     // only what the import reads: a full page is several MB otherwise
-    private const string FIELDS = 'name,summary,location,links,attributes,assetCategory,rootAssetCategory';
+    private const string FIELDS = 'name,summary,location,links,attributes,assetCategory,rootAssetCategory,images';
 
     private const int MAX_PAGES = 100;
 

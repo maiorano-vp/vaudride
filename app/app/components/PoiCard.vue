@@ -23,7 +23,8 @@ const icons: Record<string, string> = {
 
 <template>
   <aside class="poi-card" role="status">
-    <UIcon :name="icons[poi.category ?? ''] ?? 'i-lucide-map-pin'" class="icon" />
+    <img v-if="poi.image_url" :src="poi.image_url" :alt="poiTitle(poi, locale)" class="photo" loading="lazy" >
+    <UIcon v-else :name="icons[poi.category ?? ''] ?? 'i-lucide-map-pin'" class="icon" />
     <div>
       <p class="title">{{ poiTitle(poi, locale) }}</p>
       <p class="meta">
@@ -34,6 +35,7 @@ const icons: Record<string, string> = {
       <p class="links">
         <a v-if="poi.url" :href="poi.url" target="_blank" rel="noopener noreferrer">{{ $t('poi.more') }}</a>
         <small v-if="poi.source === 'osm'">© OpenStreetMap contributors</small>
+        <small v-if="poi.image_credit">{{ poi.image_credit }}</small>
       </p>
     </div>
   </aside>
@@ -49,6 +51,13 @@ const icons: Record<string, string> = {
   background: rgb(255 255 255 / 92%);
   border-left: 4px solid #e8a317;
   border-radius: 0.5rem;
+}
+.photo {
+  flex: none;
+  width: 5.5rem;
+  height: 4.5rem;
+  object-fit: cover;
+  border-radius: 0.35rem;
 }
 .icon {
   flex: none;

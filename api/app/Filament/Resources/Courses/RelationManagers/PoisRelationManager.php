@@ -21,6 +21,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Throwable;
@@ -45,6 +46,8 @@ final class PoisRelationManager extends RelationManager
             TextInput::make('lat')->numeric()->required()->minValue(-90)->maxValue(90),
             TextInput::make('lon')->numeric()->required()->minValue(-180)->maxValue(180),
             TextInput::make('url')->url(),
+            TextInput::make('image_url')->label('Image (URL)')->url(),
+            TextInput::make('image_credit')->label('Crédit de l’image'),
             Select::make('category')->label('Catégorie')
                 ->options(collect(PoiCategory::cases())->mapWithKeys(fn (PoiCategory $c): array => [$c->value => $c->label()]))
                 ->placeholder('Sans catégorie'),
@@ -56,6 +59,7 @@ final class PoisRelationManager extends RelationManager
     {
         return $table
             ->columns([
+                ImageColumn::make('image_url')->label('Image')->square()->size(40),
                 TextColumn::make('distance_m')->label('Distance')->suffix(' m')->sortable(),
                 TextColumn::make('title.fr')->label('Titre')->searchable(),
                 TextColumn::make('category')->label('Catégorie')->formatStateUsing(fn (?PoiCategory $state): string => $state?->label() ?? '—'),

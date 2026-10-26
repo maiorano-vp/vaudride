@@ -26,6 +26,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read string|null $osm_id
  * @property-read string|null $external_id
  * @property-read string|null $address
+ * @property-read string|null $image_url
+ * @property-read string|null $image_credit
  * @property-read bool $published
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at

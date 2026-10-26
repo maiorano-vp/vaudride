@@ -32,6 +32,9 @@ final readonly class LocalhubPlaceMapper
         'j3l_zoo' => 'activity', 'aventure-et-loisirs' => 'activity', 'atelier-et-initiation' => 'activity', 'j3l_group_offer' => 'activity',
     ];
 
+    /** Width of the image served to the app (Local Hub scales it). */
+    private const int IMAGE_WIDTH = 640;
+
     /** Not for riders: schools, business tourism. */
     private const array IGNORED_SUBCATEGORIES = ['otv_schools', 'otv_businesstourism'];
 
@@ -40,7 +43,7 @@ final readonly class LocalhubPlaceMapper
 
     /**
      * @param  array<string, mixed>  $hit
-     * @return array{id: string, title: array{fr: string, de: string, en: string}, summary: array{fr: string, de: string, en: string}|null, lat: float, lon: float, address: string|null, url: string|null, facts: list<array{label: string, values: list<string>}>, category: string}|null null when the place has no id, no position, or is not for riders (schools…)
+     * @return array{id: string, title: array{fr: string, de: string, en: string}, summary: array{fr: string, de: string, en: string}|null, lat: float, lon: float, address: string|null, url: string|null, image_url: string|null, image_credit: string|null, facts: list<array{label: string, values: list<string>}>, category: string}|null null when the place has no id, no position, or is not for riders (schools…)
      */
     public function map(array $hit): ?array
     {
@@ -70,6 +73,7 @@ final readonly class LocalhubPlaceMapper
             'lon' => $coords['lon'],
             'address' => $this->address($hit),
             'url' => $this->url($hit),
+            ...$this->image($hit),
             'facts' => $facts,
             'category' => $category->value,
         ];
@@ -180,6 +184,36 @@ final readonly class LocalhubPlaceMapper
         }
 
         return $facts;
+    }
+
+    /**
+     * The cover image of a place: the one flagged as cover (else the first), as a scaled copy served by Local Hub
+     * (a few hundred KB instead of the original's megabytes) and its copyright line. Documents such as PDFs are no image.
+     *
+     * @param  array<string, mixed>  $hit
+     * @return array{image_url: string|null, image_credit: string|null}
+     */
+    private function image(array $hit): array
+    {
+        $images = array_values(array_filter(
+            $hit['images'] ?? [],
+            fn (mixed $image): bool => is_array($image)
+                && isset($image['id'])
+                && preg_match('/\.(jpe?g|png|webp|gif|avif)(\?.*)?$/i', (string) ($image['url'] ?? '')) === 1,
+        ));
+        usort($images, fn (array $a, array $b): int => ((int) ($a['sort'] ?? 0)) <=> ((int) ($b['sort'] ?? 0)));
+        $cover = collect($images)->first(fn (array $image): bool => (bool) ($image['is_cover'] ?? false)) ?? ($images[0] ?? null);
+
+        if ($cover === null) {
+            return ['image_url' => null, 'image_credit' => null];
+        }
+
+        $credit = mb_trim((string) ($cover['copyright'] ?? ''));
+
+        return [
+            'image_url' => mb_rtrim((string) config('services.localhub.url'), '/').'/api/image/'.$cover['id'].'/scale/'.self::IMAGE_WIDTH,
+            'image_credit' => $credit === '' ? null : $credit,
+        ];
     }
 
     /**
