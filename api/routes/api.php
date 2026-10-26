@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\V1\Admin\CourseImportController;
 use App\Http\Controllers\Api\V1\CourseController;
 use App\Http\Controllers\Api\V1\DisconnectStravaController;
 use App\Http\Controllers\Api\V1\ExportRideController;
@@ -38,5 +39,10 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
         Route::get('strava', ShowStravaController::class)->name('strava.show');
         Route::get('strava/connect', StravaConnectController::class)->name('strava.connect');
         Route::delete('strava', DisconnectStravaController::class)->name('strava.disconnect');
+    });
+
+    // Editorial endpoints for reviewing imported routes (admin users only)
+    Route::middleware(['auth:sanctum', 'can:manage-courses'])->prefix('admin')->name('admin.')->group(function (): void {
+        Route::apiResource('course-imports', CourseImportController::class)->only(['index', 'store', 'show', 'update']);
     });
 });

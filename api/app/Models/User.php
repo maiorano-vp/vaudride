@@ -22,6 +22,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read string $email
  * @property-read CarbonInterface|null $email_verified_at
  * @property-read string $password
+ * @property-read bool $is_admin
  * @property-read string|null $remember_token
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
@@ -29,6 +30,7 @@ use Laravel\Sanctum\HasApiTokens;
 #[Hidden([
     'password',
     'remember_token',
+    'is_admin',
 ])]
 final class User extends Authenticatable implements MustVerifyEmail
 {
@@ -51,6 +53,7 @@ final class User extends Authenticatable implements MustVerifyEmail
             'email' => 'string',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
             'remember_token' => 'string',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
@@ -71,5 +74,13 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function stravaConnection(): HasOne
     {
         return $this->hasOne(StravaConnection::class);
+    }
+
+    /**
+     * @return HasMany<CourseImport, $this>
+     */
+    public function courseImports(): HasMany
+    {
+        return $this->hasMany(CourseImport::class);
     }
 }
