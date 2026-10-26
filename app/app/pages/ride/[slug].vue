@@ -21,6 +21,7 @@ const { data: course, status } = useAsyncData(
 
 const { trainer, powerMeter, strap } = useDevices()
 const { kit } = useKit()
+const summaryOpen = ref(false)
 
 // 3D source: remembered per browser; Google is only offered when a key is configured
 const { googleMapsKey, cesiumIonToken } = useRuntimeConfig().public
@@ -55,6 +56,26 @@ const { data: courseInfo } = useAsyncData(
 )
 const segments = computed(() => courseInfo.value?.data.segments ?? [])
 const { active: activeSegment, finished: finishedSegment } = useSegments(slug, segments, state)
+
+const recording = useRideRecording(
+  slug,
+  computed(() => ({
+    elapsedS: state.value.elapsedS,
+    distanceM: state.value.distanceM,
+    speedMs: state.value.speedMs,
+    powerW: powerW.value,
+    cadenceRpm: cadenceRpm.value,
+    heartRate: heartRate.value,
+  })),
+  computed(() => state.value.elevationGainM),
+)
+// the summary opens by itself at the finish line
+watch(() => state.value.finished, (done) => done && (summaryOpen.value = true))
+function restart() {
+  reset()
+  recording.reset()
+  summaryOpen.value = false
+}
 
 const { others } = useLiveRiders(
   String(route.params.slug),
@@ -122,7 +143,8 @@ const simPower = computed({
           :label="`${$t('ble.heartRate')} — ${$t(`ble.state.${strap.connection.value}`)}`"
           @click="strap.connect()"
         />
-        <UButton size="md" class="ring-1 ring-white/40" :label="$t('ride.restart')" @click="reset()" />
+        <UButton size="md" class="ring-1 ring-white/40" :label="$t('summary.end')" @click="summaryOpen = true" />
+        <UButton size="md" class="ring-1 ring-white/40" :label="$t('ride.restart')" @click="restart()" />
         <UButton
           size="md"
           class="ring-1 ring-white/40"
@@ -154,6 +176,16 @@ const simPower = computed({
       :elapsed-s="state.elapsedS"
     />
     <ElevationProfile class="hud-bottom" :course="course" :distance-m="state.distanceM" :others="others" :segments="segments" />
+    <RideSummary
+      v-model:open="summaryOpen"
+      :summary="recording.summary.value"
+      :elevation-gain-m="state.elevationGainM"
+      :recordable="recording.recordable.value"
+      :save-state="recording.saveState.value"
+      :finished="state.finished"
+      @save="recording.save($event)"
+      @restart="restart()"
+    />
     <SegmentHud
       class="segment-hud"
       :active="activeSegment"

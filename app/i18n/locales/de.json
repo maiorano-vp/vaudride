@@ -150,5 +150,31 @@
       "spoked": "Speichen",
       "disc": "Scheibe"
     }
+  },
+  "summary": {
+    "title": "Fahrt läuft",
+    "finished": "Strecke geschafft!",
+    "time": "Zeit",
+    "distance": "Distanz",
+    "climb": "Höhenmeter",
+    "avgPower": "Ø Leistung",
+    "maxPower": "Max. Leistung",
+    "avgHeartRate": "Ø Puls",
+    "toStrava": "Auch an Strava senden",
+    "save": "Fahrt speichern",
+    "retry": "Erneut versuchen",
+    "saved": "Fahrt gespeichert.",
+    "history": "Meine Fahrten",
+    "error": "Die Fahrt konnte nicht gespeichert werden.",
+    "tooShort": "Fahren Sie mindestens ein paar Sekunden, um zu speichern.",
+    "resume": "Weiterfahren",
+    "end": "Beenden",
+    "courses": "Strecken"
+  },
+  "rides": {
+    "title": "Meine Fahrten",
+    "menu": "Meine Fahrten",
+    "empty": "Noch keine Fahrt gespeichert.",
+    "error": "Ihre Fahrten konnten nicht geladen werden."
   }
 }

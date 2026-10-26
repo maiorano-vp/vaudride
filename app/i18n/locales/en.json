@@ -150,5 +150,31 @@
       "spoked": "Spoked",
       "disc": "Disc"
     }
+  },
+  "summary": {
+    "title": "Ride in progress",
+    "finished": "Course complete!",
+    "time": "Time",
+    "distance": "Distance",
+    "climb": "Elevation gain",
+    "avgPower": "Avg power",
+    "maxPower": "Max power",
+    "avgHeartRate": "Avg HR",
+    "toStrava": "Also send to Strava",
+    "save": "Save ride",
+    "retry": "Try again",
+    "saved": "Ride saved.",
+    "history": "See my rides",
+    "error": "The ride could not be saved.",
+    "tooShort": "Ride for a few seconds at least to be able to save.",
+    "resume": "Keep riding",
+    "end": "Finish",
+    "courses": "Courses"
+  },
+  "rides": {
+    "title": "My rides",
+    "menu": "My rides",
+    "empty": "No ride saved yet.",
+    "error": "Your rides could not be loaded."
   }
 }
