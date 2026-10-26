@@ -11,6 +11,7 @@ use App\Filament\Resources\Courses\RelationManagers\PoisRelationManager;
 use App\Models\Course;
 use App\Models\LocalhubPlace;
 use App\Models\User;
+use App\Services\LocalhubPlaceMapper;
 use Filament\Facades\Filament;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
@@ -231,7 +232,7 @@ describe('importing a course from the copy', function (): void {
         $result = resolve(ImportLocalhubPois::class)->handle($this->course, dryRun: true);
 
         expect($result['created'])->toBe(1)
-            ->and($result['preview'][0])->toMatchArray(['title' => 'Cave du Lac', 'category' => 'culture'])
+            ->and($result['preview'][0])->toMatchArray(['title' => 'Cave du Lac', 'category' => 'wine'])
             ->and($this->course->pois()->count())->toBe(0);
 
         $this->artisan('localhub:import', ['slug' => 'a-course', '--dry-run' => true])->expectsOutputToContain('Nothing was written')->assertSuccessful();
@@ -271,5 +272,58 @@ describe('in the admin', function (): void {
         Livewire::test(PoisRelationManager::class, ['ownerRecord' => $this->course, 'pageClass' => EditCourse::class])
             ->callTableAction('importLocalhub')
             ->assertNotified('Rien à importer: le parcours n’a pas de profil, ou le catalogue Local Hub n’a jamais été synchronisé (php artisan localhub:sync).');
+    });
+});
+
+describe('categories', function (): void {
+    it('reads the category of a place from its name', function (string $title, PoiCategory $expected): void {
+        expect(resolve(LocalhubPlaceMapper::class)->categorize($title, []))->toBe($expected);
+    })->with([
+        'hotel' => ['Hôtel Les Trois Sapins', PoiCategory::Lodging],
+        'camping' => ['Camping de La Pichette', PoiCategory::Lodging],
+        'town hall is not a hotel' => ['Hôtel de Ville de Vevey', PoiCategory::Culture],
+        'apartments' => ['Visionapartments', PoiCategory::Culture], // one word: no guess
+        'inn' => ['Auberge de la Gare', PoiCategory::Lodging],
+        'station' => ['Gare de Chexbres', PoiCategory::Station],
+        'a station name later in the title is not a station' => ['Café de la Gare', PoiCategory::Food],
+        'pharmacy' => ['Pharmacieplus du Marché Vevey', PoiCategory::Culture], // glued words: no guess either
+        'supermarket' => ['Migros Vevey', PoiCategory::Shop],
+        'butcher' => ['Boucherie-Charcuterie Stuby', PoiCategory::Shop],
+        'wine cellar' => ['Caveau des Vignerons d\'Epesses', PoiCategory::Wine],
+        'domain' => ['Domaine du Burignon', PoiCategory::Wine],
+        'restaurant' => ['Restaurant Hôtel du Marchairuz', PoiCategory::Lodging], // the hotel wins: it sleeps people
+        'bistro' => ['Le Bistrot du Rivage', PoiCategory::Food],
+        'bakery' => ['Boulangerie Bidlingmeyer Chexbres', PoiCategory::Food],
+        'church' => ['Eglise de Saint-Saphorin', PoiCategory::History],
+        'viewpoint' => ['Photo spot Grand Tour Lavaux', PoiCategory::Viewpoint],
+        'beach' => ['Plage des Curtinaux', PoiCategory::Nature],
+        'fountain' => ['Fontaine de la place', PoiCategory::Water],
+        'bike shop' => ['Cycles Dupont', PoiCategory::Bike],
+        'theatre' => ['Théâtre Grenette', PoiCategory::Culture],
+        'glacier is not an ice-cream shop' => ['Glacier 3000', PoiCategory::Culture],
+    ]);
+
+    it('lets the ticked attributes decide when the name says nothing', function (): void {
+        $mapper = resolve(LocalhubPlaceMapper::class);
+
+        expect($mapper->categorize('Le Kuklos', [['label' => 'type d\'établissement', 'values' => ['restaurant / brasserie']]]))->toBe(PoiCategory::Food)
+            ->and($mapper->categorize('Les 11 Terres', [['label' => 'certifié vaud oenotourisme', 'values' => []]]))->toBe(PoiCategory::Wine)
+            ->and($mapper->categorize('Le Kuklos', [['label' => 'panorama / belvédère', 'values' => []]]))->toBe(PoiCategory::Viewpoint)
+            ->and($mapper->categorize('Un lieu', [['label' => 'partiellement accessible en fauteuil roulant', 'values' => []]]))->toBe(PoiCategory::Culture);
+    });
+
+    it('stores the facts and re-applies new rules without reading the API again', function (): void {
+        syncHits([hit('1', 'Lieu', '', 1000, extra: ['attributes' => ['a' => attr('Panorama / belvédère')]])]);
+        $place = LocalhubPlace::query()->findOrFail('localhub:1');
+        expect($place->category)->toBe(PoiCategory::Viewpoint)
+            ->and(collect($place->facts)->pluck('label')->all())->toContain('panorama / belvédère');
+
+        $place->forceFill(['category' => PoiCategory::Culture])->save();
+        Http::fake(); // nothing may be sent
+
+        $this->artisan('localhub:recategorize')->expectsOutputToContain('1 places changed category')->assertSuccessful();
+
+        expect($place->refresh()->category)->toBe(PoiCategory::Viewpoint);
+        Http::assertNothingSent();
     });
 });

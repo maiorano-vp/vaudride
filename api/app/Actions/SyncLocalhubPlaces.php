@@ -38,6 +38,7 @@ final readonly class SyncLocalhubPlaces
                 ...$place,
                 'title' => json_encode($place['title'], JSON_UNESCAPED_UNICODE),
                 'summary' => $place['summary'] === null ? null : json_encode($place['summary'], JSON_UNESCAPED_UNICODE),
+                'facts' => json_encode($place['facts'], JSON_UNESCAPED_UNICODE),
                 'synced_at' => $startedAt,
             ];
 
@@ -64,7 +65,7 @@ final readonly class SyncLocalhubPlaces
             return 0;
         }
 
-        LocalhubPlace::query()->upsert($rows, ['id'], ['title', 'summary', 'lat', 'lon', 'address', 'url', 'category', 'synced_at']);
+        LocalhubPlace::query()->upsert($rows, ['id'], ['title', 'summary', 'lat', 'lon', 'address', 'url', 'category', 'facts', 'synced_at']);
 
         return count($rows);
     }

@@ -202,7 +202,8 @@
       "food": "Regionales",
       "lodging": "Unterkunft",
       "bike": "Velo-Service",
-      "station": "Bahnhof"
+      "station": "Bahnhof",
+      "shop": "Geschäft"
     }
   },
   "course": {

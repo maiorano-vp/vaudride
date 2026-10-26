@@ -202,7 +202,8 @@
       "food": "Local food",
       "lodging": "Accommodation",
       "bike": "Bike service",
-      "station": "Station"
+      "station": "Station",
+      "shop": "Shop"
     }
   },
   "course": {

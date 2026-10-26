@@ -15,6 +15,7 @@ const icons: Record<string, string> = {
   lodging: 'i-lucide-bed',
   bike: 'i-lucide-wrench',
   station: 'i-lucide-train-front',
+  shop: 'i-lucide-shopping-basket',
 }
 </script>
 

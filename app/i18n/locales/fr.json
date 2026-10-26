@@ -202,7 +202,8 @@
       "food": "Terroir",
       "lodging": "Hébergement",
       "bike": "Service vélo",
-      "station": "Gare"
+      "station": "Gare",
+      "shop": "Commerce"
     }
   },
   "course": {

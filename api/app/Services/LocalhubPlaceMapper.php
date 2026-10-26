@@ -11,7 +11,7 @@ final readonly class LocalhubPlaceMapper
 {
     /**
      * @param  array<string, mixed>  $hit
-     * @return array{id: string, title: array{fr: string, de: string, en: string}, summary: array{fr: string, de: string, en: string}|null, lat: float, lon: float, address: string|null, url: string|null, category: string}|null null when the place has no id or no position
+     * @return array{id: string, title: array{fr: string, de: string, en: string}, summary: array{fr: string, de: string, en: string}|null, lat: float, lon: float, address: string|null, url: string|null, facts: list<array{label: string, values: list<string>}>, category: string}|null null when the place has no id or no position
      */
     public function map(array $hit): ?array
     {
@@ -21,58 +21,54 @@ final readonly class LocalhubPlaceMapper
             return null;
         }
 
+        $title = $this->localized($hit['name'] ?? null) ?? ['fr' => '?', 'de' => '?', 'en' => '?'];
+        $facts = $this->facts($hit);
+        $facts[] = ['label' => 'catégorie', 'values' => [mb_strtolower($this->categoryText($hit['rootAssetCategory'] ?? null).' '.$this->categoryText($hit['assetCategory'] ?? null))]];
+
         return [
             'id' => 'localhub:'.$hit['id'],
-            'title' => $this->localized($hit['name'] ?? null) ?? ['fr' => '?', 'de' => '?', 'en' => '?'],
+            'title' => $title,
             'summary' => $this->localized($hit['summary'] ?? null),
             'lat' => $coords['lat'],
             'lon' => $coords['lon'],
             'address' => $this->address($hit),
             'url' => $this->url($hit),
-            'category' => $this->category($hit)->value,
+            'facts' => $facts,
+            'category' => $this->categorize($title['fr'], $facts)->value,
         ];
     }
 
     /**
-     * @param  array<string, mixed>  $hit
-     * @return array{lat: float, lon: float}|null
-     */
-    private function coordinates(array $hit): ?array
-    {
-        foreach ([$hit['location'] ?? [], $hit['_geo'] ?? [], $hit] as $source) {
-            $lat = $source['lat'] ?? $source['latitude'] ?? null;
-            $lon = $source['lng'] ?? $source['lon'] ?? $source['longitude'] ?? null;
-
-            if (is_numeric($lat) && is_numeric($lon)) {
-                return ['lat' => (float) $lat, 'lon' => (float) $lon];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * The category of a place. The API gives no category on the places themselves: it is read from the attributes
-     * an editor ticked (panorama, establishment type, theme…), and from the asset category when there is one.
-     * Culture when nothing says otherwise.
+     * The category of a place. The API gives no category on the places themselves, so it is read from the name
+     * (a hotel, a restaurant, a pharmacy…) and from the attributes an editor ticked (panorama, establishment type,
+     * theme…). Culture when nothing says otherwise.
      *
-     * @param  array<string, mixed>  $hit
+     * @param  list<array{label: string, values: list<string>}>  $facts
      */
-    private function category(array $hit): PoiCategory
+    public function categorize(string $title, array $facts): PoiCategory
     {
-        $facts = $this->facts($hit);
+        $name = mb_strtolower($title);
+        $named = fn (string $words): bool => preg_match('/(?<![\p{L}])('.$words.')(?![\p{L}])/u', $name) === 1;
         $label = fn (string $needle): bool => array_filter($facts, fn (array $f): bool => str_contains($f['label'], $needle)) !== [];
-        $theme = implode(' ', array_merge(...array_column(array_filter($facts, fn (array $f): bool => $f['label'] === 'thématique'), 'values') ?: [[]]));
-        $category = mb_strtolower($this->categoryText($hit['rootAssetCategory'] ?? null).' '.$this->categoryText($hit['assetCategory'] ?? null));
+        $values = fn (string $of): string => implode(' ', array_merge([], ...array_column(array_filter($facts, fn (array $f): bool => $f['label'] === $of), 'values')));
+        $theme = $values('thématique');
+        $category = $values('catégorie');
 
         return match (true) {
-            $label('hébergement') || $label('nombre de chambres') || $label('étoiles') || preg_match('/\b(hébergement|hebergement|hôtel|hotel|camping|auberge|gîte|gite|hostel|accommodation|lodging)\b/u', $category) === 1 => PoiCategory::Lodging,
-            $label('oenotourisme') || preg_match('/\b(vin|vins|vignoble|vigneron)\b/u', $theme) === 1 => PoiCategory::Wine,
-            $label('type d\'établissement') || preg_match('/\b(restaurant|gastronomie)\b/u', $category) === 1 => PoiCategory::Food,
-            $label('panorama') => PoiCategory::Viewpoint,
-            preg_match('/\b(patrimoine|histoire|historique)\b/u', $theme) === 1 => PoiCategory::History,
-            preg_match('/\b(savoureux|gastronomie|terroir)\b/u', $theme) === 1 => PoiCategory::Food,
-            $label('activité nature') || preg_match('/\bnature\b/u', $theme) === 1 => PoiCategory::Nature,
+            preg_match('/^gare(?![\p{L}])/u', $name) === 1 => PoiCategory::Station,
+            ($named('hôtel|hotel|camping|auberge|gîtes?|gites?|b&b|chambres? d\'hôtes?|apparthôtel|appartements?|apartments?|hostel|youth hostel|logements?') && ! $named('hôtel de ville|hôtel-de-ville'))
+                || $label('hébergement') || $label('nombre de chambres') || $label('étoiles')
+                || preg_match('/(?<![\p{L}])(hébergement|hebergement|accommodation|lodging)(?![\p{L}])/u', $category) === 1 => PoiCategory::Lodging,
+            $named('pharmacie|migros|coop|denner|boucherie|charcuterie|épicerie|epicerie|supermarché|magasin|droguerie|kiosque|volg|manor|aldi|lidl') => PoiCategory::Shop,
+            $named('vélos?|velos?|cycles?|bike|e-bike|vtt') => PoiCategory::Bike,
+            $named('fontaine') => PoiCategory::Water,
+            $label('oenotourisme') || $named('caves?|caveau|caveaux|vins?|vigneron(ne)?s?|domaine|clos|vinorama|winery|vignoble') || preg_match('/(?<![\p{L}])(vin|vins|vignoble|vigneron)(?![\p{L}])/u', $theme) === 1 => PoiCategory::Wine,
+            $label('type d\'établissement') || preg_match('/(?<![\p{L}])(restaurant|gastronomie)(?![\p{L}])/u', $category) === 1
+                || $named('restaurant|bistrot|bistro|brasserie|café|cafe|buvette|pizz\w*|sushi|burrito|boulangerie|pâtisserie|patisserie|confiserie|fromagerie|laiterie|traiteur|snack|kebab|tea-?room|salon de thé') => PoiCategory::Food,
+            $label('panorama') || $named('belvédère|belvedere|point de vue|panorama|photo spot') => PoiCategory::Viewpoint,
+            $named('église|eglise|château|chateau|temple|abbaye|chapelle|cathédrale|cathedrale|tour|ruines?|fort') || preg_match('/(?<![\p{L}])(patrimoine|histoire|historique)(?![\p{L}])/u', $theme) === 1 => PoiCategory::History,
+            preg_match('/(?<![\p{L}])(savoureux|gastronomie|terroir)(?![\p{L}])/u', $theme) === 1 => PoiCategory::Food,
+            $label('activité nature') || $named('plage|lac|cascade|gorges?|grotte|sentier|pique-nique|parc naturel') || preg_match('/(?<![\p{L}])nature(?![\p{L}])/u', $theme) === 1 => PoiCategory::Nature,
             default => PoiCategory::Culture,
         };
     }
@@ -83,7 +79,7 @@ final readonly class LocalhubPlaceMapper
      * @param  array<string, mixed>  $hit
      * @return list<array{label: string, values: list<string>}>
      */
-    private function facts(array $hit): array
+    public function facts(array $hit): array
     {
         $facts = [];
 
@@ -110,6 +106,24 @@ final readonly class LocalhubPlaceMapper
         }
 
         return $facts;
+    }
+
+    /**
+     * @param  array<string, mixed>  $hit
+     * @return array{lat: float, lon: float}|null
+     */
+    private function coordinates(array $hit): ?array
+    {
+        foreach ([$hit['location'] ?? [], $hit['_geo'] ?? [], $hit] as $source) {
+            $lat = $source['lat'] ?? $source['latitude'] ?? null;
+            $lon = $source['lng'] ?? $source['lon'] ?? $source['longitude'] ?? null;
+
+            if (is_numeric($lat) && is_numeric($lon)) {
+                return ['lat' => (float) $lat, 'lon' => (float) $lon];
+            }
+        }
+
+        return null;
     }
 
     private function categoryText(mixed $category): string

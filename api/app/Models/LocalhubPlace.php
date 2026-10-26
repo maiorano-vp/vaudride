@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read string|null $address
  * @property-read string|null $url
  * @property-read PoiCategory $category
+ * @property-read list<array{label: string, values: list<string>}>|null $facts
  * @property-read CarbonInterface $synced_at
  */
 final class LocalhubPlace extends Model
@@ -43,6 +44,7 @@ final class LocalhubPlace extends Model
             'address' => 'string',
             'url' => 'string',
             'category' => PoiCategory::class,
+            'facts' => 'array',
             'synced_at' => 'datetime',
         ];
     }
