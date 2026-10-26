@@ -27,7 +27,7 @@ it('lists only the admins', function (): void {
 
 it('creates an admin who can sign in to the panel', function (): void {
     Livewire::test(CreateAdmin::class)
-        ->fillForm(['name' => 'New Admin', 'email' => 'new@vaud-promotion.ch', 'password' => 'a-long-password-123'])
+        ->fillForm(['nickname' => 'NewAdmin', 'email' => 'new@vaud-promotion.ch', 'password' => 'a-long-password-123'])
         ->call('create')
         ->assertHasNoFormErrors();
 
@@ -39,7 +39,7 @@ it('creates an admin who can sign in to the panel', function (): void {
 
 it('rejects a short password', function (): void {
     Livewire::test(CreateAdmin::class)
-        ->fillForm(['name' => 'New Admin', 'email' => 'new@vaud-promotion.ch', 'password' => 'short'])
+        ->fillForm(['nickname' => 'NewAdmin', 'email' => 'new@vaud-promotion.ch', 'password' => 'short'])
         ->call('create')
         ->assertHasFormErrors(['password']);
 });
@@ -48,11 +48,11 @@ it('keeps the password when the field is left empty on edit', function (): void 
     $admin = User::factory()->create(['is_admin' => true, 'password' => 'original-password-1']);
 
     Livewire::test(EditAdmin::class, ['record' => $admin->getKey()])
-        ->fillForm(['name' => 'Renamed', 'password' => ''])
+        ->fillForm(['nickname' => 'Renamed', 'password' => ''])
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($admin->refresh()->name)->toBe('Renamed')
+    expect($admin->refresh()->nickname)->toBe('Renamed')
         ->and(Hash::check('original-password-1', $admin->password))->toBeTrue();
 });
 

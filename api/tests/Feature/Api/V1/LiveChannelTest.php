@@ -21,7 +21,7 @@ it('signs a presence channel for a known course and shares only the name', funct
     $response->assertOk()->assertJsonStructure(['auth', 'channel_data']);
     $info = json_decode((string) $response->json('channel_data'), true);
     expect($info['user_id'])->toBe((string) $user->id)
-        ->and($info['user_info'])->toBe(['name' => $user->name, 'kit' => null]);
+        ->and($info['user_info'])->toBe(['nickname' => $user->nickname, 'kit' => null]);
 });
 
 it('refuses unknown courses and other channels', function (): void {

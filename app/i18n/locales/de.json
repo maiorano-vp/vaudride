@@ -62,7 +62,6 @@
     "email": "E-Mail",
     "password": "Passwort",
     "newPassword": "Neues Passwort",
-    "name": "Name",
     "login": "Anmelden",
     "register": "Registrieren",
     "logout": "Abmelden",
@@ -81,7 +80,10 @@
     "required": "Pflichtfeld",
     "invalidEmail": "Ungültige E-Mail-Adresse",
     "passwordMin": "Mindestens 8 Zeichen",
-    "tagline": "Fahren Sie auf den echten Waadtländer Strassen"
+    "tagline": "Fahren Sie auf den echten Waadtländer Strassen",
+    "nickname": "Spitzname",
+    "nicknameMin": "Mindestens 2 Zeichen",
+    "nicknameHelp": "Für andere Spieler sichtbar: Ihr richtiger Name ist nicht nötig."
   },
   "intro": {
     "title": "Bereit zum Fahren?",

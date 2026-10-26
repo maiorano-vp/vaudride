@@ -22,7 +22,7 @@ final readonly class SegmentLeaderboardController
         return response()->json([
             'data' => array_map(fn (array $row): array => [
                 'rank' => $row['rank'],
-                'name' => $row['name'],
+                'nickname' => $row['nickname'],
                 'time_s' => $row['time_s'],
                 'avg_power_w' => $row['avg_power_w'],
                 'achieved_at' => $row['achieved_at']->toIso8601String(),

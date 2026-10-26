@@ -2,7 +2,7 @@ import type { LiveMessage } from './transport'
 
 export interface Rider {
   id: string
-  name: string
+  nickname: string
   d: number
   p: number
   /** When the last position arrived (ms). */
@@ -19,7 +19,7 @@ export function upsert(list: Rider[], m: LiveMessage, now: number): Rider[] {
   const prev = list.find((r) => r.id === m.id)
   const dt = prev ? (now - prev.t) / 1000 : 0
   const speedMs = prev && dt > 0 ? Math.max(0, (m.d - prev.d) / dt) : 0
-  const next: Rider = { id: m.id, name: m.name, d: m.d, p: m.p, t: now, speedMs, kit: m.kit ?? prev?.kit }
+  const next: Rider = { id: m.id, nickname: m.nickname, d: m.d, p: m.p, t: now, speedMs, kit: m.kit ?? prev?.kit }
   return prev ? list.map((r) => (r.id === m.id ? next : r)) : [...list, next]
 }
 

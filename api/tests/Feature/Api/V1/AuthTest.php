@@ -10,13 +10,13 @@ use Illuminate\Support\Facades\Password;
 
 it('registers a user and returns a token', function (): void {
     $response = $this->postJson('/api/v1/auth/register', [
-        'name' => 'Léa',
+        'nickname' => 'Léa',
         'email' => 'lea@example.com',
         'password' => 'correct-horse-battery',
         'device_name' => 'laptop',
     ]);
 
-    $response->assertCreated()->assertJsonStructure(['token', 'user' => ['id', 'name', 'email']]);
+    $response->assertCreated()->assertJsonStructure(['token', 'user' => ['id', 'nickname', 'email']]);
     expect(User::query()->where('email', 'lea@example.com')->exists())->toBeTrue();
     $this->assertDatabaseHas('personal_access_tokens', ['name' => 'laptop']);
 });
@@ -24,7 +24,7 @@ it('registers a user and returns a token', function (): void {
 it('rejects registration with a duplicate email or weak password', function (): void {
     User::factory()->create(['email' => 'lea@example.com']);
 
-    $this->postJson('/api/v1/auth/register', ['name' => 'X', 'email' => 'lea@example.com', 'password' => 'short'])
+    $this->postJson('/api/v1/auth/register', ['nickname' => 'X', 'email' => 'lea@example.com', 'password' => 'short'])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['email', 'password']);
 });
@@ -48,9 +48,9 @@ it('rejects wrong credentials', function (): void {
 it('returns the current user for a valid token and 401 without one', function (): void {
     $this->getJson('/api/v1/me')->assertUnauthorized();
 
-    $token = User::factory()->create(['name' => 'Léa'])->createToken('t')->plainTextToken;
+    $token = User::factory()->create(['nickname' => 'Léa'])->createToken('t')->plainTextToken;
 
-    $this->withToken($token)->getJson('/api/v1/me')->assertOk()->assertJsonPath('data.name', 'Léa');
+    $this->withToken($token)->getJson('/api/v1/me')->assertOk()->assertJsonPath('data.nickname', 'Léa');
 });
 
 it('revokes the token on logout', function (): void {
@@ -104,4 +104,12 @@ it('rejects an invalid reset token', function (): void {
     $this->postJson('/api/v1/auth/reset-password', ['token' => 'bad', 'email' => 'lea@example.com', 'password' => 'new-correct-horse-battery'])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['email']);
+});
+
+it('refuses a nickname that is already taken or too short', function (): void {
+    User::factory()->create(['nickname' => 'Léa']);
+    $body = ['email' => 'new@example.com', 'password' => 'a-long-password-123'];
+
+    $this->postJson('/api/v1/auth/register', [...$body, 'nickname' => 'Léa'])->assertUnprocessable()->assertJsonValidationErrors('nickname');
+    $this->postJson('/api/v1/auth/register', [...$body, 'nickname' => 'L'])->assertUnprocessable()->assertJsonValidationErrors('nickname');
 });

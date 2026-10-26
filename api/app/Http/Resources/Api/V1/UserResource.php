@@ -14,13 +14,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 final class UserResource extends JsonResource
 {
     /**
-     * @return array{id: string, name: string, email: string, avatar: array<string, string>|null}
+     * @return array{id: string, nickname: string, email: string, avatar: array<string, string>|null}
      */
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'nickname' => $this->nickname,
             'email' => $this->email,
             'avatar' => $this->avatar,
         ];

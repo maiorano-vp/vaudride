@@ -11,8 +11,8 @@ const { user, logout } = useAuth()
         {{ $t('auth.account') }}
       </h1>
       <dl v-if="user" class="mb-6 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
-        <dt class="text-slate-500">{{ $t('auth.name') }}</dt>
-        <dd>{{ user.name }}</dd>
+        <dt class="text-slate-500">{{ $t('auth.nickname') }}</dt>
+        <dd>{{ user.nickname }}</dd>
         <dt class="text-slate-500">{{ $t('auth.email') }}</dt>
         <dd>{{ user.email }}</dd>
       </dl>

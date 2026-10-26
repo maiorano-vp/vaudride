@@ -87,14 +87,14 @@ it('ignores segments that are not published', function (): void {
 });
 
 it('ranks riders by their best time, ties sharing a rank, and tells who is who', function (): void {
-    [$ana, $ben, $cleo, $dan] = User::factory()->count(4)->sequence(['name' => 'Ana'], ['name' => 'Ben'], ['name' => 'Cleo'], ['name' => 'Dan'])->create()->all();
+    [$ana, $ben, $cleo, $dan] = User::factory()->count(4)->sequence(['nickname' => 'Ana'], ['nickname' => 'Ben'], ['nickname' => 'Cleo'], ['nickname' => 'Dan'])->create()->all();
     foreach ([[$ana, 200], [$ana, 190], [$ben, 195], [$cleo, 195], [$dan, 210]] as [$user, $time]) {
         SegmentEffort::factory()->create(['segment_id' => $this->segment->id, 'user_id' => $user->id, 'time_s' => $time]);
     }
 
     $response = $this->actingAs($ben->fresh(), 'sanctum')->getJson("/api/v1/segments/{$this->segment->id}/leaderboard")->assertOk();
 
-    expect($response->json('data.*.name'))->toBe(['Ana', 'Ben', 'Cleo', 'Dan'])
+    expect($response->json('data.*.nickname'))->toBe(['Ana', 'Ben', 'Cleo', 'Dan'])
         ->and($response->json('data.*.rank'))->toBe([1, 2, 2, 4])
         ->and($response->json('data.*.time_s'))->toBe([190, 195, 195, 210])
         ->and($response->json('data.*.is_me'))->toBe([false, true, false, false])
@@ -118,7 +118,7 @@ it('keeps the leaderboard for signed-in players and published segments', functio
 });
 
 it('shows the KOM time on the public course, without saying whose it is', function (): void {
-    $queen = User::factory()->create(['name' => 'Reine des cols']);
+    $queen = User::factory()->create(['nickname' => 'Reine des cols']);
     SegmentEffort::factory()->create(['segment_id' => $this->segment->id, 'user_id' => $queen->id, 'time_s' => 180.5]);
     SegmentEffort::factory()->create(['segment_id' => $this->segment->id, 'time_s' => 200]);
 

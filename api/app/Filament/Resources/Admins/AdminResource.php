@@ -45,7 +45,7 @@ final class AdminResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('name')->label('Nom')->required()->maxLength(255),
+            TextInput::make('nickname')->label('Pseudo')->required()->maxLength(255),
             TextInput::make('email')->label('E-mail')->email()->required()->unique(ignoreRecord: true)->maxLength(255),
             TextInput::make('password')->label('Mot de passe')->password()->revealable()->minLength(12)
                 ->required(fn (string $operation): bool => $operation === 'create')
@@ -58,12 +58,12 @@ final class AdminResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->label('Nom')->searchable()->sortable(),
+                TextColumn::make('nickname')->label('Pseudo')->searchable()->sortable(),
                 TextColumn::make('email')->label('E-mail')->searchable(),
                 IconColumn::make('app_authentication_secret')->label('2FA')->boolean()
                     ->state(fn (User $record): bool => filled($record->getAppAuthenticationSecret())),
             ])
-            ->defaultSort('name')
+            ->defaultSort('nickname')
             ->recordActions([
                 EditAction::make(),
                 Action::make('reset2fa')->label('Réinitialiser le 2FA')->icon(Heroicon::OutlinedKey)->color('warning')

@@ -16,7 +16,7 @@ final readonly class RegisterController
     public function __invoke(RegisterRequest $request, IssueApiToken $issueApiToken): JsonResponse
     {
         $user = User::query()->create([
-            'name' => $request->string('name')->toString(),
+            'nickname' => $request->string('nickname')->toString(),
             'email' => $request->string('email')->toString(),
             'password' => $request->string('password')->toString(),
         ]);

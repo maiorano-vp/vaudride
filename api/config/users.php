@@ -15,7 +15,7 @@ return [
     */
 
     'admin' => [
-        'name' => env('ADMIN_NAME', 'Vaud Promotion Digital'),
+        'nickname' => env('ADMIN_NICKNAME', 'Vaud Promotion Digital'),
         'email' => env('ADMIN_EMAIL', 'digital@vaud-promotion.ch'),
         'password' => env('ADMIN_PASSWORD'),
     ],

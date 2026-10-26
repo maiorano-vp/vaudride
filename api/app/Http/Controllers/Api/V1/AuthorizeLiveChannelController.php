@@ -28,8 +28,8 @@ final readonly class AuthorizeLiveChannelController
         $config = config('services.pusher');
         $pusher = new Pusher($config['key'], $config['secret'], $config['app_id'], ['cluster' => $config['cluster']]);
 
-        // only the display name and the kit are shared, never the e-mail
-        $auth = $pusher->authorizePresenceChannel($data['channel_name'], $data['socket_id'], (string) $user->id, ['name' => $user->name, 'kit' => $user->avatar]);
+        // only the nickname and the kit are shared, never the e-mail
+        $auth = $pusher->authorizePresenceChannel($data['channel_name'], $data['socket_id'], (string) $user->id, ['nickname' => $user->nickname, 'kit' => $user->avatar]);
 
         return response()->json(json_decode($auth, true));
     }

@@ -41,7 +41,7 @@ final class UserResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where('is_admin', false) // staff are managed in the "Administrateurs" resource
-            ->select(['id', 'name', 'created_at'])
+            ->select(['id', 'nickname', 'created_at'])
             ->withCount('rides')
             ->withSum('rides', 'distance_m')
             ->withSum('rides', 'elevation_gain_m')
@@ -51,7 +51,7 @@ final class UserResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
-            TextEntry::make('name')->label('Nom'),
+            TextEntry::make('nickname')->label('Pseudo'),
             TextEntry::make('created_at')->label('Inscrit le')->dateTime('d.m.Y'),
         ]);
     }
@@ -60,7 +60,7 @@ final class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->label('Nom')->searchable()->sortable(),
+                TextColumn::make('nickname')->label('Pseudo')->searchable()->sortable(),
                 TextColumn::make('rides_count')->label('Sorties')->sortable(),
                 TextColumn::make('rides_sum_distance_m')->label('Distance')
                     ->formatStateUsing(fn (?int $state): string => number_format(($state ?? 0) / 1000, 1).' km')->sortable(),

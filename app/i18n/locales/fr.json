@@ -62,7 +62,6 @@
     "email": "E-mail",
     "password": "Mot de passe",
     "newPassword": "Nouveau mot de passe",
-    "name": "Nom",
     "login": "Se connecter",
     "register": "S'inscrire",
     "logout": "Se déconnecter",
@@ -81,7 +80,10 @@
     "required": "Champ requis",
     "invalidEmail": "Adresse e-mail invalide",
     "passwordMin": "8 caractères minimum",
-    "tagline": "Pédalez sur les vraies routes vaudoises"
+    "tagline": "Pédalez sur les vraies routes vaudoises",
+    "nickname": "Pseudo",
+    "nicknameMin": "Au moins 2 caractères",
+    "nicknameHelp": "Visible des autres joueurs: pas besoin de votre vrai nom."
   },
   "intro": {
     "title": "Prêt à rouler ?",

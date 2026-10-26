@@ -200,7 +200,7 @@ const simPower = computed({
     />
     <ul v-if="others.length" class="riders" :aria-label="$t('live.riders')">
       <li v-for="o in others.slice(0, 5)" :key="o.id">
-        <span>{{ o.name }}</span> <span>{{ o.powerW }} W</span> <strong>{{ gap(o.gapM) }}</strong>
+        <span>{{ o.nickname }}</span> <span>{{ o.powerW }} W</span> <strong>{{ gap(o.gapM) }}</strong>
       </li>
     </ul>
     <UButton

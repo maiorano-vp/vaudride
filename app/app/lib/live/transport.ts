@@ -1,7 +1,7 @@
 /** Everything live-tracking the app needs, so Pusher can be swapped (or faked with `?sim=1`) without touching the UI. */
 export interface LiveMessage {
   id: string
-  name: string
+  nickname: string
   /** Distance along the course (m). */
   d: number
   /** Power (W). */

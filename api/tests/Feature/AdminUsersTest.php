@@ -17,7 +17,7 @@ beforeEach(function (): void {
 });
 
 it('lists players with their ride totals and never shows their e-mail', function (): void {
-    $player = User::factory()->create(['name' => 'Camille Rider', 'email' => 'camille@example.org']);
+    $player = User::factory()->create(['nickname' => 'Camille Rider', 'email' => 'camille@example.org']);
     Ride::factory()->for($player)->create(['distance_m' => 12_300]);
 
     Livewire::test(ListUsers::class)
@@ -28,7 +28,7 @@ it('lists players with their ride totals and never shows their e-mail', function
 });
 
 it('searches by name only, not by e-mail', function (): void {
-    $player = User::factory()->create(['name' => 'Camille Rider', 'email' => 'secret@example.org']);
+    $player = User::factory()->create(['nickname' => 'Camille Rider', 'email' => 'secret@example.org']);
 
     Livewire::test(ListUsers::class)
         ->searchTable('secret@example.org')

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 final readonly class SegmentLeaderboard
 {
     /**
-     * @return list<array{rank: int, user_id: string, name: string, time_s: float, avg_power_w: int|null, achieved_at: CarbonInterface}>
+     * @return list<array{rank: int, user_id: string, nickname: string, time_s: float, avg_power_w: int|null, achieved_at: CarbonInterface}>
      */
     public function top(Segment $segment, int $limit): array
     {
@@ -27,7 +27,7 @@ final readonly class SegmentLeaderboard
             ->get();
 
         $efforts = SegmentEffort::query()->where('segment_id', $segment->id)->whereIn('user_id', $best->pluck('user_id'))->get();
-        $names = User::query()->whereIn('id', $best->pluck('user_id'))->pluck('name', 'id');
+        $names = User::query()->whereIn('id', $best->pluck('user_id'))->pluck('nickname', 'id');
         $rows = [];
         $previous = null;
         $rank = 0;
@@ -45,7 +45,7 @@ final readonly class SegmentLeaderboard
             $rows[] = [
                 'rank' => $rank,
                 'user_id' => $row->user_id,
-                'name' => (string) ($names[$row->user_id] ?? '?'),
+                'nickname' => (string) ($names[$row->user_id] ?? '?'),
                 'time_s' => $time,
                 'avg_power_w' => $effort->avg_power_w,
                 'achieved_at' => $effort->started_at,

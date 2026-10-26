@@ -62,7 +62,6 @@
     "email": "Email",
     "password": "Password",
     "newPassword": "New password",
-    "name": "Name",
     "login": "Sign in",
     "register": "Sign up",
     "logout": "Sign out",
@@ -81,7 +80,10 @@
     "required": "Required",
     "invalidEmail": "Invalid email address",
     "passwordMin": "At least 8 characters",
-    "tagline": "Ride the real roads of Vaud"
+    "tagline": "Ride the real roads of Vaud",
+    "nickname": "Nickname",
+    "nicknameMin": "At least 2 characters",
+    "nicknameHelp": "Other players can see it: no need for your real name."
   },
   "intro": {
     "title": "Ready to ride?",

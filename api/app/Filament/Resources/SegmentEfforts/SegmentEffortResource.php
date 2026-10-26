@@ -33,7 +33,7 @@ final class SegmentEffortResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['segment.course', 'user:id,name']);
+        return parent::getEloquentQuery()->with(['segment.course', 'user:id,nickname']);
     }
 
     public static function table(Table $table): Table
@@ -42,7 +42,7 @@ final class SegmentEffortResource extends Resource
             ->columns([
                 TextColumn::make('segment.course.slug')->label('Parcours')->searchable(),
                 TextColumn::make('segment.name.fr')->label('Segment'),
-                TextColumn::make('user.name')->label('Joueur')->searchable(),
+                TextColumn::make('user.nickname')->label('Joueur')->searchable(),
                 TextColumn::make('time_s')->label('Temps')
                     ->formatStateUsing(fn (float $state): string => sprintf('%d:%05.2f', intdiv((int) $state, 60), fmod($state, 60)))->sortable(),
                 TextColumn::make('avg_power_w')->label('Puissance moy.')->suffix(' W')->placeholder('—'),

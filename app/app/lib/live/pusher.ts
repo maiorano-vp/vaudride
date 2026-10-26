@@ -29,8 +29,8 @@ export function pusherTransport(key: string, cluster: string): LiveTransport {
       channel.bind(EVENT, (data: { d: number; p: number }, meta?: { user_id?: string }) => {
         const id = meta?.user_id
         if (!id || id === channel.members.myID) return
-        const info = channel.members.get(id)?.info as { name?: string; kit?: unknown } | undefined
-        onMessage({ id, name: info?.name ?? '?', d: data.d, p: data.p, kit: info?.kit })
+        const info = channel.members.get(id)?.info as { nickname?: string; kit?: unknown } | undefined
+        onMessage({ id, nickname: info?.nickname ?? '?', d: data.d, p: data.p, kit: info?.kit })
       })
       channel.bind('pusher:member_removed', (m: { id: string }) => onLeave(m.id))
       return {

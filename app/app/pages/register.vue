@@ -9,11 +9,11 @@ const route = useRoute()
 const { register } = useAuth()
 
 const schema = z.object({
-  name: z.string().min(1, t('auth.required')),
+  nickname: z.string().min(2, t('auth.nicknameMin')).max(40),
   email: z.email(t('auth.invalidEmail')),
   password: z.string().min(8, t('auth.passwordMin')),
 })
-const state = reactive({ name: '', email: '', password: '' })
+const state = reactive({ nickname: '', email: '', password: '' })
 const form = useTemplateRef('form')
 const error = ref('')
 
@@ -55,8 +55,8 @@ async function onSubmit(event: FormSubmitEvent<z.output<typeof schema>>) {
         variant="subtle"
         :description="error"
       />
-      <UFormField :label="$t('auth.name')" name="name">
-        <UInput v-model="state.name" autocomplete="name" class="w-full" />
+      <UFormField :label="$t('auth.nickname')" :help="$t('auth.nicknameHelp')" name="nickname">
+        <UInput v-model="state.nickname" autocomplete="nickname" class="w-full" />
       </UFormField>
       <UFormField :label="$t('auth.email')" name="email">
         <UInput

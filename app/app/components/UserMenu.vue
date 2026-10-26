@@ -3,7 +3,7 @@
     <UButton
       color="neutral"
       variant="ghost"
-      :label="user.name"
+      :label="user.nickname"
       icon="i-lucide-user"
     />
   </UDropdownMenu>

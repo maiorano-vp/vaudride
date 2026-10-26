@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { distanceAt, dropStale, remove, upsert } from './riders'
 import { simLiveTransport } from './sim'
 
-const msg = (d: number) => ({ id: 'a', name: 'A', d, p: 200 })
+const msg = (d: number) => ({ id: 'a', nickname: 'A', d, p: 200 })
 
 describe('riders', () => {
   it('derives speed from two messages and extrapolates, capped at 2 s', () => {

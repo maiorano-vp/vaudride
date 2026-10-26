@@ -22,7 +22,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 /**
  * @property-read string $id
- * @property-read string $name
+ * @property-read string $nickname
  * @property-read string $email
  * @property-read CarbonInterface|null $email_verified_at
  * @property-read string $password
@@ -58,7 +58,7 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
     {
         return [
             'id' => 'string',
-            'name' => 'string',
+            'nickname' => 'string',
             'email' => 'string',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',

@@ -41,7 +41,7 @@ export function useLiveRiders(slug: string, me: { distanceM: Ref<number>; powerW
     riders.value
       .map((r) => ({
         id: r.id,
-        name: r.name,
+        nickname: r.nickname,
         powerW: r.p,
         speedMs: r.speedMs,
         kit: sanitizeKit(r.kit),

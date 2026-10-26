@@ -1,6 +1,6 @@
 export interface AuthUser {
   id: string
-  name: string
+  nickname: string
   email: string
   /** The player's 3D kit, null until they customise it (see lib/kit/kit.ts). */
   avatar?: unknown
@@ -27,7 +27,7 @@ export function useAuth() {
   }
 
   async function register(body: {
-    name: string
+    nickname: string
     email: string
     password: string
   }) {
