@@ -46,6 +46,11 @@ const LOOKAHEAD_M = 40 // for the travel heading
 const TARGET_AHEAD_M = 12 // camera looks at a point this far in front of the rider
 const CAMERA_RANGE_M = 32 // → camera ~20 m behind the rider
 const CAMERA_PITCH_RAD = -0.24
+// Photogrammetry looks blurry and stretched from street level: watch it from higher up and further back
+const PHOTO_CAMERA_PITCH_RAD = -0.45
+const PHOTO_CAMERA_RANGE_M = 52
+const PHOTO_TARGET_LIFT_M = 4
+const PHOTO_MAX_SCREEN_SPACE_ERROR = 8 // default 16: sharper tiles
 const FOV_DEG = 70
 const FOV_SPEED_GAIN = 1.2 // degrees of extra field of view per m/s: speed feels faster
 const FOV_MAX_EXTRA_DEG = 12
@@ -141,7 +146,7 @@ async function start() {
     // without a Google key the same tiles are streamed through Cesium ion, with the ion token
     if (props.source === SceneSource.GoogleIon) Cesium.Ion.defaultAccessToken = props.ionToken
     const key = props.source === SceneSource.Google ? props.googleKey : undefined
-    scene.primitives.add(await Cesium.createGooglePhotorealistic3DTileset({ key }, { showCreditsOnScreen: true }))
+    scene.primitives.add(await Cesium.createGooglePhotorealistic3DTileset({ key }, { showCreditsOnScreen: true, maximumScreenSpaceError: PHOTO_MAX_SCREEN_SPACE_ERROR }))
   }
 
   // Real 3D buildings and trees (swisstopo 3D Tiles); added as they load so the scene never waits on them
@@ -162,7 +167,9 @@ async function start() {
   // Cyclist built from primitives, posed each frame: x = forward, y = up, z = right (local frame)
   let avatar = Cesium.Cartesian3.fromDegrees(points[0]!.lon, points[0]!.lat, hs[0]!)
   let heading = bearingRad(points[0]!.lat, points[0]!.lon, points[1]!.lat, points[1]!.lon)
-  let pitch = CAMERA_PITCH_RAD
+  const photoreal = isPhotorealistic(props.source)
+  const basePitch = photoreal ? PHOTO_CAMERA_PITCH_RAD : CAMERA_PITCH_RAD
+  let pitch = basePitch
   let enu = Cesium.Transforms.eastNorthUpToFixedFrame(avatar)
   let orientation = Cesium.Quaternion.IDENTITY.clone()
 
@@ -234,15 +241,15 @@ async function start() {
     orientation = Cesium.Quaternion.fromRotationMatrix(world, orientation)
 
     // steeper road → look a little further down so the camera keeps clear of the slope behind
-    pitch += (CAMERA_PITCH_RAD - 0.6 * Math.atan(here.grade / 100) - pitch) * 0.05
+    pitch += (basePitch - 0.6 * Math.atan(here.grade / 100) - pitch) * 0.05
     const lookAt = Cesium.Cartesian3.fromDegrees(
       pointAt(props.course, Math.min(d + TARGET_AHEAD_M, total)).lon,
       pointAt(props.course, Math.min(d + TARGET_AHEAD_M, total)).lat,
-      interpolateAt(ds, hs, Math.min(d + TARGET_AHEAD_M, total)) + heightOffset + 1.5,
+      interpolateAt(ds, hs, Math.min(d + TARGET_AHEAD_M, total)) + heightOffset + (photoreal ? PHOTO_TARGET_LIFT_M : 1.5),
     )
     fovDeg += (FOV_DEG + Math.min(props.speedMs * FOV_SPEED_GAIN, FOV_MAX_EXTRA_DEG) - fovDeg) * 0.05
     frustum.fov = Cesium.Math.toRadians(fovDeg)
-    viewer.camera.lookAt(lookAt, new Cesium.HeadingPitchRange(heading, pitch, CAMERA_RANGE_M))
+    viewer.camera.lookAt(lookAt, new Cesium.HeadingPitchRange(heading, pitch, photoreal ? PHOTO_CAMERA_RANGE_M : CAMERA_RANGE_M))
   })
 
   return () => viewer.destroy()
