@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
 
 it('registers a user and returns a token', function (): void {
     $response = $this->postJson('/api/v1/auth/register', [
@@ -64,4 +68,40 @@ it('throttles repeated login attempts', function (): void {
     }
 
     $this->postJson('/api/v1/auth/login', ['email' => 'a@example.com', 'password' => 'x'])->assertTooManyRequests();
+});
+
+it('mails a reset link with the token only, and answers the same for unknown emails', function (): void {
+    Notification::fake();
+    $user = User::factory()->create(['email' => 'lea@example.com']);
+
+    $this->postJson('/api/v1/auth/forgot-password', ['email' => 'lea@example.com'])->assertNoContent();
+    $this->postJson('/api/v1/auth/forgot-password', ['email' => 'nobody@example.com'])->assertNoContent();
+
+    Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $n) use ($user): bool {
+        $url = ResetPassword::$createUrlCallback;
+
+        return str_starts_with($url($user, $n->token), config('app.frontend_url').'/reset-password?token=')
+            && ! str_contains($url($user, $n->token), 'email');
+    });
+    Notification::assertCount(1);
+});
+
+it('resets the password and revokes existing tokens', function (): void {
+    $user = User::factory()->create(['email' => 'lea@example.com']);
+    $user->createToken('laptop');
+    $token = Password::createToken($user);
+
+    $this->postJson('/api/v1/auth/reset-password', ['token' => $token, 'email' => 'lea@example.com', 'password' => 'new-correct-horse-battery'])
+        ->assertNoContent();
+
+    expect(Hash::check('new-correct-horse-battery', $user->refresh()->password))->toBeTrue()
+        ->and($user->tokens()->count())->toBe(0);
+});
+
+it('rejects an invalid reset token', function (): void {
+    User::factory()->create(['email' => 'lea@example.com']);
+
+    $this->postJson('/api/v1/auth/reset-password', ['token' => 'bad', 'email' => 'lea@example.com', 'password' => 'new-correct-horse-battery'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['email']);
 });
