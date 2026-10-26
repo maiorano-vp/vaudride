@@ -2,6 +2,8 @@ export interface AuthUser {
   id: string
   name: string
   email: string
+  /** The player's 3D kit, null until they customise it (see lib/kit/kit.ts). */
+  avatar?: unknown
 }
 
 export function useAuth() {

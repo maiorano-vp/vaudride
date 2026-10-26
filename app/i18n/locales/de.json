@@ -110,5 +110,45 @@
       "cat1": "Kat. 1",
       "hc": "HC"
     }
+  },
+  "kit": {
+    "title": "Meine Ausrüstung",
+    "menu": "Meine Ausrüstung",
+    "presets": "Vorlagen",
+    "colors": "Farben",
+    "styles": "Stile",
+    "save": "Speichern",
+    "saved": "Ausrüstung gespeichert",
+    "error": "Die Ausrüstung konnte nicht gespeichert werden.",
+    "preset": {
+      "vaud": "Waadt",
+      "lavaux": "Lavaux",
+      "lac": "Genfersee",
+      "rouge": "Rot"
+    },
+    "color": {
+      "jersey": "Trikot",
+      "accent": "Trikotdetails",
+      "shorts": "Hose",
+      "helmet": "Helm",
+      "bike": "Velo"
+    },
+    "jerseyStyle": {
+      "label": "Trikot",
+      "solid": "Uni",
+      "stripes": "Streifen",
+      "band": "Band"
+    },
+    "helmetStyle": {
+      "label": "Helm",
+      "road": "Strasse",
+      "aero": "Aero",
+      "cap": "Kappe"
+    },
+    "wheels": {
+      "label": "Räder",
+      "spoked": "Speichen",
+      "disc": "Scheibe"
+    }
   }
 }

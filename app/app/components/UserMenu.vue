@@ -17,6 +17,7 @@ const items = computed(() => [
   [{ label: user.value?.email, type: 'label' as const }],
   [
     { label: t('intro.menu'), icon: 'i-lucide-bluetooth', to: '/intro' },
+    { label: t('kit.menu'), icon: 'i-lucide-shirt', to: '/kit' },
     { label: t('auth.account'), icon: 'i-lucide-settings', to: '/account' },
     {
       label: t('auth.logout'),

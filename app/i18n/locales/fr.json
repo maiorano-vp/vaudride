@@ -110,5 +110,45 @@
       "cat1": "Cat. 1",
       "hc": "HC"
     }
+  },
+  "kit": {
+    "title": "Mon équipement",
+    "menu": "Mon équipement",
+    "presets": "Modèles",
+    "colors": "Couleurs",
+    "styles": "Styles",
+    "save": "Enregistrer",
+    "saved": "Équipement enregistré",
+    "error": "L’équipement n’a pas pu être enregistré.",
+    "preset": {
+      "vaud": "Vaud",
+      "lavaux": "Lavaux",
+      "lac": "Léman",
+      "rouge": "Rouge"
+    },
+    "color": {
+      "jersey": "Maillot",
+      "accent": "Détails du maillot",
+      "shorts": "Cuissard",
+      "helmet": "Casque",
+      "bike": "Vélo"
+    },
+    "jerseyStyle": {
+      "label": "Maillot",
+      "solid": "Uni",
+      "stripes": "Rayures",
+      "band": "Bande"
+    },
+    "helmetStyle": {
+      "label": "Casque",
+      "road": "Route",
+      "aero": "Aéro",
+      "cap": "Casquette"
+    },
+    "wheels": {
+      "label": "Roues",
+      "spoked": "À rayons",
+      "disc": "Pleines"
+    }
   }
 }

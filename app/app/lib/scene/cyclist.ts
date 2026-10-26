@@ -1,5 +1,5 @@
 import type { Model, Scene } from 'cesium'
-import { applyKit, visibleNodes, type Kit } from '~/lib/kit/kit'
+import { applyKit, visibleNodes, type Kit } from '../kit/kit'
 import { BOTTOM_BRACKET, HIP, legPose, pedalPosition, THIGH, WHEEL_FRONT, WHEEL_RADIUS, WHEEL_REAR, type Side } from './pedal'
 
 type CesiumNs = typeof import('cesium')

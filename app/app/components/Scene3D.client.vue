@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { pointAt, type CourseProfile } from '~/lib/course/profile'
 import { bearingRad, distanceAfter, interpolateAt, lerpAngle } from '~/lib/scene/camera'
-import { createCyclist } from '~/lib/scene/cyclist'
+import { createCyclist, type Cyclist } from '~/lib/scene/cyclist'
 import { DEFAULT_KIT, sanitizeKit, type Kit } from '~/lib/kit/kit'
 import { clamp, distanceM as metersBetween, pushWindow, ringAround } from '~/lib/scene/mix'
 import { isPhotorealistic, SceneSource, usesGoogle, usesSwissBuildings } from '~/lib/scene/source'
 
+/** A rider seen through live tracking, drawn in their own kit. */
+interface OtherRider {
+  id: string
+  distanceM: number
+  gapM: number
+  speedMs: number
+  kit: Kit
+}
+
 const props = withDefaults(
-  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string; kit?: Kit; cadenceRpm?: number }>(),
-  { source: SceneSource.Swisstopo, googleKey: '', ionToken: '', kit: () => DEFAULT_KIT, cadenceRpm: undefined },
+  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string; kit?: Kit; cadenceRpm?: number; others?: OtherRider[] }>(),
+  { source: SceneSource.Swisstopo, googleKey: '', ionToken: '', kit: () => DEFAULT_KIT, cadenceRpm: undefined, others: () => [] },
 )
 
 const TERRAIN_URL = 'https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/'
@@ -57,6 +66,7 @@ const FOV_DEG = 70
 const FOV_SPEED_GAIN = 1.2 // degrees of extra field of view per m/s: speed feels faster
 const FOV_MAX_EXTRA_DEG = 12
 const AVATAR_SCALE = 1.6
+const MAX_OTHER_MODELS = 8 // the nearest riders get a 3D model, the others stay on the profile
 const MAX_HEIGHT_OFFSET_M = 150 // sanity bound on the correction between the mesh and the terrain heights
 // Mixed source: a hole in Google's mesh around the rider shows the sharp swisstopo scene; Google fills the distance
 const MIX_HOLE_RADIUS_M = 180
@@ -190,6 +200,39 @@ async function start() {
   const excluded = cyclist ? [cyclist.model] : [] // left out when measuring the mesh height
   let lastFrame = performance.now()
 
+  // Other riders, one model each, created as they show up and removed when they leave
+  const crowd = new Map<string, Cyclist>()
+  const loading = new Set<string>()
+  const syncCrowd = (dtS: number, ground: (d: number) => number) => {
+    const wanted = [...props.others].sort((a, b) => Math.abs(a.gapM) - Math.abs(b.gapM)).slice(0, MAX_OTHER_MODELS)
+    const ids = new Set(wanted.map((o) => o.id))
+    for (const [id, c] of crowd) {
+      if (!ids.has(id)) {
+        c.destroy()
+        crowd.delete(id)
+      }
+    }
+    for (const o of wanted) {
+      const c = crowd.get(o.id)
+      if (!c) {
+        if (!loading.has(o.id)) {
+          loading.add(o.id)
+          createCyclist(Cesium, scene, o.kit, AVATAR_SCALE)
+            .then((created) => crowd.set(o.id, created))
+            .catch(() => {}) // that rider just stays a dot on the profile
+            .finally(() => loading.delete(o.id))
+        }
+        continue
+      }
+      const d = Math.min(Math.max(o.distanceM, 0), total)
+      const here = pointAt(props.course, d)
+      const ahead = pointAt(props.course, Math.min(d + LOOKAHEAD_M, total))
+      const bearing = ahead.d - here.d > 5 ? bearingRad(here.lat, here.lon, ahead.lat, ahead.lon) : heading
+      c.place(Cesium.Cartesian3.fromDegrees(here.lon, here.lat, ground(d)), bearing)
+      c.animate(dtS, o.speedMs, o.speedMs * 6)
+    }
+  }
+
   // Photoreal mesh: its heights differ from the swisstopo terrain (datum, trees, roofs), which would put the
   // rider and camera under the surface. Measure the mesh under the rider and shift every height by that offset.
   let heightOffset = 0
@@ -236,9 +279,11 @@ async function start() {
 
     avatar = Cesium.Cartesian3.fromDegrees(here.lon, here.lat, interpolateAt(ds, hs, d) + heightOffset)
     const frameNow = performance.now()
-    cyclist?.place(avatar, heading)
-    cyclist?.animate(Math.min((frameNow - lastFrame) / 1000, 0.25), props.speedMs, props.cadenceRpm ?? props.speedMs * 6)
+    const dtS = Math.min((frameNow - lastFrame) / 1000, 0.25)
     lastFrame = frameNow
+    cyclist?.place(avatar, heading)
+    cyclist?.animate(dtS, props.speedMs, props.cadenceRpm ?? props.speedMs * 6)
+    syncCrowd(dtS, (at) => interpolateAt(ds, hs, at) + heightOffset)
 
     // steeper road → look a little further down so the camera keeps clear of the slope behind
     pitch += (basePitch - 0.6 * Math.atan(here.grade / 100) - pitch) * 0.05

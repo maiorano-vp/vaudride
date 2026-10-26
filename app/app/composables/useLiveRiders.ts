@@ -1,4 +1,5 @@
 import { getLiveTransport } from '~/lib/live'
+import { sanitizeKit } from '~/lib/kit/kit'
 import { distanceAt, dropStale, remove, upsert, type Rider } from '~/lib/live/riders'
 import type { LiveRoom } from '~/lib/live/transport'
 
@@ -38,7 +39,15 @@ export function useLiveRiders(slug: string, me: { distanceM: Ref<number>; powerW
   /** Other riders with their estimated distance and gap to us (+ = ahead), furthest first. */
   const others = computed(() =>
     riders.value
-      .map((r) => ({ id: r.id, name: r.name, powerW: r.p, distanceM: distanceAt(r, now.value), gapM: distanceAt(r, now.value) - me.distanceM.value }))
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        powerW: r.p,
+        speedMs: r.speedMs,
+        kit: sanitizeKit(r.kit),
+        distanceM: distanceAt(r, now.value),
+        gapM: distanceAt(r, now.value) - me.distanceM.value,
+      }))
       .sort((a, b) => b.distanceM - a.distanceM),
   )
   return { others, available }

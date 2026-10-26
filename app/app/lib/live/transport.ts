@@ -6,6 +6,8 @@ export interface LiveMessage {
   d: number
   /** Power (W). */
   p: number
+  /** The rider's kit as the server shares it; unvalidated, use `sanitizeKit`. */
+  kit?: unknown
 }
 
 export interface LiveRoom {

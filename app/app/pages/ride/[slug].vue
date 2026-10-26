@@ -20,6 +20,7 @@ const { data: course, status } = useAsyncData(
 )
 
 const { trainer, powerMeter, strap } = useDevices()
+const { kit } = useKit()
 
 // 3D source: remembered per browser; Google is only offered when a key is configured
 const { googleMapsKey, cesiumIonToken } = useRuntimeConfig().public
@@ -94,6 +95,8 @@ const simPower = computed({
       :google-key="googleMapsKey"
       :ion-token="cesiumIonToken"
       :cadence-rpm="cadenceRpm"
+      :kit="kit"
+      :others="others"
     />
 
     <details class="panel" :open="trainer.connection.value === 'idle'">

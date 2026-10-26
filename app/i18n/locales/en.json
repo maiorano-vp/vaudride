@@ -110,5 +110,45 @@
       "cat1": "Cat 1",
       "hc": "HC"
     }
+  },
+  "kit": {
+    "title": "My kit",
+    "menu": "My kit",
+    "presets": "Presets",
+    "colors": "Colours",
+    "styles": "Styles",
+    "save": "Save",
+    "saved": "Kit saved",
+    "error": "The kit could not be saved.",
+    "preset": {
+      "vaud": "Vaud",
+      "lavaux": "Lavaux",
+      "lac": "Léman",
+      "rouge": "Red"
+    },
+    "color": {
+      "jersey": "Jersey",
+      "accent": "Jersey details",
+      "shorts": "Shorts",
+      "helmet": "Helmet",
+      "bike": "Bike"
+    },
+    "jerseyStyle": {
+      "label": "Jersey",
+      "solid": "Plain",
+      "stripes": "Stripes",
+      "band": "Band"
+    },
+    "helmetStyle": {
+      "label": "Helmet",
+      "road": "Road",
+      "aero": "Aero",
+      "cap": "Cap"
+    },
+    "wheels": {
+      "label": "Wheels",
+      "spoked": "Spoked",
+      "disc": "Disc"
+    }
   }
 }
