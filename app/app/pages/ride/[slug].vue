@@ -2,11 +2,20 @@
 import type { CourseProfile } from '~/lib/course/profile'
 
 const route = useRoute()
-// Client-side only: the page is client-driven (BLE, WebGL), and a Worker fetching its own public URL during SSR fails intermittently
-const { data: course, status } = useFetch<CourseProfile>(`/courses/${route.params.slug}/profile.json`, {
-  server: false,
-  retry: 2,
-})
+// Client-side only: the page is client-driven (BLE, WebGL), and a Worker fetching its own public URL during SSR fails intermittently.
+// The API serves the profile (uploaded in the admin); the bundled static file is the fallback while a course has none.
+const slug = String(route.params.slug)
+const { data: course, status } = useAsyncData(
+  `course-${slug}`,
+  async () => {
+    try {
+      return await $fetch<CourseProfile>(`/api/courses/${slug}/profile`, { retry: 2 })
+    } catch {
+      return await $fetch<CourseProfile>(`/courses/${slug}/profile.json`, { retry: 2 })
+    }
+  },
+  { server: false },
+)
 
 const { trainer, powerMeter, strap } = useDevices()
 

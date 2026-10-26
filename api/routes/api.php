@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\V1\Admin\CourseImportController;
 use App\Http\Controllers\Api\V1\AuthorizeLiveChannelController;
 use App\Http\Controllers\Api\V1\CourseController;
+use App\Http\Controllers\Api\V1\CourseProfileController;
 use App\Http\Controllers\Api\V1\DisconnectStravaController;
 use App\Http\Controllers\Api\V1\ExportRideController;
 use App\Http\Controllers\Api\V1\ForgotPasswordController;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->name('v1.')->group(function (): void {
     Route::get('courses', [CourseController::class, 'index'])->name('courses.index');
     Route::get('courses/{slug}', [CourseController::class, 'show'])->name('courses.show');
+    Route::get('courses/{slug}/profile', CourseProfileController::class)->name('courses.profile');
 
     Route::middleware('throttle:10,1')->group(function (): void {
         Route::post('auth/register', RegisterController::class)->name('auth.register');

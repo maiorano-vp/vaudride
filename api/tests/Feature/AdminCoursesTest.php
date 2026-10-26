@@ -9,9 +9,12 @@ use App\Filament\Resources\Courses\RelationManagers\PoisRelationManager;
 use App\Models\Course;
 use App\Models\User;
 use Filament\Facades\Filament;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
+    Storage::fake('local');
     Filament::setCurrentPanel('admin');
     $this->actingAs(User::factory()->create(['is_admin' => true]));
 });
@@ -27,11 +30,17 @@ it('creates a course', function (): void {
         ->fillForm([
             'slug' => 'tour-du-lac',
             'name' => ['fr' => 'Tour du lac', 'de' => '', 'en' => ''],
-            'version' => 1,
-            'distance_m' => 30_000,
-            'elevation_gain_m' => 200,
             'attribution' => '© swisstopo',
             'published' => true,
+            'profile_file' => UploadedFile::fake()->createWithContent('profile.json', json_encode([
+                'slug' => 'tour-du-lac',
+                'distance_m' => 30_000,
+                'elevation_gain_m' => 200,
+                'points' => [
+                    ['d' => 0, 'lat' => 46.5, 'lon' => 6.6, 'ele' => 400, 'grade' => 0],
+                    ['d' => 5, 'lat' => 46.5, 'lon' => 6.6, 'ele' => 400, 'grade' => 0],
+                ],
+            ], JSON_THROW_ON_ERROR)),
         ])
         ->call('create')
         ->assertHasNoFormErrors();

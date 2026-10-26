@@ -12,6 +12,11 @@ final class EditCourse extends EditRecord
 {
     protected static string $resource = CourseResource::class;
 
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        return CourseResource::withProfile($data, $this->getRecord());
+    }
+
     protected function getHeaderActions(): array
     {
         return [DeleteAction::make()];
