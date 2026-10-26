@@ -21,15 +21,16 @@ const { data: course, status } = useAsyncData(
 const { trainer, powerMeter, strap } = useDevices()
 
 // 3D source: remembered per browser; Google is only offered when a key is configured
-const { googleMapsKey } = useRuntimeConfig().public
+const { googleMapsKey, cesiumIonToken } = useRuntimeConfig().public
+const keys = { google: !!googleMapsKey, ion: !!cesiumIonToken }
 const { t } = useI18n()
 const storedSource = useCookie<string>('scene-source', { maxAge: 60 * 60 * 24 * 365 })
 const source = computed({
-  get: () => resolveSceneSource(storedSource.value, !!googleMapsKey),
+  get: () => resolveSceneSource(storedSource.value, keys),
   set: (v: SceneSource) => (storedSource.value = v),
 })
 const sourceItems = computed(() =>
-  availableSceneSources(!!googleMapsKey).map((s) => ({ value: s, label: t(`scene.source.${s}`) })),
+  availableSceneSources(keys).map((s) => ({ value: s, label: t(`scene.source.${s}`) })),
 )
 
 const powerW = computed(() => trainer.data.value.powerW ?? powerMeter.data.value.powerW ?? 0)
@@ -81,6 +82,7 @@ const simPower = computed({
       :speed-ms="state.speedMs"
       :source="source"
       :google-key="googleMapsKey"
+      :ion-token="cesiumIonToken"
     />
 
     <details class="panel" :open="trainer.connection.value === 'idle'">

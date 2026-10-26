@@ -4,19 +4,31 @@ export enum SceneSource {
   Swisstopo = 'swisstopo',
   /** swisstopo terrain and imagery only: lighter on modest machines. */
   Light = 'light',
-  /** Google Photorealistic 3D Tiles: textured photogrammetry, needs a Google Maps API key. */
+  /** Google Photorealistic 3D Tiles with a Google Maps API key (billed by Google). */
   Google = 'google',
+  /** The same Google tiles through Cesium ion, with an ion access token. */
+  GoogleIon = 'googleIon',
+}
+
+/** Which credentials are configured: Google sources are only offered when theirs is. */
+export interface SceneKeys {
+  google: boolean
+  ion: boolean
 }
 
 export const parseSceneSource = (value: unknown): SceneSource | undefined =>
   Object.values(SceneSource).find((s) => s === value)
 
-/** Google is only offered when a key is configured. */
-export const availableSceneSources = (hasGoogleKey: boolean): SceneSource[] =>
-  Object.values(SceneSource).filter((s) => s !== SceneSource.Google || hasGoogleKey)
+/** Google's mesh replaces the globe. */
+export const isPhotorealistic = (s: SceneSource) => s === SceneSource.Google || s === SceneSource.GoogleIon
+
+export const availableSceneSources = (keys: SceneKeys): SceneSource[] =>
+  Object.values(SceneSource).filter(
+    (s) => (s !== SceneSource.Google || keys.google) && (s !== SceneSource.GoogleIon || keys.ion),
+  )
 
 /** The stored choice if it can be used, the default otherwise. */
-export const resolveSceneSource = (stored: unknown, hasGoogleKey: boolean): SceneSource => {
+export const resolveSceneSource = (stored: unknown, keys: SceneKeys): SceneSource => {
   const wanted = parseSceneSource(stored)
-  return wanted && availableSceneSources(hasGoogleKey).includes(wanted) ? wanted : SceneSource.Swisstopo
+  return wanted && availableSceneSources(keys).includes(wanted) ? wanted : SceneSource.Swisstopo
 }

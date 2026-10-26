@@ -2,11 +2,11 @@
 import type { Property } from 'cesium'
 import { pointAt, type CourseProfile } from '~/lib/course/profile'
 import { bearingRad, distanceAfter, interpolateAt, lerpAngle } from '~/lib/scene/camera'
-import { SceneSource } from '~/lib/scene/source'
+import { isPhotorealistic, SceneSource } from '~/lib/scene/source'
 
 const props = withDefaults(
-  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string }>(),
-  { source: SceneSource.Swisstopo, googleKey: '' },
+  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string }>(),
+  { source: SceneSource.Swisstopo, googleKey: '', ionToken: '' },
 )
 
 const TERRAIN_URL = 'https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/'
@@ -98,7 +98,7 @@ async function start() {
       width: 4,
       clampToGround: true,
       // drape on the photogrammetry mesh when the globe is hidden (Google), on terrain and 3D tiles otherwise
-      classificationType: props.source === SceneSource.Google ? Cesium.ClassificationType.CESIUM_3D_TILE : Cesium.ClassificationType.BOTH,
+      classificationType: isPhotorealistic(props.source) ? Cesium.ClassificationType.CESIUM_3D_TILE : Cesium.ClassificationType.BOTH,
       material: Cesium.Color.fromCssColorString('#e63946').withAlpha(0.75),
     },
   })
@@ -133,11 +133,14 @@ async function start() {
   scene.fog.minimumBrightness = 0.12
   if (scene.msaaSupported) scene.msaaSamples = 4 // smooth road, building and avatar edges
 
-  if (props.source === SceneSource.Google) {
+  if (isPhotorealistic(props.source)) {
     // Google's mesh replaces the globe; swisstopo terrain still gives the heights the avatar and camera ride on.
     // showCreditsOnScreen: Google's attribution must stay visible.
     scene.globe.show = false
-    scene.primitives.add(await Cesium.createGooglePhotorealistic3DTileset({ key: props.googleKey }, { showCreditsOnScreen: true }))
+    // without a Google key the same tiles are streamed through Cesium ion, with the ion token
+    if (props.source === SceneSource.GoogleIon) Cesium.Ion.defaultAccessToken = props.ionToken
+    const key = props.source === SceneSource.Google ? props.googleKey : undefined
+    scene.primitives.add(await Cesium.createGooglePhotorealistic3DTileset({ key }, { showCreditsOnScreen: true }))
   }
 
   // Real 3D buildings and trees (swisstopo 3D Tiles); added as they load so the scene never waits on them

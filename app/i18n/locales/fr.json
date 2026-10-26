@@ -49,7 +49,8 @@
       "label": "Source 3D",
       "swisstopo": "swisstopo (relief et bâtiments)",
       "light": "Léger (relief seul)",
-      "google": "Google (photoréaliste)"
+      "google": "Google (photoréaliste)",
+      "googleIon": "Google via Cesium ion (photoréaliste)"
     }
   },
   "auth": {

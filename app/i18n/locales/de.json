@@ -49,7 +49,8 @@
       "label": "3D-Quelle",
       "swisstopo": "swisstopo (Gelände und Gebäude)",
       "light": "Leicht (nur Gelände)",
-      "google": "Google (fotorealistisch)"
+      "google": "Google (fotorealistisch)",
+      "googleIon": "Google über Cesium ion (fotorealistisch)"
     }
   },
   "auth": {
