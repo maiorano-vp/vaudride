@@ -58,6 +58,11 @@ return [
         'flush_token' => env('OPCACHE_FLUSH_TOKEN', ''),
     ],
 
+    // OpenStreetMap places along the courses (public instance: keep requests few and identified)
+    'overpass' => [
+        'url' => env('OVERPASS_URL', 'https://overpass-api.de/api/interpreter'),
+    ],
+
     'frontend' => [
         'url' => env('APP_FRONTEND_URL', 'http://localhost:3000'),
     ],

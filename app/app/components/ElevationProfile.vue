@@ -2,7 +2,7 @@
 import { pointAt, type CourseProfile } from '~/lib/course/profile'
 import type { Segment } from '~/lib/segments/tracker'
 
-const props = defineProps<{ course: CourseProfile; distanceM: number; others?: Array<{ id: string; distanceM: number }>; segments?: Segment[] }>()
+const props = defineProps<{ course: CourseProfile; distanceM: number; others?: Array<{ id: string; distanceM: number }>; segments?: Segment[]; pois?: Array<{ id: string; distance_m: number }> }>()
 
 const W = 1000
 const H = 200
@@ -28,6 +28,13 @@ const bands = computed(() =>
   }),
 )
 
+const poiMarkers = computed(() =>
+  (props.pois ?? []).map((p) => {
+    const d = Math.min(Math.max(p.distance_m, 0), props.course.distance_m)
+    return { id: p.id, cx: geometry.value.x(d), cy: geometry.value.y(pointAt(props.course, d).ele) }
+  }),
+)
+
 const otherMarkers = computed(() =>
   (props.others ?? []).map((o) => {
     const d = Math.min(Math.max(o.distanceM, 0), props.course.distance_m)
@@ -46,6 +53,7 @@ const marker = computed(() => {
     <polygon :points="geometry.area" class="area" />
     <rect v-for="b in bands" :key="b.id" :x="b.x" y="0" :width="b.width" :height="H" class="segment" />
     <polyline :points="geometry.line" class="line" />
+    <rect v-for="p in poiMarkers" :key="p.id" :x="p.cx - 5" :y="p.cy - 5" width="10" height="10" class="poi" :transform="`rotate(45 ${p.cx} ${p.cy})`" />
     <circle v-for="o in otherMarkers" :key="o.id" :cx="o.cx" :cy="o.cy" r="6" class="other" />
     <circle :cx="marker.cx" :cy="marker.cy" r="7" class="marker" />
   </svg>
@@ -69,6 +77,11 @@ const marker = computed(() => {
 .segment {
   fill: #e63946;
   opacity: 0.18;
+}
+.poi {
+  fill: #e8a317;
+  stroke: #fff;
+  stroke-width: 1.5;
 }
 .other {
   fill: #0a4069;

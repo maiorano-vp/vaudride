@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\PoiCategory;
 use Carbon\CarbonInterface;
 use Database\Factories\PoiFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -20,6 +21,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read float $lat
  * @property-read float $lon
  * @property-read string|null $url
+ * @property-read PoiCategory|null $category
+ * @property-read string $source
+ * @property-read string|null $osm_id
+ * @property-read bool $published
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */
@@ -44,6 +49,9 @@ final class Poi extends Model
             'lat' => 'float',
             'lon' => 'float',
             'url' => 'string',
+            'category' => PoiCategory::class,
+            'osm_id' => 'string',
+            'published' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

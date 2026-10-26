@@ -176,5 +176,19 @@
     "menu": "Mes sorties",
     "empty": "Aucune sortie enregistrée pour l’instant.",
     "error": "Impossible de charger vos sorties."
+  },
+  "poi": {
+    "ahead": "dans {m} m",
+    "here": "ici",
+    "more": "En savoir plus",
+    "category": {
+      "viewpoint": "Point de vue",
+      "culture": "Culture",
+      "history": "Histoire",
+      "nature": "Nature",
+      "water": "Eau potable",
+      "wine": "Vin",
+      "food": "Terroir"
+    }
   }
 }

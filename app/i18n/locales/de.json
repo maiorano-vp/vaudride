@@ -176,5 +176,19 @@
     "menu": "Meine Fahrten",
     "empty": "Noch keine Fahrt gespeichert.",
     "error": "Ihre Fahrten konnten nicht geladen werden."
+  },
+  "poi": {
+    "ahead": "in {m} m",
+    "here": "hier",
+    "more": "Mehr erfahren",
+    "category": {
+      "viewpoint": "Aussichtspunkt",
+      "culture": "Kultur",
+      "history": "Geschichte",
+      "nature": "Natur",
+      "water": "Trinkwasser",
+      "wine": "Wein",
+      "food": "Regionales"
+    }
   }
 }

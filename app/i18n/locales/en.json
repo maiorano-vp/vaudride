@@ -176,5 +176,19 @@
     "menu": "My rides",
     "empty": "No ride saved yet.",
     "error": "Your rides could not be loaded."
+  },
+  "poi": {
+    "ahead": "in {m} m",
+    "here": "here",
+    "more": "Learn more",
+    "category": {
+      "viewpoint": "Viewpoint",
+      "culture": "Culture",
+      "history": "History",
+      "nature": "Nature",
+      "water": "Drinking water",
+      "wine": "Wine",
+      "food": "Local food"
+    }
   }
 }

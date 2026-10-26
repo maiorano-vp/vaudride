@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CourseProfile } from '~/lib/course/profile'
+import { nearbyPoi, type Poi } from '~/lib/pois/nearby'
 import type { Segment } from '~/lib/segments/tracker'
 import { availableSceneSources, resolveSceneSource, type SceneSource } from '~/lib/scene/source'
 
@@ -51,10 +52,12 @@ onMounted(() => {
 // timed segments (climbs) of the course, loaded alongside; the ride works without them
 const { data: courseInfo } = useAsyncData(
   `course-info-${slug}`,
-  () => $fetch<{ data: { segments?: Segment[] } }>(`/api/courses/${slug}`).catch(() => undefined),
+  () => $fetch<{ data: { segments?: Segment[]; pois?: Poi[] } }>(`/api/courses/${slug}`).catch(() => undefined),
   { server: false },
 )
 const segments = computed(() => courseInfo.value?.data.segments ?? [])
+const pois = computed(() => courseInfo.value?.data.pois ?? [])
+const poiNearby = computed(() => nearbyPoi(state.value.distanceM, pois.value))
 const { active: activeSegment, finished: finishedSegment } = useSegments(slug, segments, state)
 
 const recording = useRideRecording(
@@ -175,7 +178,7 @@ const simPower = computed({
       :elevation-gain-m="state.elevationGainM"
       :elapsed-s="state.elapsedS"
     />
-    <ElevationProfile class="hud-bottom" :course="course" :distance-m="state.distanceM" :others="others" :segments="segments" />
+    <ElevationProfile class="hud-bottom" :course="course" :distance-m="state.distanceM" :others="others" :segments="segments" :pois="pois" />
     <RideSummary
       v-model:open="summaryOpen"
       :summary="recording.summary.value"
@@ -186,6 +189,7 @@ const simPower = computed({
       @save="recording.save($event)"
       @restart="restart()"
     />
+    <PoiCard v-if="poiNearby" class="poi-card-slot" :poi="poiNearby.poi" :ahead-m="poiNearby.aheadM" />
     <SegmentHud
       class="segment-hud"
       :active="activeSegment"
@@ -285,6 +289,12 @@ const simPower = computed({
   display: flex;
   gap: 0.75rem;
   justify-content: space-between;
+}
+.immersive .poi-card-slot {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 11rem;
+  z-index: 2;
 }
 .immersive .segment-hud {
   position: absolute;
