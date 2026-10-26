@@ -37,15 +37,32 @@ const simPower = computed({
       <summary>{{ course.name }} · {{ $t('ble.devices') }}</summary>
       <p v-if="unsupported" role="alert">{{ $t('ble.unsupported') }}</p>
       <div class="devices">
-        <button :disabled="trainer.connection.value === 'connecting'" @click="trainer.connect()">
-          {{ $t('ble.trainer') }} — {{ $t(`ble.state.${trainer.connection.value}`) }}
-        </button>
-        <button @click="powerMeter.connect()">
-          {{ $t('ble.powerMeter') }} — {{ $t(`ble.state.${powerMeter.connection.value}`) }}
-        </button>
-        <button @click="strap.connect()">{{ $t('ble.heartRate') }} — {{ $t(`ble.state.${strap.connection.value}`) }}</button>
-        <button @click="reset()">{{ $t('ride.restart') }}</button>
-        <button @click="view = view === '3d' ? '2d' : '3d'">{{ $t(view === '3d' ? 'scene.show2d' : 'scene.show3d') }}</button>
+        <UButton
+          size="md"
+          class="ring-1 ring-white/40"
+          :loading="trainer.connection.value === 'connecting'"
+          :label="`${$t('ble.trainer')} — ${$t(`ble.state.${trainer.connection.value}`)}`"
+          @click="trainer.connect()"
+        />
+        <UButton
+          size="md"
+          class="ring-1 ring-white/40"
+          :label="`${$t('ble.powerMeter')} — ${$t(`ble.state.${powerMeter.connection.value}`)}`"
+          @click="powerMeter.connect()"
+        />
+        <UButton
+          size="md"
+          class="ring-1 ring-white/40"
+          :label="`${$t('ble.heartRate')} — ${$t(`ble.state.${strap.connection.value}`)}`"
+          @click="strap.connect()"
+        />
+        <UButton size="md" class="ring-1 ring-white/40" :label="$t('ride.restart')" @click="reset()" />
+        <UButton
+          size="md"
+          class="ring-1 ring-white/40"
+          :label="$t(view === '3d' ? 'scene.show2d' : 'scene.show3d')"
+          @click="view = view === '3d' ? '2d' : '3d'"
+        />
       </div>
       <UserMenu class="mt-2" />
       <label v-if="sim">
