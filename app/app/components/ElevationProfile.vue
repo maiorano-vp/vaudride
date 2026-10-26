@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { pointAt, type CourseProfile } from '~/lib/course/profile'
+import type { Segment } from '~/lib/segments/tracker'
 
-const props = defineProps<{ course: CourseProfile; distanceM: number; others?: Array<{ id: string; distanceM: number }> }>()
+const props = defineProps<{ course: CourseProfile; distanceM: number; others?: Array<{ id: string; distanceM: number }>; segments?: Segment[] }>()
 
 const W = 1000
 const H = 200
@@ -20,6 +21,13 @@ const geometry = computed(() => {
   return { line, area: `0,${H} ${line} ${W},${H}`, x, y }
 })
 
+const bands = computed(() =>
+  (props.segments ?? []).map((s) => {
+    const x0 = geometry.value.x(s.start_m)
+    return { id: s.id, x: x0, width: Math.max(2, geometry.value.x(s.end_m) - x0) }
+  }),
+)
+
 const otherMarkers = computed(() =>
   (props.others ?? []).map((o) => {
     const d = Math.min(Math.max(o.distanceM, 0), props.course.distance_m)
@@ -36,6 +44,7 @@ const marker = computed(() => {
 <template>
   <svg :viewBox="`0 0 ${W} ${H}`" role="img" :aria-label="$t('profile.label')" class="profile">
     <polygon :points="geometry.area" class="area" />
+    <rect v-for="b in bands" :key="b.id" :x="b.x" y="0" :width="b.width" :height="H" class="segment" />
     <polyline :points="geometry.line" class="line" />
     <circle v-for="o in otherMarkers" :key="o.id" :cx="o.cx" :cy="o.cy" r="6" class="other" />
     <circle :cx="marker.cx" :cy="marker.cy" r="7" class="marker" />
@@ -56,6 +65,10 @@ const marker = computed(() => {
   fill: none;
   stroke: #2f6b45;
   stroke-width: 2;
+}
+.segment {
+  fill: #e63946;
+  opacity: 0.18;
 }
 .other {
   fill: #0a4069;

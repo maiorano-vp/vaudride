@@ -98,5 +98,17 @@
   },
   "live": {
     "riders": "Andere Fahrer"
+  },
+  "segment": {
+    "remaining": "noch {km} km",
+    "best": "Bestzeit {time}",
+    "newBest": "Neue Bestzeit!",
+    "category": {
+      "cat4": "Kat. 4",
+      "cat3": "Kat. 3",
+      "cat2": "Kat. 2",
+      "cat1": "Kat. 1",
+      "hc": "HC"
+    }
   }
 }

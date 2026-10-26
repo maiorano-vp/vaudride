@@ -98,5 +98,17 @@
   },
   "live": {
     "riders": "Other riders"
+  },
+  "segment": {
+    "remaining": "{km} km to go",
+    "best": "Best {time}",
+    "newBest": "New personal best!",
+    "category": {
+      "cat4": "Cat 4",
+      "cat3": "Cat 3",
+      "cat2": "Cat 2",
+      "cat1": "Cat 1",
+      "hc": "HC"
+    }
   }
 }

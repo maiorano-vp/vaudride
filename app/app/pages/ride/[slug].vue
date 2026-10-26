@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CourseProfile } from '~/lib/course/profile'
+import type { Segment } from '~/lib/segments/tracker'
 import { availableSceneSources, resolveSceneSource, type SceneSource } from '~/lib/scene/source'
 
 const route = useRoute()
@@ -44,6 +45,15 @@ const view = ref<'3d' | '2d'>('2d')
 onMounted(() => {
   if (document.createElement('canvas').getContext('webgl2')) view.value = '3d'
 })
+
+// timed segments (climbs) of the course, loaded alongside; the ride works without them
+const { data: courseInfo } = useAsyncData(
+  `course-info-${slug}`,
+  () => $fetch<{ data: { segments?: Segment[] } }>(`/api/courses/${slug}`).catch(() => undefined),
+  { server: false },
+)
+const segments = computed(() => courseInfo.value?.data.segments ?? [])
+const { active: activeSegment, finished: finishedSegment } = useSegments(slug, segments, state)
 
 const { others } = useLiveRiders(
   String(route.params.slug),
@@ -139,7 +149,14 @@ const simPower = computed({
       :elevation-gain-m="state.elevationGainM"
       :elapsed-s="state.elapsedS"
     />
-    <ElevationProfile class="hud-bottom" :course="course" :distance-m="state.distanceM" :others="others" />
+    <ElevationProfile class="hud-bottom" :course="course" :distance-m="state.distanceM" :others="others" :segments="segments" />
+    <SegmentHud
+      class="segment-hud"
+      :active="activeSegment"
+      :finished="finishedSegment"
+      :distance-m="state.distanceM"
+      :elapsed-s="state.elapsedS"
+    />
     <ul v-if="others.length" class="riders" :aria-label="$t('live.riders')">
       <li v-for="o in others.slice(0, 5)" :key="o.id">
         <span>{{ o.name }}</span> <span>{{ o.powerW }} W</span> <strong>{{ gap(o.gapM) }}</strong>
@@ -232,6 +249,13 @@ const simPower = computed({
   display: flex;
   gap: 0.75rem;
   justify-content: space-between;
+}
+.immersive .segment-hud {
+  position: absolute;
+  top: 6.5rem;
+  right: 0.75rem;
+  z-index: 2;
+  min-width: 14rem;
 }
 .immersive .riders {
   position: absolute;
