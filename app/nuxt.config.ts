@@ -3,6 +3,14 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@nuxt/ui', '@nuxtjs/i18n', '@vite-pwa/nuxt', '@nuxt/eslint'],
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'icon', href: '/favicon.ico', sizes: '32x32' },
+      ],
+    },
+  },
   css: ['~/assets/css/main.css'],
   ui: { colorMode: false }, // light only: no color-mode module, no `dark` class
   runtimeConfig: { apiBase: 'http://127.0.0.1:8000' }, // NUXT_API_BASE
