@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read string $id
  * @property-read string $slug
  * @property-read array{fr: string, de?: string, en?: string} $name
+ * @property-read array{fr?: string, de?: string, en?: string}|null $description
  * @property-read int $version
  * @property-read int $distance_m
  * @property-read int $elevation_gain_m
@@ -39,6 +40,7 @@ final class Course extends Model
             'id' => 'string',
             'slug' => 'string',
             'name' => 'array',
+            'description' => 'array',
             'version' => 'integer',
             'distance_m' => 'integer',
             'elevation_gain_m' => 'integer',

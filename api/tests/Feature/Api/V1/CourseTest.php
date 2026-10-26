@@ -33,3 +33,9 @@ it('returns 404 for unknown or unpublished courses', function (): void {
     $this->getJson('/api/v1/courses/hidden')->assertNotFound();
     $this->getJson('/api/v1/courses/nope')->assertNotFound();
 });
+
+it('returns the description of a course', function (): void {
+    Course::factory()->create(['slug' => 'with-text', 'published' => true, 'description' => ['fr' => 'Au bord du lac.']]);
+
+    $this->getJson('/api/v1/courses/with-text')->assertOk()->assertJsonPath('data.description.fr', 'Au bord du lac.');
+});

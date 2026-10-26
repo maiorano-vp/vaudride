@@ -74,3 +74,14 @@ it('manages points of interest from the course page', function (): void {
 
     expect($course->pois()->count())->toBe(1);
 });
+
+it('edits the description of a course in every language', function (): void {
+    $course = Course::factory()->create();
+
+    Livewire::test(EditCourse::class, ['record' => $course->getKey()])
+        ->fillForm(['description' => ['fr' => 'Une belle montée.', 'de' => 'Ein schöner Anstieg.', 'en' => 'A fine climb.']])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($course->refresh()->description)->toBe(['fr' => 'Une belle montée.', 'de' => 'Ein schöner Anstieg.', 'en' => 'A fine climb.']);
+});

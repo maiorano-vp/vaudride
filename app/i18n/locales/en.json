@@ -200,5 +200,15 @@
       "wine": "Wine",
       "food": "Local food"
     }
+  },
+  "course": {
+    "sheet": "Course details",
+    "ride": "Ride this course",
+    "gpx": "Download the GPX",
+    "transit": "Get to the start by public transport",
+    "start": "See the start on the map",
+    "maxGrade": "Max grade",
+    "climbs": "Climbs",
+    "discover": "To discover along the way"
   }
 }

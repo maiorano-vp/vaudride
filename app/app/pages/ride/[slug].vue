@@ -1,24 +1,11 @@
 <script setup lang="ts">
-import type { CourseProfile } from '~/lib/course/profile'
 import { nearbyPoi, type Poi } from '~/lib/pois/nearby'
 import type { Segment } from '~/lib/segments/tracker'
 import { availableSceneSources, resolveSceneSource, type SceneSource } from '~/lib/scene/source'
 
 const route = useRoute()
-// Client-side only: the page is client-driven (BLE, WebGL), and a Worker fetching its own public URL during SSR fails intermittently.
-// The API serves the profile (uploaded in the admin); the bundled static file is the fallback while a course has none.
 const slug = String(route.params.slug)
-const { data: course, status } = useAsyncData(
-  `course-${slug}`,
-  async () => {
-    try {
-      return await $fetch<CourseProfile>(`/api/courses/${slug}/profile`, { retry: 2 })
-    } catch {
-      return await $fetch<CourseProfile>(`/courses/${slug}/profile.json`, { retry: 2 })
-    }
-  },
-  { server: false },
-)
+const { data: course, status } = useCourseProfile(slug)
 
 const { trainer, powerMeter, strap } = useDevices()
 const { kit } = useKit()

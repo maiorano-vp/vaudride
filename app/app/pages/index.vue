@@ -34,6 +34,7 @@ const km = (m: number) => (m / 1000).toFixed(1)
             <span class="font-display text-xl uppercase tracking-wide text-vaud-800">{{ c.name[locale] ?? c.name.fr }}</span>
             <span class="text-sm">{{ km(c.distance_m) }} km · {{ c.elevation_gain_m }} m D+</span>
           </NuxtLink>
+          <NuxtLink class="mt-1 inline-block text-sm underline" :to="`/courses/${c.slug}`">{{ $t('course.sheet') }}</NuxtLink>
         </UCard>
       </li>
     </ul>

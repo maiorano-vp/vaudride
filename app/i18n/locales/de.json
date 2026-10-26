@@ -200,5 +200,15 @@
       "wine": "Wein",
       "food": "Regionales"
     }
+  },
+  "course": {
+    "sheet": "Streckeninfo",
+    "ride": "Diese Strecke fahren",
+    "gpx": "GPX herunterladen",
+    "transit": "Mit dem ÖV zum Start",
+    "start": "Start auf der Karte",
+    "maxGrade": "Max. Steigung",
+    "climbs": "Anstiege",
+    "discover": "Unterwegs entdecken"
   }
 }

@@ -22,6 +22,7 @@ final class CourseResource extends JsonResource
             'id' => $this->id,
             'slug' => $this->slug,
             'name' => $this->name,
+            'description' => $this->description,
             'version' => $this->version,
             'distance_m' => $this->distance_m,
             'elevation_gain_m' => $this->elevation_gain_m,

@@ -200,5 +200,15 @@
       "wine": "Vin",
       "food": "Terroir"
     }
+  },
+  "course": {
+    "sheet": "Fiche du parcours",
+    "ride": "Rouler ce parcours",
+    "gpx": "Télécharger le GPX",
+    "transit": "Aller au départ en transports publics",
+    "start": "Voir le départ sur la carte",
+    "maxGrade": "Pente max",
+    "climbs": "Montées",
+    "discover": "À découvrir en chemin"
   }
 }

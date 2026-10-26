@@ -15,6 +15,7 @@ use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -43,6 +44,10 @@ final class CourseResource extends Resource
             TextInput::make('name.fr')->label('Nom (FR)')->required(),
             TextInput::make('name.de')->label('Nom (DE)'),
             TextInput::make('name.en')->label('Nom (EN)'),
+            Textarea::make('description.fr')->label('Description (FR)')->rows(4)->columnSpanFull()
+                ->helperText('Comment est ce parcours à rouler pour de vrai: ambiance, difficulté, meilleure saison, accès.'),
+            Textarea::make('description.de')->label('Description (DE)')->rows(4)->columnSpanFull(),
+            Textarea::make('description.en')->label('Description (EN)')->rows(4)->columnSpanFull(),
             FileUpload::make('profile_file')->label('Profil (profile.json)')
                 ->acceptedFileTypes(['application/json', 'text/plain'])
                 ->storeFiles(false)
