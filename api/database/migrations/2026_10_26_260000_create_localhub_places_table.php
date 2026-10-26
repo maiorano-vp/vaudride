@@ -18,8 +18,8 @@ return new class extends Migration
             $table->json('summary')->nullable();
             $table->decimal('lat', 9, 6);
             $table->decimal('lon', 9, 6);
-            $table->string('address')->nullable();
-            $table->string('url')->nullable();
+            $table->text('address')->nullable();
+            $table->text('url')->nullable(); // some links are long: tracking parameters, deep links
             $table->string('category');
             $table->timestamp('synced_at');
 

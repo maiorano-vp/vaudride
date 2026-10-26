@@ -88,6 +88,15 @@ describe('syncing the catalogue', function (): void {
             ->and($place->lat)->toBeFloat();
     });
 
+    it('keeps very long links whole', function (): void {
+        $long = 'https://example.org/'.str_repeat('a', 700);
+        syncHits([hit('1', 'Lien long', '', 1000, extra: ['links' => [['url' => $long]], 'location' => ['lat' => 46.5, 'lng' => 6.61]])]);
+
+        expect(LocalhubPlace::query()->findOrFail('localhub:1')->url)->toBe($long);
+        resolve(ImportLocalhubPois::class)->handle($this->course);
+        expect($this->course->pois()->firstOrFail()->url)->toBe($long);
+    });
+
     it('sends the bearer token and asks only for the fields it reads, page by page', function (): void {
         syncHits([hit('1', 'Cave du Lac', 'vin', 4000)]);
 
