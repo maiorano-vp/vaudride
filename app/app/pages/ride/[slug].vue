@@ -20,6 +20,13 @@ onMounted(() => {
   if (document.createElement('canvas').getContext('webgl2')) view.value = '3d'
 })
 
+const { others } = useLiveRiders(
+  String(route.params.slug),
+  { distanceM: computed(() => state.value.distanceM), powerW },
+  paused,
+)
+const gap = (m: number) => `${m >= 0 ? '+' : '−'}${Math.round(Math.abs(m))} m`
+
 // Space toggles the pause
 function onKey(e: KeyboardEvent) {
   if (e.code === 'Space' && !(e.target instanceof HTMLButtonElement)) {
@@ -93,7 +100,12 @@ const simPower = computed({
       :elevation-gain-m="state.elevationGainM"
       :elapsed-s="state.elapsedS"
     />
-    <ElevationProfile class="hud-bottom" :course="course" :distance-m="state.distanceM" />
+    <ElevationProfile class="hud-bottom" :course="course" :distance-m="state.distanceM" :others="others" />
+    <ul v-if="others.length" class="riders" :aria-label="$t('live.riders')">
+      <li v-for="o in others.slice(0, 5)" :key="o.id">
+        <span>{{ o.name }}</span> <span>{{ o.powerW }} W</span> <strong>{{ gap(o.gapM) }}</strong>
+      </li>
+    </ul>
     <UButton
       class="pause"
       :icon="paused ? 'i-lucide-play' : 'i-lucide-pause'"
@@ -168,6 +180,25 @@ const simPower = computed({
   width: min(48rem, calc(100% - 1.5rem));
   transform: translateX(-50%);
   opacity: 0.9;
+}
+.riders {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  list-style: none;
+  background: rgb(255 255 255 / 85%);
+  border-radius: 0.5rem;
+}
+.riders li {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+.immersive .riders {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 2rem;
+  z-index: 2;
+  min-width: 12rem;
 }
 .immersive .pause {
   position: absolute;

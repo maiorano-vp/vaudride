@@ -86,5 +86,8 @@
     "resistance": "Montez la pente : la résistance doit augmenter. Elle revient à 0 % en quittant la page.",
     "start": "Choisir un parcours",
     "menu": "Connecter mon matériel"
+  },
+  "live": {
+    "riders": "Autres cyclistes"
   }
 }

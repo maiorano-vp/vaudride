@@ -86,5 +86,8 @@
     "resistance": "Raise the grade: resistance should increase. It resets to 0 % when you leave the page.",
     "start": "Choose a course",
     "menu": "Connect my devices"
+  },
+  "live": {
+    "riders": "Other riders"
   }
 }

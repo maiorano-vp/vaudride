@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { pointAt, type CourseProfile } from '~/lib/course/profile'
 
-const props = defineProps<{ course: CourseProfile; distanceM: number }>()
+const props = defineProps<{ course: CourseProfile; distanceM: number; others?: Array<{ id: string; distanceM: number }> }>()
 
 const W = 1000
 const H = 200
@@ -20,6 +20,13 @@ const geometry = computed(() => {
   return { line, area: `0,${H} ${line} ${W},${H}`, x, y }
 })
 
+const otherMarkers = computed(() =>
+  (props.others ?? []).map((o) => {
+    const d = Math.min(Math.max(o.distanceM, 0), props.course.distance_m)
+    return { id: o.id, cx: geometry.value.x(d), cy: geometry.value.y(pointAt(props.course, d).ele) }
+  }),
+)
+
 const marker = computed(() => {
   const here = pointAt(props.course, props.distanceM)
   return { cx: geometry.value.x(props.distanceM), cy: geometry.value.y(here.ele) }
@@ -30,6 +37,7 @@ const marker = computed(() => {
   <svg :viewBox="`0 0 ${W} ${H}`" role="img" :aria-label="$t('profile.label')" class="profile">
     <polygon :points="geometry.area" class="area" />
     <polyline :points="geometry.line" class="line" />
+    <circle v-for="o in otherMarkers" :key="o.id" :cx="o.cx" :cy="o.cy" r="6" class="other" />
     <circle :cx="marker.cx" :cy="marker.cy" r="7" class="marker" />
   </svg>
 </template>
@@ -47,6 +55,11 @@ const marker = computed(() => {
 .line {
   fill: none;
   stroke: #2f6b45;
+  stroke-width: 2;
+}
+.other {
+  fill: #0a4069;
+  stroke: #fff;
   stroke-width: 2;
 }
 .marker {
