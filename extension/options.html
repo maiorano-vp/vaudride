@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Vaud Ride – import komoot</title>
+    <style>
+      body { font: 15px system-ui, sans-serif; max-width: 28rem; margin: 2rem auto; padding: 0 1rem }
+      label { display: block; margin: 0.75rem 0 0.25rem }
+      input { width: 100%; padding: 0.4rem; box-sizing: border-box }
+      button { margin: 1rem 0.5rem 0 0; padding: 0.5rem 1rem }
+      #status { margin-top: 1rem }
+    </style>
+  </head>
+  <body>
+    <h1>Vaud Ride – import komoot</h1>
+    <form id="form">
+      <label for="apiUrl">URL de l'API</label>
+      <input id="apiUrl" type="url" placeholder="https://api.example.ch" required />
+      <label for="email">E-mail (compte administrateur)</label>
+      <input id="email" type="email" autocomplete="username" required />
+      <label for="password">Mot de passe (non conservé)</label>
+      <input id="password" type="password" autocomplete="current-password" required />
+      <button type="submit">Se connecter</button>
+      <button type="button" id="logout">Se déconnecter</button>
+    </form>
+    <p id="status" role="status"></p>
+    <script src="options.js"></script>
+  </body>
+</html>

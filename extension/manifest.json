@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Vaud Ride – import komoot",
+  "version": "0.1.0",
+  "description": "Envoie le GPX d'un parcours komoot (avec votre session) vers l'import de parcours Vaud Ride.",
+  "permissions": ["storage"],
+  "optional_host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js" },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": ["https://*.komoot.com/*", "https://*.komoot.de/*"],
+      "js": ["inject.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://*.komoot.com/*", "https://*.komoot.de/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
