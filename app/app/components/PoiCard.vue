@@ -12,6 +12,9 @@ const icons: Record<string, string> = {
   water: 'i-lucide-droplet',
   wine: 'i-lucide-wine',
   food: 'i-lucide-utensils',
+  lodging: 'i-lucide-bed',
+  bike: 'i-lucide-wrench',
+  station: 'i-lucide-train-front',
 }
 </script>
 

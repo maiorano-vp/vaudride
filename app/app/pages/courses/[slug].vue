@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { fileSlug, startLinks, toGpx } from '~/lib/course/gpx'
-import { poiDescription, poiTitle, type Poi } from '~/lib/pois/nearby'
+import { poiDescription, poiTitle, sheetSection, type Poi } from '~/lib/pois/nearby'
 import { segmentName, type Segment } from '~/lib/segments/tracker'
 
 interface CourseInfo {
@@ -22,6 +22,11 @@ const name = computed(() => course.value?.name[locale.value] || course.value?.na
 const description = computed(() => course.value?.description?.[locale.value] || course.value?.description?.fr || '')
 const pois = computed(() => [...(course.value?.pois ?? [])].sort((a, b) => a.distance_m - b.distance_m))
 const segments = computed(() => course.value?.segments ?? [])
+const sections = computed(() =>
+  (['discover', 'services', 'lodging'] as const)
+    .map((key) => ({ key, pois: pois.value.filter((p) => sheetSection(p) === key) }))
+    .filter((s) => s.pois.length),
+)
 const links = computed(() => (profile.value ? startLinks(profile.value.points[0]!) : undefined))
 const maxGrade = computed(() => (profile.value ? Math.max(...profile.value.points.map((p) => p.grade)) : 0))
 const km = (m: number) => (m / 1000).toFixed(1)
@@ -91,22 +96,25 @@ function downloadGpx() {
       </ul>
     </section>
 
-    <section v-if="pois.length">
-      <h2 class="mb-2 font-display text-xl uppercase tracking-wide text-vaud-800">{{ $t('course.discover') }}</h2>
+    <section v-for="section in sections" :key="section.key">
+      <h2 class="mb-2 font-display text-xl uppercase tracking-wide text-vaud-800">{{ $t(`course.${section.key}`) }}</h2>
       <ul class="space-y-3">
-        <li v-for="p in pois" :key="p.id">
+        <li v-for="p in section.pois" :key="p.id">
           <p class="m-0">
             <span class="font-semibold">{{ poiTitle(p, locale) }}</span>
             <span class="text-sm text-slate-500">
-              · km {{ km(p.distance_m) }}<template v-if="p.category"> · {{ $t(`poi.category.${p.category}`) }}</template>
+              <template v-if="section.key === 'lodging'">· {{ p.distance_m < 1500 ? $t('course.nearStart') : $t('course.nearFinish') }}</template>
+              <template v-else>· km {{ km(p.distance_m) }}</template>
+              <template v-if="p.category"> · {{ $t(`poi.category.${p.category}`) }}</template>
             </span>
           </p>
+          <p v-if="p.address" class="m-0 text-sm text-slate-500">{{ p.address }}</p>
           <p v-if="poiDescription(p, locale)" class="m-0 text-sm">{{ poiDescription(p, locale) }}</p>
           <a v-if="p.url" :href="p.url" target="_blank" rel="noopener noreferrer" class="text-sm underline">{{ $t('poi.more') }}</a>
         </li>
       </ul>
-      <p v-if="pois.some((p) => p.source === 'osm')" class="mt-2 text-xs text-slate-500">© OpenStreetMap contributors</p>
     </section>
+    <p v-if="pois.some((p) => p.source === 'osm')" class="text-xs text-slate-500">© OpenStreetMap contributors</p>
 
     <p class="text-xs text-slate-500">{{ course.attribution }}</p>
   </div>

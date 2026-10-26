@@ -199,7 +199,10 @@
       "nature": "Nature",
       "water": "Eau potable",
       "wine": "Vin",
-      "food": "Terroir"
+      "food": "Terroir",
+      "lodging": "Hébergement",
+      "bike": "Service vélo",
+      "station": "Gare"
     }
   },
   "course": {
@@ -210,6 +213,10 @@
     "start": "Voir le départ sur la carte",
     "maxGrade": "Pente max",
     "climbs": "Montées",
-    "discover": "À découvrir en chemin"
+    "discover": "À découvrir en chemin",
+    "services": "Services",
+    "lodging": "Où dormir",
+    "nearStart": "près du départ",
+    "nearFinish": "près de l’arrivée"
   }
 }

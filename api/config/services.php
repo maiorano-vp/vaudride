@@ -63,6 +63,12 @@ return [
         'url' => env('OVERPASS_URL', 'https://overpass-api.de/api/interpreter'),
     ],
 
+    // Local Hub: the destination's own tourism data (points of interest, services, tours), read with a bearer token
+    'localhub' => [
+        'url' => env('LOCALHUB_URL', 'https://app.localhub.ch'),
+        'token' => env('LOCALHUB_TOKEN', ''),
+    ],
+
     'frontend' => [
         'url' => env('APP_FRONTEND_URL', 'http://localhost:3000'),
     ],

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Courses\RelationManagers;
 
+use App\Actions\ImportLocalhubPois;
 use App\Actions\ImportOsmPois;
 use App\Enums\PoiCategory;
 use App\Models\Course;
+use App\Services\LocalhubClient;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -58,7 +60,11 @@ final class PoisRelationManager extends RelationManager
                 TextColumn::make('distance_m')->label('Distance')->suffix(' m')->sortable(),
                 TextColumn::make('title.fr')->label('Titre')->searchable(),
                 TextColumn::make('category')->label('Catégorie')->formatStateUsing(fn (?PoiCategory $state): string => $state?->label() ?? '—'),
-                TextColumn::make('source')->label('Origine')->badge()->formatStateUsing(fn (string $state): string => $state === 'osm' ? 'OpenStreetMap' : 'Vaud Promotion'),
+                TextColumn::make('source')->label('Origine')->badge()->formatStateUsing(fn (string $state): string => match ($state) {
+                    'osm' => 'OpenStreetMap',
+                    'localhub' => 'Local Hub',
+                    default => 'Vaud Promotion',
+                }),
                 IconColumn::make('published')->label('Publié')->boolean(),
             ])
             ->defaultSort('distance_m')
@@ -85,6 +91,30 @@ final class PoisRelationManager extends RelationManager
                         }
 
                         Notification::make()->title($created.' lieu(x) importé(s), à relire avant publication.')->success()->send();
+                    }),
+                Action::make('importLocalhub')->label('Importer depuis Local Hub')->icon(Heroicon::OutlinedCloudArrowDown)
+                    ->requiresConfirmation()
+                    ->modalDescription('Les lieux de Local Hub à moins de 300 m du tracé, et les hébergements à moins de 3 km du départ ou de l’arrivée, sont ajoutés non publiés, à relire.')
+                    ->visible(fn (): bool => resolve(LocalhubClient::class)->configured())
+                    ->action(function (): void {
+                        /** @var Course $course */
+                        $course = $this->getOwnerRecord();
+
+                        try {
+                            $result = resolve(ImportLocalhubPois::class)->handle($course);
+                        } catch (Throwable) {
+                            Notification::make()->title('Local Hub ne répond pas ou refuse le jeton (LOCALHUB_TOKEN).')->danger()->send();
+
+                            return;
+                        }
+
+                        if ($result === null) {
+                            Notification::make()->title('Ce parcours n’a pas encore de profil.')->warning()->send();
+
+                            return;
+                        }
+
+                        Notification::make()->title($result['created'].' lieu(x) importé(s), '.$result['skipped'].' ignoré(s). À relire avant publication.')->success()->send();
                     }),
                 CreateAction::make(),
             ])

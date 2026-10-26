@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nearbyPoi, type Poi } from '~/lib/pois/nearby'
+import { nearbyPoi, SHEET_ONLY_CATEGORIES, type Poi } from '~/lib/pois/nearby'
 import type { Segment } from '~/lib/segments/tracker'
 import { availableSceneSources, resolveSceneSource, type SceneSource } from '~/lib/scene/source'
 
@@ -46,7 +46,12 @@ const { locale } = useI18n()
 const courseName = computed(() => courseInfo.value?.data.name?.[locale.value] ?? courseInfo.value?.data.name?.fr ?? course.value?.name ?? '')
 const segments = computed(() => courseInfo.value?.data.segments ?? [])
 const pois = computed(() => courseInfo.value?.data.pois ?? [])
-const poiNearby = computed(() => nearbyPoi(state.value.distanceM, pois.value))
+const poiNearby = computed(() =>
+  nearbyPoi(
+    state.value.distanceM,
+    pois.value.filter((p) => !SHEET_ONLY_CATEGORIES.includes(p.category ?? '')),
+  ),
+)
 const { active: activeSegment, finished: finishedSegment } = useSegments(slug, segments, state)
 
 const recording = useRideRecording(

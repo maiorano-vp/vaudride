@@ -199,7 +199,10 @@
       "nature": "Natur",
       "water": "Trinkwasser",
       "wine": "Wein",
-      "food": "Regionales"
+      "food": "Regionales",
+      "lodging": "Unterkunft",
+      "bike": "Velo-Service",
+      "station": "Bahnhof"
     }
   },
   "course": {
@@ -210,6 +213,10 @@
     "start": "Start auf der Karte",
     "maxGrade": "Max. Steigung",
     "climbs": "Anstiege",
-    "discover": "Unterwegs entdecken"
+    "discover": "Unterwegs entdecken",
+    "services": "Services",
+    "lodging": "Übernachten",
+    "nearStart": "in Startnähe",
+    "nearFinish": "in Zielnähe"
   }
 }

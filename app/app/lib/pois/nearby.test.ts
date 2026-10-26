@@ -41,3 +41,15 @@ describe('nearbyPoi', () => {
     expect(poiDescription(poi('a', 0), 'de')).toBe('Une description')
   })
 })
+
+describe('sheetSection', () => {
+  const of = (category: string | null) => ({ ...poi('x', 0), category })
+
+  it('puts lodging, services and the rest in their own sections', async () => {
+    const { sheetSection, SHEET_ONLY_CATEGORIES } = await import('./nearby')
+    expect(sheetSection(of('lodging'))).toBe('lodging')
+    expect(['water', 'bike', 'station'].map((c) => sheetSection(of(c)))).toEqual(['services', 'services', 'services'])
+    expect([null, 'wine', 'viewpoint'].map((c) => sheetSection(of(c)))).toEqual(['discover', 'discover', 'discover'])
+    expect(SHEET_ONLY_CATEGORIES).toContain('lodging')
+  })
+})

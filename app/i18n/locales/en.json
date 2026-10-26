@@ -199,7 +199,10 @@
       "nature": "Nature",
       "water": "Drinking water",
       "wine": "Wine",
-      "food": "Local food"
+      "food": "Local food",
+      "lodging": "Accommodation",
+      "bike": "Bike service",
+      "station": "Station"
     }
   },
   "course": {
@@ -210,6 +213,10 @@
     "start": "See the start on the map",
     "maxGrade": "Max grade",
     "climbs": "Climbs",
-    "discover": "To discover along the way"
+    "discover": "To discover along the way",
+    "services": "Services",
+    "lodging": "Where to stay",
+    "nearStart": "near the start",
+    "nearFinish": "near the finish"
   }
 }

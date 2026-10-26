@@ -24,6 +24,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read PoiCategory|null $category
  * @property-read string $source
  * @property-read string|null $osm_id
+ * @property-read string|null $external_id
+ * @property-read string|null $address
  * @property-read bool $published
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
@@ -51,6 +53,8 @@ final class Poi extends Model
             'url' => 'string',
             'category' => PoiCategory::class,
             'osm_id' => 'string',
+            'external_id' => 'string',
+            'address' => 'string',
             'published' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',

@@ -27,6 +27,7 @@ final class PoiResource extends JsonResource
             'lon' => $this->lon,
             'url' => $this->url,
             'category' => $this->category?->value,
+            'address' => $this->address,
             'source' => $this->source,
         ];
     }
