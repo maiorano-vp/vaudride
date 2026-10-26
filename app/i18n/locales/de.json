@@ -34,7 +34,10 @@
   "ride": {
     "restart": "Neu starten",
     "finished": "Strecke abgeschlossen!",
-    "notFound": "Strecke nicht gefunden."
+    "notFound": "Strecke nicht gefunden.",
+    "pause": "Pause",
+    "resume": "Fortsetzen",
+    "paused": "Pausiert"
   },
   "scene": {
     "show3d": "3D-Ansicht",

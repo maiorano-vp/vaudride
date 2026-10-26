@@ -34,7 +34,10 @@
   "ride": {
     "restart": "Restart",
     "finished": "Course complete!",
-    "notFound": "Course not found."
+    "notFound": "Course not found.",
+    "pause": "Pause",
+    "resume": "Resume",
+    "paused": "Paused"
   },
   "scene": {
     "show3d": "3D view",

@@ -34,7 +34,10 @@
   "ride": {
     "restart": "Recommencer",
     "finished": "Parcours terminé !",
-    "notFound": "Parcours introuvable."
+    "notFound": "Parcours introuvable.",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "paused": "En pause"
   },
   "scene": {
     "show3d": "Vue 3D",

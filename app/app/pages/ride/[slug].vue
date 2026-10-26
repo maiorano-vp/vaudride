@@ -12,13 +12,23 @@ const powerW = computed(() => trainer.data.value.powerW ?? powerMeter.data.value
 const cadenceRpm = computed(() => trainer.data.value.cadenceRpm ?? powerMeter.data.value.cadenceRpm)
 const heartRate = computed(() => strap.bpm.value ?? trainer.data.value.heartRate)
 
-const { state, reset } = useRide(computed(() => course.value ?? undefined), powerW, trainer.setGrade)
+const { state, paused, reset } = useRide(computed(() => course.value ?? undefined), powerW, trainer.setGrade)
 
 // 3D needs WebGL; fall back to the 2D layout when unavailable or on request
 const view = ref<'3d' | '2d'>('2d')
 onMounted(() => {
   if (document.createElement('canvas').getContext('webgl2')) view.value = '3d'
 })
+
+// Space toggles the pause
+function onKey(e: KeyboardEvent) {
+  if (e.code === 'Space' && !(e.target instanceof HTMLButtonElement)) {
+    e.preventDefault()
+    paused.value = !paused.value
+  }
+}
+onMounted(() => window.addEventListener('keydown', onKey))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 const unsupported = computed(() => [trainer, powerMeter, strap].some((d) => d.connection.value === 'unsupported'))
 // ?sim=1 shows a power slider that drives the fake trainer
@@ -84,6 +94,14 @@ const simPower = computed({
       :elapsed-s="state.elapsedS"
     />
     <ElevationProfile class="hud-bottom" :course="course" :distance-m="state.distanceM" />
+    <UButton
+      class="pause"
+      :icon="paused ? 'i-lucide-play' : 'i-lucide-pause'"
+      :label="$t(paused ? 'ride.resume' : 'ride.pause')"
+      :disabled="state.finished"
+      @click="paused = !paused"
+    />
+    <p v-if="paused" class="finished" role="status">{{ $t('ride.paused') }}</p>
     <p v-if="state.finished" class="finished" role="status">{{ $t('ride.finished') }}</p>
     <small v-if="view === '2d'">{{ course.attribution }}</small>
   </div>
@@ -150,6 +168,12 @@ const simPower = computed({
   width: min(48rem, calc(100% - 1.5rem));
   transform: translateX(-50%);
   opacity: 0.9;
+}
+.immersive .pause {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 2rem;
+  z-index: 2;
 }
 .finished {
   position: absolute;
