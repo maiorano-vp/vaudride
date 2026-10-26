@@ -28,7 +28,7 @@ final class LocalhubSyncCommand extends Command
 
         $result = $sync->handle();
 
-        $this->info("{$result['synced']} places synced, {$result['without_position']} without a position left out, {$result['removed']} removed.");
+        $this->info("{$result['synced']} places synced, {$result['without_position']} without a position and {$result['ignored']} not for riders (schools, business tourism) left out, {$result['removed']} removed.");
 
         return self::SUCCESS;
     }

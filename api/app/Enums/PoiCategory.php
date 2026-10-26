@@ -17,6 +17,8 @@ enum PoiCategory: string
     case Bike = 'bike';
     case Station = 'station';
     case Shop = 'shop';
+    case Activity = 'activity';
+    case Service = 'service';
 
     /**
      * The category of an OpenStreetMap element, from its tags; null when it is not worth a rider's attention.
@@ -56,6 +58,8 @@ enum PoiCategory: string
             self::Bike => 'Service vélo',
             self::Station => 'Gare',
             self::Shop => 'Commerce',
+            self::Activity => 'Activité',
+            self::Service => 'Service pratique',
         };
     }
 }

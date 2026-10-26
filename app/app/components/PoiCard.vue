@@ -16,6 +16,8 @@ const icons: Record<string, string> = {
   bike: 'i-lucide-wrench',
   station: 'i-lucide-train-front',
   shop: 'i-lucide-shopping-basket',
+  activity: 'i-lucide-bike',
+  service: 'i-lucide-info',
 }
 </script>
 

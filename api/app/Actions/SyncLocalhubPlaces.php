@@ -16,7 +16,7 @@ final readonly class SyncLocalhubPlaces
     public function __construct(private LocalhubClient $localhub, private LocalhubPlaceMapper $mapper) {}
 
     /**
-     * @return array{synced: int, without_position: int, removed: int}
+     * @return array{synced: int, without_position: int, ignored: int, removed: int}
      */
     public function handle(): array
     {
@@ -24,12 +24,14 @@ final readonly class SyncLocalhubPlaces
         $rows = [];
         $synced = 0;
         $without = 0;
+        $ignored = 0;
 
         foreach ($this->localhub->pois() as $hit) {
             $place = $this->mapper->map($hit);
 
             if ($place === null) {
-                $without++;
+                // no position, or not for riders: told apart only for the report
+                $this->mapper->isIgnored($hit) ? $ignored++ : $without++;
 
                 continue;
             }
@@ -53,7 +55,7 @@ final readonly class SyncLocalhubPlaces
         // reached only when the whole catalogue was read: a failed pass keeps the previous copy untouched
         $removed = LocalhubPlace::query()->where('synced_at', '<', $startedAt)->delete();
 
-        return ['synced' => $synced, 'without_position' => $without, 'removed' => $removed];
+        return ['synced' => $synced, 'without_position' => $without, 'ignored' => $ignored, 'removed' => $removed];
     }
 
     /**

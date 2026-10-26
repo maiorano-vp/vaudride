@@ -20,7 +20,7 @@ export const SHEET_ONLY_CATEGORIES = ['lodging']
 /** Where the places of a course go on its sheet. */
 export function sheetSection(poi: Poi): 'lodging' | 'services' | 'discover' {
   if (poi.category === 'lodging') return 'lodging'
-  if (poi.category && ['water', 'bike', 'station', 'shop'].includes(poi.category)) return 'services'
+  if (poi.category && ['water', 'bike', 'station', 'shop', 'service'].includes(poi.category)) return 'services'
   return 'discover'
 }
 

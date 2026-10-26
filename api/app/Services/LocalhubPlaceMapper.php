@@ -10,8 +10,37 @@ use App\Enums\PoiCategory;
 final readonly class LocalhubPlaceMapper
 {
     /**
+     * Local Hub's own sub-categories (asset categories) and what they are for a rider. Generic ones are refined by
+     * the name afterwards. Categories missing here fall back to the name and the attributes.
+     */
+    private const array BY_SUBCATEGORY = [
+        'restaurants' => 'food', 'otv_localprod' => 'food', 'otv_nightlife' => 'food', 'old_nightlife' => 'food',
+        'j3l_restaurants' => 'food', 'j3l_bars' => 'food', 'j3l_products' => 'food',
+        'gastronomy_wine' => 'wine', 'j3l_wines' => 'wine',
+        'hotel' => 'lodging', 'holiday_apartment' => 'lodging', 'guesthouse' => 'lodging', 'campsite' => 'lodging',
+        'dormitory_mountain_hut' => 'lodging', 'chalet' => 'lodging', 'otv_hotels' => 'lodging', 'accomodation' => 'lodging',
+        'j3l_hotels' => 'lodging', 'j3l_camps' => 'lodging', 'j3l_bb' => 'lodging', 'j3l_group_accomodation' => 'lodging',
+        'otv_shopping' => 'shop', 'shops' => 'shop',
+        'otv_infra' => 'service', 'ots' => 'service', 'information' => 'service',
+        'transports' => 'station',
+        'culture' => 'culture', 'culture_heritage' => 'culture', 'otv_museums' => 'culture', 'j3l_museum' => 'culture',
+        'j3l_theater_cinemas' => 'culture', 'j3l_guidedtour' => 'culture', 'j3l_patrimoine' => 'history',
+        'nature' => 'nature', 'otv_parks' => 'nature', 'j3l_natural_sites' => 'nature', 'j3l_picnic' => 'nature',
+        'sports_leisure' => 'activity', 'otv_summeracti' => 'activity', 'otv_winter' => 'activity', 'sport' => 'activity',
+        'tourist_transports' => 'activity', 'otv_wellnes' => 'activity', 'family' => 'activity', 'j3l_water' => 'activity',
+        'j3l_fun' => 'activity', 'j3l_various_sports' => 'activity', 'j3l_mountainbiking_poi' => 'activity', 'j3l_golf' => 'activity',
+        'j3l_zoo' => 'activity', 'aventure-et-loisirs' => 'activity', 'atelier-et-initiation' => 'activity', 'j3l_group_offer' => 'activity',
+    ];
+
+    /** Not for riders: schools, business tourism. */
+    private const array IGNORED_SUBCATEGORIES = ['otv_schools', 'otv_businesstourism'];
+
+    /** What the name may still say about a generic category (a church among culture, a beach among activities). */
+    private const array REFINED_BY_NAME = ['history', 'viewpoint', 'nature', 'water', 'station'];
+
+    /**
      * @param  array<string, mixed>  $hit
-     * @return array{id: string, title: array{fr: string, de: string, en: string}, summary: array{fr: string, de: string, en: string}|null, lat: float, lon: float, address: string|null, url: string|null, facts: list<array{label: string, values: list<string>}>, category: string}|null null when the place has no id or no position
+     * @return array{id: string, title: array{fr: string, de: string, en: string}, summary: array{fr: string, de: string, en: string}|null, lat: float, lon: float, address: string|null, url: string|null, facts: list<array{label: string, values: list<string>}>, category: string}|null null when the place has no id, no position, or is not for riders (schools…)
      */
     public function map(array $hit): ?array
     {
@@ -23,7 +52,15 @@ final readonly class LocalhubPlaceMapper
 
         $title = $this->localized($hit['name'] ?? null) ?? ['fr' => '?', 'de' => '?', 'en' => '?'];
         $facts = $this->facts($hit);
-        $facts[] = ['label' => 'catégorie', 'values' => [mb_strtolower($this->categoryText($hit['rootAssetCategory'] ?? null).' '.$this->categoryText($hit['assetCategory'] ?? null))]];
+        $facts[] = ['label' => 'catégorie', 'values' => array_values(array_filter([
+            mb_strtolower((string) ($hit['rootAssetCategory']['slug'] ?? '')),
+            mb_strtolower((string) ($hit['assetCategory']['slug'] ?? '')),
+        ]))];
+        $category = $this->classify($title['fr'], $facts);
+
+        if ($category === null) {
+            return null;
+        }
 
         return [
             'id' => 'localhub:'.$hit['id'],
@@ -34,12 +71,49 @@ final readonly class LocalhubPlaceMapper
             'address' => $this->address($hit),
             'url' => $this->url($hit),
             'facts' => $facts,
-            'category' => $this->categorize($title['fr'], $facts)->value,
+            'category' => $category->value,
         ];
     }
 
     /**
-     * The category of a place. The API gives no category on the places themselves, so it is read from the name
+     * @param  array<string, mixed>  $hit
+     */
+    public function isIgnored(array $hit): bool
+    {
+        return in_array(mb_strtolower((string) ($hit['assetCategory']['slug'] ?? '')), self::IGNORED_SUBCATEGORIES, true);
+    }
+
+    /**
+     * The category of a place, or null when it is not for riders. Local Hub's own sub-category decides; the name
+     * only refines a generic one, and replaces it when Local Hub gave none.
+     *
+     * @param  list<array{label: string, values: list<string>}>  $facts
+     */
+    public function classify(string $title, array $facts): ?PoiCategory
+    {
+        $slugs = array_merge([], ...array_column(array_filter($facts, fn (array $f): bool => $f['label'] === 'catégorie'), 'values'));
+        $sub = $slugs !== [] ? end($slugs) : '';
+
+        if (in_array($sub, self::IGNORED_SUBCATEGORIES, true)) {
+            return null;
+        }
+
+        $byName = $this->categorize($title, $facts);
+        $official = self::BY_SUBCATEGORY[$sub] ?? null;
+
+        if ($official === null) {
+            return $byName;
+        }
+
+        $category = PoiCategory::from($official);
+
+        return in_array($category->value, ['culture', 'activity', 'nature'], true) && in_array($byName->value, self::REFINED_BY_NAME, true)
+            ? $byName
+            : $category;
+    }
+
+    /**
+     * The category of a place read from its name and the attributes an editor ticked. The API gives no category on the places themselves, so it is read from the name
      * (a hotel, a restaurant, a pharmacy…) and from the attributes an editor ticked (panorama, establishment type,
      * theme…). Culture when nothing says otherwise.
      *

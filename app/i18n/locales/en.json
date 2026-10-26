@@ -203,7 +203,9 @@
       "lodging": "Accommodation",
       "bike": "Bike service",
       "station": "Station",
-      "shop": "Shop"
+      "shop": "Shop",
+      "activity": "Activity",
+      "service": "Practical service"
     }
   },
   "course": {

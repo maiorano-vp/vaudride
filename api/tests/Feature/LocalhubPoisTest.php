@@ -80,7 +80,7 @@ describe('syncing the catalogue', function (): void {
             ['id' => '2', 'name' => 'Sans position'],
         ]);
 
-        expect($result)->toBe(['synced' => 1, 'without_position' => 1, 'removed' => 0]);
+        expect($result)->toBe(['synced' => 1, 'without_position' => 1, 'ignored' => 0, 'removed' => 0]);
         $place = LocalhubPlace::query()->findOrFail('localhub:1');
         expect($place->title)->toBe(['fr' => 'Cave du Lac', 'de' => 'Cave du Lac (de)', 'en' => 'Cave du Lac'])
             ->and($place->category)->toBe(PoiCategory::Wine)
@@ -103,7 +103,7 @@ describe('syncing the catalogue', function (): void {
 
         Http::assertSent(fn (Request $r) => $r->hasHeader('Authorization', 'Bearer secret-token')
             && str_starts_with($r->url(), 'https://localhub.test/api/v1/pois')
-            && $r['page'] === 1 && $r['pageSize'] === 100 && $r['fields'] === 'name,summary,location,links,attributes');
+            && $r['page'] === 1 && $r['pageSize'] === 100 && $r['fields'] === 'name,summary,location,links,attributes,assetCategory,rootAssetCategory');
     });
 
     it('follows the pagination', function (): void {
@@ -325,5 +325,64 @@ describe('categories', function (): void {
 
         expect($place->refresh()->category)->toBe(PoiCategory::Viewpoint);
         Http::assertNothingSent();
+    });
+});
+
+describe('Local Hub categories', function (): void {
+    /** A place given a root and a sub-category the way the API does. */
+    function categorized(string $name, string $root, string $sub): array
+    {
+        return hit(md5($name.$sub), $name, '', 1000, extra: ['rootAssetCategory' => ['slug' => $root, 'name' => ['fr' => $root]], 'assetCategory' => ['slug' => $sub, 'name' => ['fr' => $sub]]]);
+    }
+
+    it('uses the official sub-category, whatever the name says', function (string $root, string $sub, string $name, PoiCategory $expected): void {
+        syncHits([categorized($name, $root, $sub)]);
+
+        expect(LocalhubPlace::query()->firstOrFail()->category)->toBe($expected);
+    })->with([
+        'restaurant' => ['catering', 'restaurants', 'Chez Antoine', PoiCategory::Food],
+        'wine' => ['catering', 'gastronomy_wine', 'Les 11 Terres', PoiCategory::Wine],
+        'local products' => ['catering', 'otv_localprod', 'Fromagerie du coin', PoiCategory::Food],
+        'hotel' => ['accommodation', 'hotel', 'Le Rivage', PoiCategory::Lodging],
+        'holiday flat' => ['accommodation', 'holiday_apartment', 'Visionapartments', PoiCategory::Lodging],
+        'campsite' => ['accommodation', 'campsite', 'La Pichette', PoiCategory::Lodging],
+        'hotel listed under practical information' => ['practical-information', 'otv_hotels', 'Chez Nous', PoiCategory::Lodging],
+        'shopping' => ['practical-information', 'otv_shopping', 'Pharmacieplus du Marché Vevey', PoiCategory::Shop],
+        'practical infrastructure' => ['practical-information', 'otv_infra', 'Parking du Port', PoiCategory::Service],
+        'transport' => ['practical-information', 'transports', 'Arrêt', PoiCategory::Station],
+        'museum' => ['culture', 'otv_museums', 'Musée Jenisch', PoiCategory::Culture],
+        'heritage' => ['culture', 'culture_heritage', 'Grand-Rue', PoiCategory::Culture],
+        'sports' => ['activities', 'sports_leisure', 'Swiss Paddle', PoiCategory::Activity],
+        'nature' => ['nature', 'nature', 'Lac de Bret', PoiCategory::Nature],
+        'tourist train' => ['nature', 'tourist_transports', 'Le train MBC', PoiCategory::Activity],
+    ]);
+
+    it('lets the name refine a generic category', function (string $root, string $sub, string $name, PoiCategory $expected): void {
+        syncHits([categorized($name, $root, $sub)]);
+
+        expect(LocalhubPlace::query()->firstOrFail()->category)->toBe($expected);
+    })->with([
+        'a church among heritage' => ['culture', 'culture_heritage', 'Eglise de Saint-Saphorin', PoiCategory::History],
+        'a viewpoint among activities' => ['activities', 'sports_leisure', 'Belvédère du Signal', PoiCategory::Viewpoint],
+        'a beach among activities' => ['activities', 'otv_summeracti', 'Plage des Curtinaux', PoiCategory::Nature],
+        'a station among heritage' => ['culture', 'culture_heritage', 'Gare de Chexbres', PoiCategory::Station],
+    ]);
+
+    it('keeps the official category over a name that points elsewhere', function (): void {
+        syncHits([categorized('Hôtel de Ville', 'catering', 'restaurants')]);
+
+        expect(LocalhubPlace::query()->firstOrFail()->category)->toBe(PoiCategory::Food);
+    });
+
+    it('does not keep what is not for riders, and says so', function (): void {
+        $result = syncHits([categorized('Ecole de Lutry', 'practical-information', 'otv_schools'), categorized('Cave', 'catering', 'gastronomy_wine')]);
+
+        expect($result)->toMatchArray(['synced' => 1, 'ignored' => 1])->and(LocalhubPlace::query()->count())->toBe(1);
+    });
+
+    it('falls back to the name and the attributes when Local Hub gave no category', function (): void {
+        syncHits([hit('1', 'Hôtel Les Trois Sapins', '', 1000), categorized('Le Café littéraire', 'j3l_poi_notlisted', 'j3l_poi_notlisted')]);
+
+        expect(LocalhubPlace::query()->get()->pluck('category')->map->value->sort()->values()->all())->toBe(['food', 'lodging']);
     });
 });
