@@ -70,5 +70,17 @@
     "invalidEmail": "Invalid email address",
     "passwordMin": "At least 8 characters",
     "tagline": "Ride the real roads of Vaud"
+  },
+  "intro": {
+    "title": "Ready to ride?",
+    "lead": "Connect your gear and check everything responds before you start. You can also skip this step.",
+    "step1": "1. Connect your devices",
+    "step2": "2. Pedal",
+    "pedal": "Pedal a few turns: the trainer wakes up and starts sending power.",
+    "powerOk": "Signal received: {w} W",
+    "powerWait": "Waiting for data…",
+    "step3": "3. Test the resistance",
+    "resistance": "Raise the grade: resistance should increase. It resets to 0 % when you leave the page.",
+    "start": "Choose a course"
   }
 }

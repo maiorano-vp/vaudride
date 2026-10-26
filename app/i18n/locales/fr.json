@@ -70,5 +70,17 @@
     "invalidEmail": "Adresse e-mail invalide",
     "passwordMin": "8 caractères minimum",
     "tagline": "Pédalez sur les vraies routes vaudoises"
+  },
+  "intro": {
+    "title": "Prêt à rouler ?",
+    "lead": "Branchez votre matériel et vérifiez que tout répond avant de partir. Vous pouvez aussi passer cette étape.",
+    "step1": "1. Connecter le matériel",
+    "step2": "2. Pédaler",
+    "pedal": "Pédalez quelques tours : le trainer se réveille et envoie la puissance.",
+    "powerOk": "Signal reçu : {w} W",
+    "powerWait": "En attente de données…",
+    "step3": "3. Tester la résistance",
+    "resistance": "Montez la pente : la résistance doit augmenter. Elle revient à 0 % en quittant la page.",
+    "start": "Choisir un parcours"
   }
 }

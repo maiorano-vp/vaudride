@@ -6,9 +6,7 @@ const route = useRoute()
 const origin = useRequestURL().origin
 const { data: course } = await useFetch<CourseProfile>(`${origin}/courses/${route.params.slug}/profile.json`)
 
-const trainer = useTrainer()
-const powerMeter = usePowerMeter()
-const strap = useHeartRate()
+const { trainer, powerMeter, strap } = useDevices()
 
 const powerW = computed(() => trainer.data.value.powerW ?? powerMeter.data.value.powerW ?? 0)
 const cadenceRpm = computed(() => trainer.data.value.cadenceRpm ?? powerMeter.data.value.cadenceRpm)

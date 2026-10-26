@@ -10,6 +10,7 @@ const route = useRoute()
       </h1>
       <UserMenu />
     </header>
+    <UButton class="mb-4" :label="$t('intro.title')" :to="{ path: '/intro', query: route.query }" />
     <UCard>
       <NuxtLink :to="{ path: '/ride/marchairuz-biere', query: route.query }"
         >Col du Marchairuz depuis Bière</NuxtLink

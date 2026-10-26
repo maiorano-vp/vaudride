@@ -5,7 +5,7 @@ import type { BleDevice } from '~/lib/ble/transport'
 
 export type Connection = 'idle' | 'connecting' | 'connected' | 'reconnecting' | 'unsupported' | 'error'
 
-/** Shared connect/disconnect lifecycle for trainer, heart-rate strap and power meter. */
+/** Connect/disconnect lifecycle (lives as long as the page session, see useDevices) for trainer, heart-rate strap and power meter. */
 export function useBleDevice(service: number, setup: (device: BleDevice) => Promise<void>) {
   const connection = ref<Connection>('idle')
   const deviceName = ref<string>()
@@ -37,6 +37,5 @@ export function useBleDevice(service: number, setup: (device: BleDevice) => Prom
     stop = undefined
   }
 
-  onBeforeUnmount(disconnect)
   return { connection, deviceName, simDevice, connect, disconnect }
 }

@@ -9,7 +9,6 @@ export function useTrainer() {
     trainer ??= new FtmsTrainer(d, (v) => (data.value = { ...data.value, ...v }))
     await trainer.setup()
   })
-  onBeforeUnmount(() => trainer?.stop())
   return { ...device, data, setGrade: (pct: number) => trainer?.setGrade(pct) }
 }
 
