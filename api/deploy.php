@@ -20,6 +20,10 @@ set('sub_directory', 'api');
 // [Optional] Allocate tty for git clone. Default value is false.
 set('git_tty', false);
 
+// Production uses SQLite: the file lives in {{deploy_path}}/shared and is symlinked into every release, so it
+// survives deploys (deploy:shared creates it empty on the first run; migrate then builds the schema).
+add('shared_files', ['database/database.sqlite']);
+
 // Number of releases kept on the server before older ones are pruned.
 set('keep_releases', 5);
 
@@ -55,6 +59,7 @@ task('deploy', [
     'artisan:storage:link',
     'artisan:config:cache',
     'artisan:route:cache',
+    'db:backup',
     'artisan:migrate',
     'deploy:publish',
     'artisan:queue:restart',
@@ -76,6 +81,16 @@ task('deploy:public-symlink', function () {
 });
 
 after('deploy:symlink', 'deploy:public-symlink');
+
+desc('Copies the SQLite database to shared/backups before migrating (keeps the last 10)');
+task('db:backup', function () {
+    $db = '{{deploy_path}}/shared/database/database.sqlite';
+    $dir = '{{deploy_path}}/shared/backups';
+
+    // an empty file is the first deploy: nothing worth saving yet
+    run("[ -s {$db} ] && mkdir -p {$dir} && cp {$db} {$dir}/database-$(date +%Y%m%d-%H%M%S).sqlite || true");
+    run("ls -1t {$dir}/database-*.sqlite 2>/dev/null | tail -n +11 | xargs -r rm -f || true");
+});
 
 desc('Checks that the API is up');
 task('deploy:healthcheck', function () {
