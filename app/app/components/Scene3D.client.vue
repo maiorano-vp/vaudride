@@ -43,6 +43,8 @@ const TARGET_AHEAD_M = 12 // camera looks at a point this far in front of the ri
 const CAMERA_RANGE_M = 32 // → camera ~20 m behind the rider
 const CAMERA_PITCH_RAD = -0.24
 const FOV_DEG = 70
+const FOV_SPEED_GAIN = 1.2 // degrees of extra field of view per m/s: speed feels faster
+const FOV_MAX_EXTRA_DEG = 12
 const AVATAR_SCALE = 1.6
 const SAMPLE_EVERY = 8 // route points between terrain height samples (~40 m)
 
@@ -109,7 +111,21 @@ async function start() {
     // keep profile altitudes as a fallback
   }
 
-  viewer.scene.globe.maximumScreenSpaceError = 1.5
+  const { scene } = viewer
+  scene.globe.maximumScreenSpaceError = 1.5
+
+  // Fixed sunny late morning (summer, Vaud) so the sky is always blue and slopes are shaded the same way for everyone
+  viewer.clock.currentTime = Cesium.JulianDate.fromIso8601('2026-06-21T09:30:00Z')
+  viewer.clock.shouldAnimate = false
+  scene.globe.enableLighting = true
+  scene.light = new Cesium.SunLight()
+  scene.highDynamicRange = false
+  scene.globe.showGroundAtmosphere = true
+  scene.skyAtmosphere.brightnessShift = 0.1
+  scene.fog.enabled = true
+  scene.fog.density = 0.00018 // soft haze toward the horizon
+  scene.fog.minimumBrightness = 0.12
+  if (scene.msaaSupported) scene.msaaSamples = 4 // smooth road, building and avatar edges
 
   // Real 3D buildings and trees (swisstopo 3D Tiles); added as they load so the scene never waits on them
   const addTileset = (url: string, customShader?: InstanceType<typeof Cesium.CustomShader>) =>
@@ -121,7 +137,8 @@ async function start() {
       .catch(() => {}) // optional layers: the terrain scene still works without them
   void addTileset(BUILDINGS_URL, new Cesium.CustomShader({ fragmentShaderText: BUILDING_SHADER }))
   void addTileset(VEGETATION_URL)
-  ;(viewer.camera.frustum as InstanceType<typeof Cesium.PerspectiveFrustum>).fov = Cesium.Math.toRadians(FOV_DEG)
+  const frustum = viewer.camera.frustum as InstanceType<typeof Cesium.PerspectiveFrustum>
+  let fovDeg = FOV_DEG
 
   // Cyclist built from primitives, posed each frame: x = forward, y = up, z = right (local frame)
   let avatar = Cesium.Cartesian3.fromDegrees(points[0]!.lon, points[0]!.lat, hs[0]!)
@@ -185,6 +202,8 @@ async function start() {
       pointAt(props.course, Math.min(d + TARGET_AHEAD_M, total)).lat,
       interpolateAt(ds, hs, Math.min(d + TARGET_AHEAD_M, total)) + 1.5,
     )
+    fovDeg += (FOV_DEG + Math.min(props.speedMs * FOV_SPEED_GAIN, FOV_MAX_EXTRA_DEG) - fovDeg) * 0.05
+    frustum.fov = Cesium.Math.toRadians(fovDeg)
     viewer.camera.lookAt(lookAt, new Cesium.HeadingPitchRange(heading, pitch, CAMERA_RANGE_M))
   })
 
