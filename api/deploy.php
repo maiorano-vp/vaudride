@@ -29,6 +29,7 @@ set('keep_releases', 5);
 
 // Public URL checked by deploy:healthcheck after each release (Laravel's built-in /up route).
 set('healthcheck_url', 'https://vaudride.myvaud.dev/up');
+set('opcache_flush_url', 'https://vaudride.myvaud.dev/opcache-flush');
 
 /**
  * Optional: on hosts whose docroot cannot be pointed at <release>/public (e.g. Infomaniak shared hosting),
@@ -104,7 +105,25 @@ task('deploy:healthcheck', function () {
     info("Health check passed: {$url} returned HTTP {$status}");
 });
 
-after('deploy:publish', 'deploy:healthcheck');
+desc('Flushes OPcache inside the PHP-FPM pool');
+task('opcache:flush', function () {
+    // opcache_reset() over SSH only resets the CLI's cache, so hit an HTTP endpoint served by FPM instead
+    $token = mb_trim(run('grep -m1 "^OPCACHE_FLUSH_TOKEN=" {{deploy_path}}/shared/.env 2>/dev/null | cut -d "=" -f2- | tr -d \'"\' || true'));
+
+    if ($token === '') {
+        warning('OPCACHE_FLUSH_TOKEN is not set in shared/.env: skipping the OPcache flush.');
+
+        return;
+    }
+
+    // one request only resets the FPM worker that handles it: fire a few to cover the pool
+    for ($i = 0; $i < 3; $i++) {
+        run('curl -fsS "{{opcache_flush_url}}?token='.$token.'" 2>&1 || true');
+    }
+});
+
+after('deploy:publish', 'opcache:flush');
+after('opcache:flush', 'deploy:healthcheck');
 
 // Shared hosting often has no composer binary Deployer can detect: call `composer` straight from the PATH.
 task('composer:install', function () {

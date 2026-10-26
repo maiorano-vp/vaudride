@@ -54,6 +54,10 @@ return [
         'cluster' => env('PUSHER_APP_CLUSTER', 'eu'),
     ],
 
+    'opcache' => [
+        'flush_token' => env('OPCACHE_FLUSH_TOKEN', ''),
+    ],
+
     'frontend' => [
         'url' => env('APP_FRONTEND_URL', 'http://localhost:3000'),
     ],
