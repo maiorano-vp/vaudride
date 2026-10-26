@@ -16,8 +16,10 @@ const km = (m: number) => (m / 1000).toFixed(1)
 <template>
   <div class="mx-auto max-w-3xl p-4">
     <header class="mb-6 flex items-center justify-between">
-      <h1 class="font-display text-3xl uppercase tracking-wide text-vaud-800">
-        {{ $t('app.title') }}
+      <h1 class="flex items-center gap-3" :aria-label="$t('app.title')">
+        <img src="/vaud-logo.svg" alt="Vaud" class="h-9" >
+        <!-- the logo already spells "Vaud" -->
+        <span class="font-display text-3xl uppercase tracking-wide text-vaud-800">Ride</span>
       </h1>
       <UserMenu />
     </header>
