@@ -41,5 +41,33 @@
     "show2d": "Vue 2D",
     "loading": "Chargement de la scène 3D…",
     "error": "La scène 3D n'a pas pu être chargée. Utilisez la vue 2D."
+  },
+  "auth": {
+    "loginTitle": "Connexion",
+    "registerTitle": "Créer un compte",
+    "forgotTitle": "Mot de passe oublié",
+    "resetTitle": "Nouveau mot de passe",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "name": "Nom",
+    "login": "Se connecter",
+    "register": "S'inscrire",
+    "logout": "Se déconnecter",
+    "account": "Mon compte",
+    "back": "Retour",
+    "forgot": "Mot de passe oublié ?",
+    "noAccount": "Pas de compte ? Inscrivez-vous",
+    "haveAccount": "Déjà un compte ? Connectez-vous",
+    "backToLogin": "Retour à la connexion",
+    "sendLink": "Envoyer le lien",
+    "forgotHelp": "Indiquez votre e-mail : nous vous envoyons un lien pour choisir un nouveau mot de passe.",
+    "forgotSent": "Si un compte existe pour cette adresse, un e-mail vient d’être envoyé.",
+    "resetSubmit": "Enregistrer",
+    "resetDone": "Mot de passe modifié. Vous pouvez vous connecter.",
+    "resetInvalid": "Lien invalide ou expiré.",
+    "required": "Champ requis",
+    "invalidEmail": "Adresse e-mail invalide",
+    "passwordMin": "8 caractères minimum"
   }
 }

@@ -1,0 +1,37 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+@theme static {
+  --font-sans: 'Maitree', serif;
+  --font-display: 'Staatliches', sans-serif;
+
+  /* vaud.ch blue (#0a4069 = 800) */
+  --color-vaud-50: #eef5fa;
+  --color-vaud-100: #d9e8f3;
+  --color-vaud-200: #b6d2e6;
+  --color-vaud-300: #86b2d2;
+  --color-vaud-400: #5290b9;
+  --color-vaud-500: #2f729f;
+  --color-vaud-600: #1d5883;
+  --color-vaud-700: #134a74;
+  --color-vaud-800: #0a4069;
+  --color-vaud-900: #0a334d;
+  --color-vaud-950: #272e3d;
+
+  /* vaud.ch green (#199573 = 600) */
+  --color-vaud-green-50: #ecfdf7;
+  --color-vaud-green-100: #d1faec;
+  --color-vaud-green-500: #22b08a;
+  --color-vaud-green-600: #199573;
+  --color-vaud-green-700: #137a5e;
+}
+
+:root {
+  --ui-primary: var(--color-vaud-800);
+  --ui-bg: #fff;
+}
+
+body {
+  background: #f3f5f8;
+  color: #272e3d;
+}

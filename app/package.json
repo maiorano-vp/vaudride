@@ -16,12 +16,14 @@
     "sync-courses": "mkdir -p public/courses && cp -R ../dist/* public/courses/"
   },
   "dependencies": {
+    "@nuxt/ui": "^4.12.0",
     "@nuxtjs/i18n": "^10.6.0",
     "@vite-pwa/nuxt": "^1.1.1",
     "cesium": "^1.146.0",
     "nuxt": "^4.6.2",
     "vue": "^3.5.44",
-    "vue-router": "^5.4.0"
+    "vue-router": "^5.4.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.17.0",

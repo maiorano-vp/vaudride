@@ -41,5 +41,33 @@
     "show2d": "2D view",
     "loading": "Loading 3D scene…",
     "error": "Could not load the 3D scene. Use the 2D view."
+  },
+  "auth": {
+    "loginTitle": "Sign in",
+    "registerTitle": "Create an account",
+    "forgotTitle": "Forgot password",
+    "resetTitle": "New password",
+    "email": "Email",
+    "password": "Password",
+    "newPassword": "New password",
+    "name": "Name",
+    "login": "Sign in",
+    "register": "Sign up",
+    "logout": "Sign out",
+    "account": "My account",
+    "back": "Back",
+    "forgot": "Forgot your password?",
+    "noAccount": "No account? Sign up",
+    "haveAccount": "Already have an account? Sign in",
+    "backToLogin": "Back to sign in",
+    "sendLink": "Send link",
+    "forgotHelp": "Enter your email and we will send you a link to choose a new password.",
+    "forgotSent": "If an account exists for this address, an email has just been sent.",
+    "resetSubmit": "Save",
+    "resetDone": "Password changed. You can now sign in.",
+    "resetInvalid": "Invalid or expired link.",
+    "required": "Required",
+    "invalidEmail": "Invalid email address",
+    "passwordMin": "At least 8 characters"
   }
 }

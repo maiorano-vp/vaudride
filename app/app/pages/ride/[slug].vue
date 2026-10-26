@@ -49,6 +49,7 @@ const simPower = computed({
         <button @click="reset()">{{ $t('ride.restart') }}</button>
         <button @click="view = view === '3d' ? '2d' : '3d'">{{ $t(view === '3d' ? 'scene.show2d' : 'scene.show3d') }}</button>
       </div>
+      <UserMenu class="mt-2" />
       <label v-if="sim">
         {{ $t('ble.simPower') }} {{ simPower }} W
         <input v-model.number="simPower" type="range" min="0" max="500" step="10" >

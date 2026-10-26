@@ -41,5 +41,33 @@
     "show2d": "2D-Ansicht",
     "loading": "3D-Szene wird geladen…",
     "error": "Die 3D-Szene konnte nicht geladen werden. Verwenden Sie die 2D-Ansicht."
+  },
+  "auth": {
+    "loginTitle": "Anmelden",
+    "registerTitle": "Konto erstellen",
+    "forgotTitle": "Passwort vergessen",
+    "resetTitle": "Neues Passwort",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "newPassword": "Neues Passwort",
+    "name": "Name",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "logout": "Abmelden",
+    "account": "Mein Konto",
+    "back": "Zurück",
+    "forgot": "Passwort vergessen?",
+    "noAccount": "Noch kein Konto? Registrieren",
+    "haveAccount": "Bereits ein Konto? Anmelden",
+    "backToLogin": "Zurück zur Anmeldung",
+    "sendLink": "Link senden",
+    "forgotHelp": "Geben Sie Ihre E-Mail-Adresse an: Wir senden Ihnen einen Link, um ein neues Passwort zu wählen.",
+    "forgotSent": "Falls für diese Adresse ein Konto existiert, wurde soeben eine E-Mail gesendet.",
+    "resetSubmit": "Speichern",
+    "resetDone": "Passwort geändert. Sie können sich jetzt anmelden.",
+    "resetInvalid": "Ungültiger oder abgelaufener Link.",
+    "required": "Pflichtfeld",
+    "invalidEmail": "Ungültige E-Mail-Adresse",
+    "passwordMin": "Mindestens 8 Zeichen"
   }
 }
