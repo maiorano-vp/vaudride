@@ -24,7 +24,7 @@ final readonly class ImportLocalhubPois
      * @return array{created: int, skipped: int, preview: list<array{title: string, category: string, distance_m: int}>}|null
      *                                                                                                                        null when the course has no profile yet or the catalogue was never synced
      */
-    public function handle(Course $course, bool $dryRun = false): ?array
+    public function handle(Course $course, bool $dryRun = false, bool $publish = false): ?array
     {
         $disk = Storage::disk(StoreCourseProfile::DISK);
         $path = StoreCourseProfile::path($course->slug);
@@ -90,7 +90,7 @@ final readonly class ImportLocalhubPois
                 'category' => $place->category,
                 'source' => 'localhub',
                 'external_id' => $place->id,
-                'published' => false,
+                'published' => $publish,
             ]);
             $created++;
         }

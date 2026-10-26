@@ -10,7 +10,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('localhub:import {slug : Slug of the course} {--dry-run : Only list what would be imported}')]
+#[Signature('localhub:import {slug : Slug of the course} {--dry-run : Only list what would be imported} {--publish : Publish the places right away (for local development: in production they are reviewed first)}')]
 #[Description('Imports the Local Hub places near a course as unpublished points of interest')]
 final class LocalhubImportCommand extends Command
 {
@@ -30,7 +30,7 @@ final class LocalhubImportCommand extends Command
             return self::FAILURE;
         }
 
-        $result = $import->handle($course, $dryRun);
+        $result = $import->handle($course, $dryRun, (bool) $this->option('publish'));
 
         if ($result === null) {
             $this->error('Nothing to import: the course has no profile yet, or the catalogue was never synced (php artisan localhub:sync).');

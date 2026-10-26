@@ -245,6 +245,14 @@ describe('importing a course from the copy', function (): void {
         $this->artisan('localhub:import', ['slug' => 'nope'])->assertFailed();
     });
 
+    it('can publish what it imports, for local development', function (): void {
+        syncHits([hit('1', 'Cave du Lac', 'vin', 4000)]);
+
+        $this->artisan('localhub:import', ['slug' => 'a-course', '--publish' => true])->assertSuccessful();
+
+        expect($this->course->pois()->firstOrFail()->published)->toBeTrue();
+    });
+
     it('has nothing to import before the first sync or without a profile', function (): void {
         expect(resolve(ImportLocalhubPois::class)->handle($this->course))->toBeNull();
 
