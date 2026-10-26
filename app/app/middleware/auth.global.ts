@@ -7,5 +7,5 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo({ path: '/login', query: { redirect: to.fullPath } })
   }
   if (loggedIn.value && isPublic && to.path !== '/reset-password')
-    return navigateTo('/')
+    return navigateTo('/intro')
 })

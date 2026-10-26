@@ -27,7 +27,7 @@ async function onSubmit(event: FormSubmitEvent<z.output<typeof schema>>) {
         redirect.startsWith('/') &&
         !redirect.startsWith('//')
         ? redirect
-        : '/',
+        : '/intro',
     )
   } catch (e) {
     applyApiErrors(e, form.value, (m) => (error.value = m))
