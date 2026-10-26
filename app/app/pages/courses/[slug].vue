@@ -84,6 +84,8 @@ function downloadGpx() {
 
     <ElevationProfile v-if="profile" :course="profile" :distance-m="0" :segments="segments" :pois="shownPois" />
 
+    <CourseMap v-if="profile" :points="profile.points" :pois="shownPois" :segments="segments" />
+
     <div class="flex flex-wrap gap-3">
       <UButton :to="`/ride/${slug}`" :label="$t('course.ride')" />
       <UButton v-if="profile" color="neutral" variant="outline" :label="$t('course.gpx')" @click="downloadGpx" />

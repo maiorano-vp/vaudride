@@ -225,5 +225,10 @@
     "filter": "Filtrer par catégorie",
     "filterAll": "Tous",
     "noMatch": "Aucun lieu dans ces catégories."
+  },
+  "map": {
+    "label": "Carte du parcours",
+    "start": "Départ",
+    "finish": "Arrivée"
   }
 }

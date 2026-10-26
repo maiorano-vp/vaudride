@@ -6,6 +6,8 @@ export interface Poi {
   url: string | null
   category: string | null
   address?: string | null
+  lat?: number
+  lon?: number
   /** The cover image (scaled), and the credit to show with it. */
   image_url?: string | null
   image_credit?: string | null

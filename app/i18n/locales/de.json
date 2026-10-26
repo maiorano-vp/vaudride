@@ -225,5 +225,10 @@
     "filter": "Nach Kategorie filtern",
     "filterAll": "Alle",
     "noMatch": "Keine Orte in diesen Kategorien."
+  },
+  "map": {
+    "label": "Streckenkarte",
+    "start": "Start",
+    "finish": "Ziel"
   }
 }

@@ -225,5 +225,10 @@
     "filter": "Filter by category",
     "filterAll": "All",
     "noMatch": "No place in these categories."
+  },
+  "map": {
+    "label": "Course map",
+    "start": "Start",
+    "finish": "Finish"
   }
 }
