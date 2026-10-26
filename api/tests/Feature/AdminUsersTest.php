@@ -48,3 +48,12 @@ it('shows what a player rode on their page', function (): void {
 
     Livewire::test(ViewUser::class, ['record' => $player->getKey()])->assertDontSee('camille@example.org');
 });
+
+it('hides the admins from the players listing', function (): void {
+    $player = User::factory()->create();
+    $staff = User::factory()->create(['is_admin' => true]);
+
+    Livewire::test(ListUsers::class)
+        ->assertCanSeeTableRecords([$player])
+        ->assertCanNotSeeTableRecords([$staff]);
+});

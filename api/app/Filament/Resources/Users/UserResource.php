@@ -40,6 +40,7 @@ final class UserResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
+            ->where('is_admin', false) // staff are managed in the "Administrateurs" resource
             ->select(['id', 'name', 'created_at'])
             ->withCount('rides')
             ->withSum('rides', 'distance_m')
