@@ -6,11 +6,12 @@ namespace App\Actions;
 
 use App\Enums\PoiCategory;
 use App\Models\Course;
-use App\Services\LocalhubClient;
+use App\Models\LocalhubPlace;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * Proposes the Local Hub places near a course as unpublished points of interest, for an admin to review.
+ * Reads the local copy of the catalogue (see SyncLocalhubPlaces), so it is instant.
  * Places along the road count within 300 m; lodging counts around the start and the finish (3 km).
  */
 final readonly class ImportLocalhubPois
@@ -19,30 +20,16 @@ final readonly class ImportLocalhubPois
 
     private const int LODGING_AROUND_ENDS_M = 3000;
 
-    private const array KEYWORDS = [
-        'lodging' => ['hébergement', 'hebergement', 'hôtel', 'hotel', 'camping', 'gîte', 'gite', 'chambre', 'auberge', 'hostel', 'accommodation', 'lodging', 'b&b'],
-        'wine' => ['vin', 'cave', 'wine', 'vigneron', 'vignoble'],
-        'food' => ['restaur', 'gastro', 'café', 'cafe', 'boulang', 'fromag', 'terroir', 'producteur', 'food'],
-        'bike' => ['vélo', 'velo', 'bike', 'cycle'],
-        'station' => ['gare', 'train', 'station'],
-        'water' => ['fontaine', 'eau potable'],
-        'viewpoint' => ['panorama', 'point de vue', 'belvédère', 'belvedere', 'viewpoint'],
-        'history' => ['château', 'chateau', 'patrimoine', 'histoire', 'monument', 'église', 'eglise', 'castle'],
-        'culture' => ['musée', 'musee', 'culture', 'exposition', 'museum', 'art'],
-        'nature' => ['nature', 'parc', 'lac', 'randonn', 'cascade', 'grotte', 'sommet'],
-    ];
-
-    public function __construct(private LocalhubClient $localhub) {}
-
     /**
-     * @return array{created: int, skipped: int}|null null when the course has no profile yet
+     * @return array{created: int, skipped: int, preview: list<array{title: string, category: string, distance_m: int}>}|null
+     *                                                                                                                        null when the course has no profile yet or the catalogue was never synced
      */
-    public function handle(Course $course): ?array
+    public function handle(Course $course, bool $dryRun = false): ?array
     {
         $disk = Storage::disk(StoreCourseProfile::DISK);
         $path = StoreCourseProfile::path($course->slug);
 
-        if (! $disk->exists($path)) {
+        if (! $disk->exists($path) || ! LocalhubPlace::query()->exists()) {
             return null;
         }
 
@@ -51,27 +38,33 @@ final readonly class ImportLocalhubPois
         $points = $profile['points'];
         $first = $points[0];
         $last = $points[array_key_last($points)];
-        $known = $course->pois()->pluck('external_id')->filter()->all();
+        $known = $dryRun ? [] : $course->pois()->pluck('external_id')->filter()->all();
         $created = 0;
         $skipped = 0;
+        $preview = [];
 
-        // a full pass over the catalogue can take a while: the command line has no time limit, the admin button gets two minutes
-        set_time_limit(120);
+        // a box around the route (with the lodging margin) keeps the database from handing over the whole catalogue
+        $margin = 0.04; // about 4.4 km
+        $lats = array_column($points, 'lat');
+        $lons = array_column($points, 'lon');
+        $candidates = LocalhubPlace::query()
+            ->whereBetween('lat', [min($lats) - $margin, max($lats) + $margin])
+            ->whereBetween('lon', [min($lons) - $margin, max($lons) + $margin])
+            ->get();
 
-        foreach ($this->localhub->pois() as $hit) {
-            $id = isset($hit['id']) ? 'localhub:'.$hit['id'] : null;
-            $coords = $this->coordinates($hit);
-
-            if ($id === null || $coords === null || in_array($id, $known, true)) {
+        foreach ($candidates as $place) {
+            if (in_array($place->id, $known, true)) {
                 $skipped++;
 
                 continue;
             }
 
-            $category = $this->category($hit);
-            [$distance, $offset] = $this->alongCourse($points, $coords['lat'], $coords['lon']);
-            $nearEnds = min($this->metres($first['lat'], $first['lon'], $coords['lat'], $coords['lon']), $this->metres($last['lat'], $last['lon'], $coords['lat'], $coords['lon']));
-            $relevant = $category === PoiCategory::Lodging ? $nearEnds <= self::LODGING_AROUND_ENDS_M : $offset <= self::ALONG_ROUTE_M;
+            [$distance, $offset] = $this->alongCourse($points, $place->lat, $place->lon);
+            $nearEnds = min(
+                $this->metres($first['lat'], $first['lon'], $place->lat, $place->lon),
+                $this->metres($last['lat'], $last['lon'], $place->lat, $place->lon),
+            );
+            $relevant = $place->category === PoiCategory::Lodging ? $nearEnds <= self::LODGING_AROUND_ENDS_M : $offset <= self::ALONG_ROUTE_M;
 
             if (! $relevant) {
                 $skipped++;
@@ -79,144 +72,30 @@ final readonly class ImportLocalhubPois
                 continue;
             }
 
+            if ($dryRun) {
+                $preview[] = ['title' => $place->title['fr'], 'category' => $place->category->value, 'distance_m' => (int) round($distance)];
+                $created++;
+
+                continue;
+            }
+
             $course->pois()->create([
-                'title' => $this->localized($hit['name'] ?? null) ?? ['fr' => '?'],
-                'description' => $this->localized($hit['summary'] ?? null),
+                'title' => $place->title,
+                'description' => $place->summary,
                 'distance_m' => (int) round($distance),
-                'lat' => $coords['lat'],
-                'lon' => $coords['lon'],
-                'url' => $this->url($hit),
-                'address' => $this->address($hit),
-                'category' => $category,
+                'lat' => $place->lat,
+                'lon' => $place->lon,
+                'url' => $place->url,
+                'address' => $place->address,
+                'category' => $place->category,
                 'source' => 'localhub',
-                'external_id' => $id,
+                'external_id' => $place->id,
                 'published' => false,
             ]);
-            $known[] = $id;
             $created++;
         }
 
-        return ['created' => $created, 'skipped' => $skipped];
-    }
-
-    /**
-     * @param  array<string, mixed>  $hit
-     * @return array{lat: float, lon: float}|null
-     */
-    private function coordinates(array $hit): ?array
-    {
-        foreach ([$hit['location'] ?? [], $hit['_geo'] ?? [], $hit] as $source) {
-            $lat = $source['lat'] ?? $source['latitude'] ?? null;
-            $lon = $source['lng'] ?? $source['lon'] ?? $source['longitude'] ?? null;
-
-            if (is_numeric($lat) && is_numeric($lon)) {
-                return ['lat' => (float) $lat, 'lon' => (float) $lon];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * The category from the place's Local Hub categories, by keyword; culture when nothing matches.
-     *
-     * @param  array<string, mixed>  $hit
-     */
-    private function category(array $hit): PoiCategory
-    {
-        $text = mb_strtolower(implode(' ', array_filter([
-            $this->text($hit['rootAssetCategory'] ?? null),
-            $this->text($hit['assetCategory'] ?? null),
-        ])));
-
-        foreach (self::KEYWORDS as $category => $words) {
-            foreach ($words as $word) {
-                if (str_contains($text, $word)) {
-                    return PoiCategory::from($category);
-                }
-            }
-        }
-
-        return PoiCategory::Culture;
-    }
-
-    private function text(mixed $category): string
-    {
-        if (! is_array($category)) {
-            return is_string($category) ? $category : '';
-        }
-
-        return mb_trim(($category['slug'] ?? '').' '.(is_array($category['name'] ?? null) ? implode(' ', $category['name']) : ($category['name'] ?? '')));
-    }
-
-    /**
-     * A value that is either one string or a map by language, as {fr, de, en}.
-     *
-     * @return array{fr: string, de?: string, en?: string}|null
-     */
-    private function localized(mixed $value): ?array
-    {
-        if (is_string($value) && $value !== '') {
-            return ['fr' => $value, 'de' => $value, 'en' => $value];
-        }
-
-        if (! is_array($value)) {
-            return null;
-        }
-
-        $fr = $value['fr'] ?? $value['fr_CH'] ?? null;
-        $fr = is_string($fr) && $fr !== '' ? $fr : (is_string(reset($value)) ? (string) reset($value) : null);
-
-        if ($fr === null) {
-            return null;
-        }
-
-        return [
-            'fr' => $fr,
-            'de' => is_string($value['de'] ?? null) && $value['de'] !== '' ? $value['de'] : $fr,
-            'en' => is_string($value['en'] ?? null) && $value['en'] !== '' ? $value['en'] : $fr,
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $hit
-     */
-    private function url(array $hit): ?string
-    {
-        $candidates = [];
-
-        foreach ($hit['links'] ?? [] as $link) {
-            $candidates[] = $link['url'] ?? null;
-        }
-
-        $candidates[] = $hit['location']['website'] ?? null;
-
-        foreach ($candidates as $url) {
-            if (is_string($url) && preg_match('#^https?://#i', $url) === 1) {
-                return $url;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param  array<string, mixed>  $hit
-     */
-    private function address(array $hit): ?string
-    {
-        $location = $hit['location'] ?? null;
-
-        if (! is_array($location)) {
-            return null;
-        }
-
-        $line = mb_trim(implode(', ', array_filter([
-            $location['address'] ?? null,
-            mb_trim(($location['postcode'] ?? '').' '.($location['city'] ?? '')),
-        ])));
-
-        return $line === '' ? null : $line;
+        return ['created' => $created, 'skipped' => $skipped, 'preview' => $preview];
     }
 
     /**

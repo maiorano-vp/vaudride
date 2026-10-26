@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 use App\Actions\ImportLocalhubPois;
 use App\Actions\StoreCourseProfile;
+use App\Actions\SyncLocalhubPlaces;
 use App\Enums\PoiCategory;
 use App\Filament\Resources\Courses\Pages\EditCourse;
 use App\Filament\Resources\Courses\RelationManagers\PoisRelationManager;
 use App\Models\Course;
+use App\Models\LocalhubPlace;
 use App\Models\User;
 use Filament\Facades\Filament;
+use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -24,6 +28,14 @@ function longEastboundProfile(): string
     }
 
     return json_encode(['points' => $points], JSON_THROW_ON_ERROR);
+}
+
+/** An attribute the way the API gives it: a label, a type and a value (a flag, or the chosen options). */
+function attr(string $label, bool|array $value = true): array
+{
+    $options = is_array($value) ? array_map(fn (string $name): array => ['key' => 'k', 'json' => ['value' => 'k', 'label' => ['fr' => $name]]], $value) : true;
+
+    return ['label' => ['fr' => $label, 'de' => $label], 'type' => is_array($value) ? 'multiselect' : 'boolean', 'value' => $options];
 }
 
 /** A Local Hub hit `metres` along the road and `northM` metres north of it. */
@@ -41,7 +53,16 @@ function hit(string $id, string $name, string $category, int $metres, int $north
 
 function fakeLocalhub(array $hits, int $pages = 1): void
 {
+    Http::swap(new Factory); // a later fake would otherwise lose to the first one registered
     Http::fake(['localhub.test/*' => Http::response(['status' => 'success', 'data' => ['pois' => ['hits' => $hits, 'totalPages' => $pages, 'page' => 1]]])]);
+}
+
+/** What a sync would store, from hits as the API gives them. */
+function syncHits(array $hits, int $pages = 1): array
+{
+    fakeLocalhub($hits, $pages);
+
+    return resolve(SyncLocalhubPlaces::class)->handle();
 }
 
 beforeEach(function (): void {
@@ -51,90 +72,176 @@ beforeEach(function (): void {
     Storage::disk(StoreCourseProfile::DISK)->put(StoreCourseProfile::path('a-course'), longEastboundProfile());
 });
 
-it('imports the places along the road and the lodging around the ends, unpublished', function (): void {
-    fakeLocalhub([
-        hit('1', 'Cave du Lac', 'cave-et-vin', 4000),
-        hit('2', 'Hôtel du Port', 'hebergement', 800, northM: 1500), // 1.7 km from the start
-        hit('3', 'Auberge de la Gare', 'hebergement', 9500, northM: 400), // near the finish
-        hit('4', 'Hôtel lointain', 'hebergement', 5000, northM: 200), // far from both ends
-        hit('5', 'Musée loin de la route', 'musee', 3000, northM: 2000), // too far from the road
-        hit('6', 'Fromagerie', 'terroir', 6000, northM: 200),
-    ]);
+describe('syncing the catalogue', function (): void {
+    it('keeps a compact copy of every place that has a position', function (): void {
+        $result = syncHits([
+            hit('1', 'Cave du Lac', 'cave-et-vin', 4000, extra: ['attributes' => ['a' => attr('Certifié Vaud Oenotourisme')]]),
+            ['id' => '2', 'name' => 'Sans position'],
+        ]);
 
-    $result = resolve(ImportLocalhubPois::class)->handle($this->course);
+        expect($result)->toBe(['synced' => 1, 'without_position' => 1, 'removed' => 0]);
+        $place = LocalhubPlace::query()->findOrFail('localhub:1');
+        expect($place->title)->toBe(['fr' => 'Cave du Lac', 'de' => 'Cave du Lac (de)', 'en' => 'Cave du Lac'])
+            ->and($place->category)->toBe(PoiCategory::Wine)
+            ->and($place->url)->toBe('https://example.org/1')
+            ->and($place->address)->toBe('Rue du Lac 1, 1800 Vevey')
+            ->and($place->lat)->toBeFloat();
+    });
 
-    expect($result)->toBe(['created' => 4, 'skipped' => 2]);
-    $pois = $this->course->pois()->get()->keyBy('external_id');
-    expect($pois->keys()->sort()->values()->all())->toBe(['localhub:1', 'localhub:2', 'localhub:3', 'localhub:6'])
-        ->and($pois['localhub:1']->category)->toBe(PoiCategory::Wine)
-        ->and($pois['localhub:1']->title)->toBe(['fr' => 'Cave du Lac', 'de' => 'Cave du Lac (de)', 'en' => 'Cave du Lac'])
-        ->and($pois['localhub:1']->distance_m)->toBeBetween(3950, 4050)
-        ->and($pois['localhub:1']->url)->toBe('https://example.org/1')
-        ->and($pois['localhub:1']->address)->toBe('Rue du Lac 1, 1800 Vevey')
-        ->and($pois['localhub:1']->source)->toBe('localhub')
-        ->and($pois['localhub:1']->published)->toBeFalse()
-        ->and($pois['localhub:2']->category)->toBe(PoiCategory::Lodging)
-        ->and($pois['localhub:6']->category)->toBe(PoiCategory::Food);
+    it('sends the bearer token and asks only for the fields it reads, page by page', function (): void {
+        syncHits([hit('1', 'Cave du Lac', 'vin', 4000)]);
+
+        Http::assertSent(fn (Request $r) => $r->hasHeader('Authorization', 'Bearer secret-token')
+            && str_starts_with($r->url(), 'https://localhub.test/api/v1/pois')
+            && $r['page'] === 1 && $r['pageSize'] === 100 && $r['fields'] === 'name,summary,location,links,attributes');
+    });
+
+    it('follows the pagination', function (): void {
+        Http::swap(new Factory);
+        Http::fake(['localhub.test/*' => Http::sequence()
+            ->push(['data' => ['pois' => ['hits' => [hit('1', 'A', 'x', 100)], 'totalPages' => 2]]])
+            ->push(['data' => ['pois' => ['hits' => [hit('2', 'B', 'x', 200)], 'totalPages' => 2]]]),
+        ]);
+
+        expect(resolve(SyncLocalhubPlaces::class)->handle()['synced'])->toBe(2)->and(LocalhubPlace::query()->count())->toBe(2);
+    });
+
+    it('updates what changed and removes what left the catalogue', function (): void {
+        syncHits([hit('1', 'Ancien nom', 'x', 100), hit('2', 'Disparu', 'x', 200)]);
+        $this->travel(1)->minute();
+
+        $result = syncHits([hit('1', 'Nouveau nom', 'x', 100)]);
+
+        expect($result['removed'])->toBe(1)
+            ->and(LocalhubPlace::query()->get()->mapWithKeys(fn (LocalhubPlace $p): array => [$p->id => $p->title['fr']])->all())->toBe(['localhub:1' => 'Nouveau nom']);
+    });
+
+    it('keeps the previous copy when a pass fails half way', function (): void {
+        syncHits([hit('1', 'Garde', 'x', 100)]);
+        $this->travel(1)->minute();
+        Http::swap(new Factory);
+        Http::fake(['localhub.test/*' => Http::sequence()
+            ->push(['data' => ['pois' => ['hits' => [hit('9', 'Nouveau', 'x', 100)], 'totalPages' => 2]]])
+            ->push('boom', 500)
+            ->push('boom', 500)
+            ->push('boom', 500),
+        ]);
+
+        expect(fn () => resolve(SyncLocalhubPlaces::class)->handle())->toThrow(RequestException::class);
+        expect(LocalhubPlace::query()->where('id', 'localhub:1')->exists())->toBeTrue();
+    });
+
+    it('reads the category from the attributes an editor ticked, and links given per language', function (): void {
+        $real = hit('9', 'Église', '', 2000, extra: [
+            'attributes' => [
+                'a' => attr('Thématique', ['Patrimoine religieux', 'Familial']),
+                'b' => ['label' => ['fr' => 'Accessible en fauteuil roulant'], 'type' => 'boolean', 'value' => true],
+                'c' => ['label' => ['fr' => 'Sous-destination'], 'type' => 'multiselect', 'value' => null],
+            ],
+            'links' => [['label' => ['en' => 'Tickets'], 'url' => ['de' => 'https://example.org/de', 'fr' => 'https://example.org/fr']]],
+        ]);
+        $real['location']['lat'] = (string) $real['location']['lat']; // the API sends coordinates as strings
+        $real['location']['lng'] = (string) $real['location']['lng'];
+        unset($real['location']['website']);
+        syncHits([$real]);
+
+        $place = LocalhubPlace::query()->findOrFail('localhub:9');
+        expect($place->category)->toBe(PoiCategory::History)->and($place->url)->toBe('https://example.org/fr');
+    });
+
+    it('does not take the words of an accessibility attribute for a category', function (): void {
+        syncHits([hit('1', 'Lieu', '', 1000, extra: ['attributes' => ['a' => attr('Partiellement accessible en fauteuil roulant'), 'b' => attr('Restauration sur place')]])]);
+
+        expect(LocalhubPlace::query()->findOrFail('localhub:1')->category)->toBe(PoiCategory::Culture);
+    });
+
+    it('copes with a name that is a plain string and a geo position', function (): void {
+        $flat = ['id' => '7', 'name' => 'Belvédère', 'attributes' => ['a' => attr('Panorama / belvédère')], '_geo' => ['lat' => 46.5003, 'lng' => 6.64]];
+        syncHits([$flat]);
+
+        $place = LocalhubPlace::query()->findOrFail('localhub:7');
+        expect($place->title)->toBe(['fr' => 'Belvédère', 'de' => 'Belvédère', 'en' => 'Belvédère'])->and($place->category)->toBe(PoiCategory::Viewpoint);
+    });
+
+    it('shows the first place as the API gives it, and complains without a token', function (): void {
+        fakeLocalhub([hit('1', 'Cave du Lac', 'vin', 4000)]);
+
+        $this->artisan('localhub:inspect')->expectsOutputToContain('Fields: id, name, summary, assetCategory, location')->assertSuccessful();
+
+        config(['services.localhub.token' => '']);
+        $this->artisan('localhub:inspect')->expectsOutputToContain('LOCALHUB_TOKEN is not set')->assertFailed();
+        $this->artisan('localhub:sync')->expectsOutputToContain('LOCALHUB_TOKEN is not set')->assertFailed();
+    });
+
+    it('syncs from the command line', function (): void {
+        fakeLocalhub([hit('1', 'Cave du Lac', 'vin', 4000)]);
+
+        $this->artisan('localhub:sync')->expectsOutputToContain('1 places synced')->assertSuccessful();
+    });
 });
 
-it('sends the bearer token and asks for the places page by page', function (): void {
-    fakeLocalhub([hit('1', 'Cave du Lac', 'vin', 4000)], pages: 1);
+describe('importing a course from the copy', function (): void {
+    it('imports the places along the road and the lodging around the ends, unpublished', function (): void {
+        syncHits([
+            hit('1', 'Cave du Lac', 'cave-et-vin', 4000, extra: ['attributes' => ['a' => attr('Certifié Vaud Oenotourisme')]]),
+            hit('2', 'Hôtel du Port', 'hebergement', 800, northM: 1500), // 1.7 km from the start
+            hit('3', 'Auberge de la Gare', 'hebergement', 9500, northM: 400), // near the finish
+            hit('4', 'Hôtel lointain', 'hebergement', 5000, northM: 200), // far from both ends
+            hit('5', 'Musée loin de la route', 'musee', 3000, northM: 2000), // too far from the road
+            hit('6', 'Fromagerie', 'terroir', 6000, northM: 200, extra: ['attributes' => ['a' => attr('Type d\'établissement', ['Restaurant / Brasserie'])]]),
+        ]);
 
-    resolve(ImportLocalhubPois::class)->handle($this->course);
+        $result = resolve(ImportLocalhubPois::class)->handle($this->course);
 
-    Http::assertSent(fn (Request $r) => $r->hasHeader('Authorization', 'Bearer secret-token')
-        && str_starts_with($r->url(), 'https://localhub.test/api/v1/pois')
-        && $r['page'] === 1 && $r['pageSize'] === 100);
-});
+        expect($result)->toMatchArray(['created' => 4, 'skipped' => 2]);
+        $pois = $this->course->pois()->get()->keyBy('external_id');
+        expect($pois->keys()->sort()->values()->all())->toBe(['localhub:1', 'localhub:2', 'localhub:3', 'localhub:6'])
+            ->and($pois['localhub:1']->category)->toBe(PoiCategory::Wine)
+            ->and($pois['localhub:1']->title['de'])->toBe('Cave du Lac (de)')
+            ->and($pois['localhub:1']->description)->toBe(['fr' => 'Un lieu à découvrir.', 'de' => 'Un lieu à découvrir.', 'en' => 'Un lieu à découvrir.'])
+            ->and($pois['localhub:1']->distance_m)->toBeBetween(3950, 4050)
+            ->and($pois['localhub:1']->url)->toBe('https://example.org/1')
+            ->and($pois['localhub:1']->address)->toBe('Rue du Lac 1, 1800 Vevey')
+            ->and($pois['localhub:1']->source)->toBe('localhub')
+            ->and($pois['localhub:1']->published)->toBeFalse()
+            ->and($pois['localhub:2']->category)->toBe(PoiCategory::Lodging)
+            ->and($pois['localhub:6']->category)->toBe(PoiCategory::Food);
+    });
 
-it('follows the pagination and does not import a place twice', function (): void {
-    Http::fake(['localhub.test/*' => Http::sequence()
-        ->push(['data' => ['pois' => ['hits' => [hit('1', 'Cave du Lac', 'vin', 4000)], 'totalPages' => 2]]])
-        ->push(['data' => ['pois' => ['hits' => [hit('2', 'Belvédère', 'panorama', 6000)], 'totalPages' => 2]]])
-        ->push(['data' => ['pois' => ['hits' => [hit('1', 'Cave du Lac', 'vin', 4000)], 'totalPages' => 1]]]),
-    ]);
+    it('does not import the same place twice', function (): void {
+        syncHits([hit('1', 'Cave du Lac', 'vin', 4000)]);
 
-    expect(resolve(ImportLocalhubPois::class)->handle($this->course)['created'])->toBe(2);
+        expect(resolve(ImportLocalhubPois::class)->handle($this->course)['created'])->toBe(1)
+            ->and(resolve(ImportLocalhubPois::class)->handle($this->course))->toMatchArray(['created' => 0, 'skipped' => 1])
+            ->and($this->course->pois()->count())->toBe(1);
+    });
 
-    Http::fake(['localhub.test/*' => Http::response(['data' => ['pois' => ['hits' => [hit('1', 'Cave du Lac', 'vin', 4000)], 'totalPages' => 1]]])]);
+    it('lists what it would import without writing anything', function (): void {
+        syncHits([hit('1', 'Cave du Lac', 'vin', 4000), hit('2', 'Loin', 'vin', 4000, northM: 5000)]);
 
-    expect(resolve(ImportLocalhubPois::class)->handle($this->course))->toBe(['created' => 0, 'skipped' => 1])
-        ->and($this->course->pois()->count())->toBe(2);
-});
+        $result = resolve(ImportLocalhubPois::class)->handle($this->course, dryRun: true);
 
-it('copes with a name that is a plain string and coordinates in a flat or geo form', function (): void {
-    $flat = ['id' => '7', 'name' => 'Fontaine', 'assetCategory' => ['slug' => 'fontaine'], '_geo' => ['lat' => 46.5003, 'lng' => 6.6 + 3000 / (111_320 * cos(deg2rad(46.5)))]];
-    $none = ['id' => '8', 'name' => 'Sans position'];
-    fakeLocalhub([$flat, $none]);
+        expect($result['created'])->toBe(1)
+            ->and($result['preview'][0])->toMatchArray(['title' => 'Cave du Lac', 'category' => 'culture'])
+            ->and($this->course->pois()->count())->toBe(0);
 
-    $result = resolve(ImportLocalhubPois::class)->handle($this->course);
+        $this->artisan('localhub:import', ['slug' => 'a-course', '--dry-run' => true])->expectsOutputToContain('Nothing was written')->assertSuccessful();
+    });
 
-    expect($result)->toBe(['created' => 1, 'skipped' => 1])
-        ->and($this->course->pois()->firstOrFail()->title)->toBe(['fr' => 'Fontaine', 'de' => 'Fontaine', 'en' => 'Fontaine'])
-        ->and($this->course->pois()->firstOrFail()->category)->toBe(PoiCategory::Water);
-});
+    it('imports from the command line', function (): void {
+        syncHits([hit('1', 'Cave du Lac', 'vin', 4000)]);
 
-it('returns null for a course without a profile and sends nothing', function (): void {
-    Http::fake();
+        $this->artisan('localhub:import', ['slug' => 'a-course'])->expectsOutputToContain('1 imported')->assertSuccessful();
+        $this->artisan('localhub:import', ['slug' => 'nope'])->assertFailed();
+    });
 
-    expect(resolve(ImportLocalhubPois::class)->handle(Course::factory()->create()))->toBeNull();
-    Http::assertNothingSent();
-});
+    it('has nothing to import before the first sync or without a profile', function (): void {
+        expect(resolve(ImportLocalhubPois::class)->handle($this->course))->toBeNull();
 
-it('shows the first place as the API gives it, and complains without a token', function (): void {
-    fakeLocalhub([hit('1', 'Cave du Lac', 'vin', 4000)]);
+        syncHits([hit('1', 'Cave du Lac', 'vin', 4000)]);
 
-    $this->artisan('localhub:inspect')->expectsOutputToContain('Fields: id, name, summary, assetCategory, location')->assertSuccessful();
-
-    config(['services.localhub.token' => '']);
-    $this->artisan('localhub:inspect')->expectsOutputToContain('LOCALHUB_TOKEN is not set')->assertFailed();
-});
-
-it('imports from the command line', function (): void {
-    fakeLocalhub([hit('1', 'Cave du Lac', 'vin', 4000)]);
-
-    $this->artisan('localhub:import', ['slug' => 'a-course'])->expectsOutputToContain('1 imported')->assertSuccessful();
-    $this->artisan('localhub:import', ['slug' => 'nope'])->assertFailed();
+        expect(resolve(ImportLocalhubPois::class)->handle(Course::factory()->create()))->toBeNull();
+    });
 });
 
 describe('in the admin', function (): void {
@@ -143,24 +250,17 @@ describe('in the admin', function (): void {
         $this->actingAs(User::factory()->create(['is_admin' => true]));
     });
 
-    it('imports with a button, only when a token is set', function (): void {
-        fakeLocalhub([hit('1', 'Cave du Lac', 'vin', 4000)]);
+    it('imports with a button', function (): void {
+        syncHits([hit('1', 'Cave du Lac', 'vin', 4000)]);
 
         Livewire::test(PoisRelationManager::class, ['ownerRecord' => $this->course, 'pageClass' => EditCourse::class])
             ->callTableAction('importLocalhub')
             ->assertNotified('1 lieu(x) importé(s), 0 ignoré(s). À relire avant publication.');
-
-        config(['services.localhub.token' => '']);
-
-        Livewire::test(PoisRelationManager::class, ['ownerRecord' => $this->course, 'pageClass' => EditCourse::class])
-            ->assertTableActionHidden('importLocalhub');
     });
 
-    it('says so when Local Hub refuses the token', function (): void {
-        Http::fake(['localhub.test/*' => Http::response(['message' => 'Forbidden'], 403)]);
-
+    it('explains what to do when the catalogue was never synced', function (): void {
         Livewire::test(PoisRelationManager::class, ['ownerRecord' => $this->course, 'pageClass' => EditCourse::class])
             ->callTableAction('importLocalhub')
-            ->assertNotified('Local Hub ne répond pas ou refuse le jeton (LOCALHUB_TOKEN).');
+            ->assertNotified('Rien à importer: le parcours n’a pas de profil, ou le catalogue Local Hub n’a jamais été synchronisé (php artisan localhub:sync).');
     });
 });

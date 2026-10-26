@@ -13,6 +13,9 @@ final readonly class LocalhubClient
 {
     public const int PAGE_SIZE = 100;
 
+    // only what the import reads: a full page is several MB otherwise
+    private const string FIELDS = 'name,summary,location,links,attributes';
+
     private const int MAX_PAGES = 100;
 
     public function configured(): bool
@@ -33,7 +36,8 @@ final readonly class LocalhubClient
             $data = $this->request()->get('/api/v1/pois', [
                 'page' => $page,
                 'pageSize' => self::PAGE_SIZE,
-                'include' => 'location,links,assetGroups',
+                'include' => 'location,links',
+                'fields' => self::FIELDS,
             ])->throw()->json('data.pois', []);
 
             foreach ($data['hits'] ?? [] as $hit) {
@@ -52,7 +56,7 @@ final readonly class LocalhubClient
      */
     public function sample(): ?array
     {
-        $data = $this->request()->get('/api/v1/pois', ['page' => 1, 'pageSize' => 1, 'include' => 'location,links,assetGroups'])
+        $data = $this->request()->get('/api/v1/pois', ['page' => 1, 'pageSize' => 1, 'include' => 'location,links', 'fields' => self::FIELDS])
             ->throw()->json('data.pois', []);
 
         return $data['hits'][0] ?? null;
@@ -67,7 +71,7 @@ final readonly class LocalhubClient
         return Http::baseUrl((string) config('services.localhub.url'))
             ->withToken((string) config('services.localhub.token'))
             ->acceptJson()
-            ->timeout(30)
+            ->timeout(90)
             ->retry(2, 500, throw: false);
     }
 }

@@ -8,7 +8,6 @@ use App\Actions\ImportLocalhubPois;
 use App\Actions\ImportOsmPois;
 use App\Enums\PoiCategory;
 use App\Models\Course;
-use App\Services\LocalhubClient;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -94,22 +93,15 @@ final class PoisRelationManager extends RelationManager
                     }),
                 Action::make('importLocalhub')->label('Importer depuis Local Hub')->icon(Heroicon::OutlinedCloudArrowDown)
                     ->requiresConfirmation()
-                    ->modalDescription('Les lieux de Local Hub à moins de 300 m du tracé, et les hébergements à moins de 3 km du départ ou de l’arrivée, sont ajoutés non publiés, à relire.')
-                    ->visible(fn (): bool => resolve(LocalhubClient::class)->configured())
+                    ->modalDescription('Depuis la copie locale du catalogue Local Hub (mise à jour par « php artisan localhub:sync »): les lieux à moins de 300 m du tracé et les hébergements à moins de 3 km du départ ou de l’arrivée sont ajoutés non publiés, à relire.')
                     ->action(function (): void {
                         /** @var Course $course */
                         $course = $this->getOwnerRecord();
 
-                        try {
-                            $result = resolve(ImportLocalhubPois::class)->handle($course);
-                        } catch (Throwable) {
-                            Notification::make()->title('Local Hub ne répond pas ou refuse le jeton (LOCALHUB_TOKEN).')->danger()->send();
-
-                            return;
-                        }
+                        $result = resolve(ImportLocalhubPois::class)->handle($course);
 
                         if ($result === null) {
-                            Notification::make()->title('Ce parcours n’a pas encore de profil.')->warning()->send();
+                            Notification::make()->title('Rien à importer: le parcours n’a pas de profil, ou le catalogue Local Hub n’a jamais été synchronisé (php artisan localhub:sync).')->warning()->send();
 
                             return;
                         }
