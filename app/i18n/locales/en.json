@@ -109,7 +109,14 @@
       "cat2": "Cat 2",
       "cat1": "Cat 1",
       "hc": "HC"
-    }
+    },
+    "kom": "KOM {time}",
+    "komBeaten": "KOM time!",
+    "leaderboard": "Leaderboard",
+    "loading": "Loading…",
+    "leaderboardError": "The leaderboard could not be loaded.",
+    "leaderboardEmpty": "Nobody has ridden this segment yet.",
+    "yourRank": "Your best time: {time} (rank {rank})."
   },
   "kit": {
     "title": "My kit",
@@ -169,7 +176,8 @@
     "tooShort": "Ride for a few seconds at least to be able to save.",
     "resume": "Keep riding",
     "end": "Finish",
-    "courses": "Courses"
+    "courses": "Courses",
+    "efforts": "Segments"
   },
   "rides": {
     "title": "My rides",

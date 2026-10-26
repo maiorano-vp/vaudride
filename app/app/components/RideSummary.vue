@@ -1,11 +1,26 @@
 <script setup lang="ts">
 import type { RideSummary } from '~/lib/ride/recorder'
-import type { SaveState } from '~/composables/useRideRecording'
+import type { SaveState, SegmentEffort } from '~/composables/useRideRecording'
+import { segmentName } from '~/lib/segments/tracker'
 
-const props = defineProps<{ summary: RideSummary; elevationGainM: number; recordable: boolean; saveState: SaveState; finished: boolean }>()
+const props = defineProps<{
+  summary: RideSummary
+  elevationGainM: number
+  recordable: boolean
+  saveState: SaveState
+  finished: boolean
+  efforts: SegmentEffort[]
+}>()
 const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ save: [uploadToStrava: boolean]; restart: [] }>()
 
+const { locale } = useI18n()
+const board = ref<{ id: string; title: string }>()
+const boardOpen = ref(false)
+const showBoard = (e: SegmentEffort) => {
+  board.value = { id: e.segment_id, title: segmentName({ name: e.name } as never, locale.value) }
+  boardOpen.value = true
+}
 const toStrava = ref(false)
 const { data: strava } = useAsyncData('strava', () => $fetch<{ connected: boolean }>('/api/strava').catch(() => ({ connected: false })), {
   server: false,
@@ -37,6 +52,17 @@ const rows = computed(() => [
           <dd class="font-display text-2xl tracking-wide text-vaud-800">{{ r.value }}</dd>
         </div>
       </dl>
+      <section v-if="efforts.length" class="mt-5">
+        <h3 class="mb-1 font-display uppercase tracking-wide">{{ $t('summary.efforts') }}</h3>
+        <ul class="space-y-1">
+          <li v-for="e in efforts" :key="e.segment_id" class="flex items-baseline gap-3">
+            <span class="flex-1">{{ segmentName({ name: e.name } as never, locale) }}</span>
+            <span class="font-mono">{{ clock(e.time_s) }}</span>
+            <UBadge :color="e.is_kom ? 'warning' : 'neutral'" variant="subtle">{{ e.is_kom ? 'KOM' : `#${e.rank}` }}</UBadge>
+            <UButton size="md" variant="link" color="neutral" :label="$t('segment.leaderboard')" @click="showBoard(e)" />
+          </li>
+        </ul>
+      </section>
       <label v-if="strava?.connected && recordable && saveState !== 'saved'" class="mt-5 flex items-center gap-2">
         <input v-model="toStrava" type="checkbox" >
         {{ $t('summary.toStrava') }}
@@ -61,4 +87,5 @@ const rows = computed(() => [
       </div>
     </template>
   </UModal>
+  <SegmentLeaderboard v-model:open="boardOpen" :segment-id="board?.id" :title="board?.title ?? ''" />
 </template>

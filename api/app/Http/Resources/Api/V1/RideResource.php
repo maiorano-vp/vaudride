@@ -30,6 +30,7 @@ final class RideResource extends JsonResource
             'avg_heart_rate' => $this->avg_heart_rate,
             'strava_activity_id' => $this->strava_activity_id,
             'strava_error' => $this->strava_error,
+            'efforts' => SegmentEffortResource::collection($this->whenLoaded('efforts')),
             'samples' => $this->whenHas('samples'),
         ];
     }

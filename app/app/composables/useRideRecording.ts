@@ -2,11 +2,21 @@ import { RideRecorder, type RideReading } from '~/lib/ride/recorder'
 
 export type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
+/** How the ride did on a segment, once saved: rank among the players' best times (1 = KOM). */
+export interface SegmentEffort {
+  segment_id: string
+  name: Record<string, string>
+  time_s: number
+  rank: number
+  is_kom: boolean
+}
+
 /** Records the ride second by second and saves it on the player's account when they ask. */
 export function useRideRecording(slug: string, reading: Ref<RideReading>, elevationGainM: Ref<number>) {
   const recorder = new RideRecorder()
   const version = ref(0) // bumped on each sample so the summary below recomputes
   const saveState = ref<SaveState>('idle')
+  const efforts = ref<SegmentEffort[]>([])
 
   watch(
     () => reading.value.elapsedS,
@@ -30,7 +40,7 @@ export function useRideRecording(slug: string, reading: Ref<RideReading>, elevat
     if (!recorder.recordable || !recorder.startedAt) return
     saveState.value = 'saving'
     try {
-      await $fetch('/api/rides', {
+      const { data } = await $fetch<{ data: { efforts?: SegmentEffort[] } }>('/api/rides', {
         method: 'POST',
         body: {
           course: slug,
@@ -40,6 +50,7 @@ export function useRideRecording(slug: string, reading: Ref<RideReading>, elevat
           samples: recorder.samples,
         },
       })
+      efforts.value = data.efforts ?? []
       saveState.value = 'saved'
     } catch {
       saveState.value = 'error'
@@ -50,7 +61,8 @@ export function useRideRecording(slug: string, reading: Ref<RideReading>, elevat
     recorder.reset()
     version.value++
     saveState.value = 'idle'
+    efforts.value = []
   }
 
-  return { summary, recordable, saveState, save, reset }
+  return { summary, recordable, saveState, efforts, save, reset }
 }

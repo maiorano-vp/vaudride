@@ -109,7 +109,14 @@
       "cat2": "Kat. 2",
       "cat1": "Kat. 1",
       "hc": "HC"
-    }
+    },
+    "kom": "KOM {time}",
+    "komBeaten": "KOM-Zeit!",
+    "leaderboard": "Rangliste",
+    "loading": "Laden…",
+    "leaderboardError": "Die Rangliste konnte nicht geladen werden.",
+    "leaderboardEmpty": "Dieses Segment ist noch niemand gefahren.",
+    "yourRank": "Ihre Bestzeit: {time} (Rang {rank})."
   },
   "kit": {
     "title": "Meine Ausrüstung",
@@ -169,7 +176,8 @@
     "tooShort": "Fahren Sie mindestens ein paar Sekunden, um zu speichern.",
     "resume": "Weiterfahren",
     "end": "Beenden",
-    "courses": "Strecken"
+    "courses": "Strecken",
+    "efforts": "Segmente"
   },
   "rides": {
     "title": "Meine Fahrten",

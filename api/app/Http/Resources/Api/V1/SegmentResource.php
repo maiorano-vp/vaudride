@@ -24,6 +24,8 @@ final class SegmentResource extends JsonResource
             'start_m' => $this->start_m,
             'end_m' => $this->end_m,
             'category' => $this->category?->value,
+            // the best time on the segment (the KOM's), without saying whose: names are for signed-in players only
+            'kom_time_s' => $this->whenAggregated('efforts', 'time_s', 'min'),
         ];
     }
 }

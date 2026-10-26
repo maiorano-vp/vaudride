@@ -27,14 +27,17 @@ const runS = computed(() => (props.active ? props.elapsedS - props.active.starte
         <strong>{{ fmt(runS) }}</strong>
         <span>{{ $t('segment.remaining', { km: (remainingM / 1000).toFixed(2) }) }}</span>
         <span v-if="active.bestS">{{ $t('segment.best', { time: fmt(active.bestS) }) }}</span>
+        <span v-if="active.segment.kom_time_s" class="kom">{{ $t('segment.kom', { time: fmt(active.segment.kom_time_s) }) }}</span>
       </p>
     </template>
     <template v-else-if="finished">
       <p class="name">{{ segmentName(finished.segment, locale) }}</p>
       <p class="figures">
         <strong>{{ fmt(finished.timeS) }}</strong>
-        <span v-if="finished.isBest" class="pr">{{ $t('segment.newBest') }}</span>
+        <span v-if="finished.beatsKom" class="pr">{{ $t('segment.komBeaten') }}</span>
+        <span v-else-if="finished.isBest" class="pr">{{ $t('segment.newBest') }}</span>
         <span v-else>{{ $t('segment.best', { time: fmt(finished.bestS) }) }}</span>
+        <span v-if="finished.segment.kom_time_s && !finished.beatsKom" class="kom">{{ $t('segment.kom', { time: fmt(finished.segment.kom_time_s) }) }}</span>
       </p>
     </template>
   </aside>
@@ -72,6 +75,9 @@ const runS = computed(() => (props.active ? props.elapsedS - props.active.starte
 .figures strong {
   font-size: 1.5rem;
   font-variant-numeric: tabular-nums;
+}
+.kom {
+  color: #ffd34d;
 }
 .pr {
   font-weight: 700;

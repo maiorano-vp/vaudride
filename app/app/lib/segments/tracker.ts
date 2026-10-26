@@ -4,6 +4,8 @@ export interface Segment {
   start_m: number
   end_m: number
   category: string | null
+  /** The best time on the segment (the KOM's), when someone has ridden it. */
+  kom_time_s?: number | null
 }
 
 export interface SegmentRun {

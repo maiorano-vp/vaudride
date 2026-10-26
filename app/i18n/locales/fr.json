@@ -109,7 +109,14 @@
       "cat2": "Cat. 2",
       "cat1": "Cat. 1",
       "hc": "HC"
-    }
+    },
+    "kom": "KOM {time}",
+    "komBeaten": "Temps de KOM !",
+    "leaderboard": "Classement",
+    "loading": "Chargement…",
+    "leaderboardError": "Le classement n’a pas pu être chargé.",
+    "leaderboardEmpty": "Personne n’a encore roulé ce segment.",
+    "yourRank": "Votre meilleur temps: {time} (rang {rank})."
   },
   "kit": {
     "title": "Mon équipement",
@@ -169,7 +176,8 @@
     "tooShort": "Roulez au moins quelques secondes pour pouvoir enregistrer.",
     "resume": "Continuer",
     "end": "Terminer",
-    "courses": "Parcours"
+    "courses": "Parcours",
+    "efforts": "Segments"
   },
   "rides": {
     "title": "Mes sorties",

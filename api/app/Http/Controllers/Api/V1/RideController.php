@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\ComputeSegmentEfforts;
 use App\Actions\RecordRide;
 use App\Http\Requests\Api\V1\StoreRideRequest;
 use App\Http\Resources\Api\V1\RideResource;
@@ -25,7 +26,7 @@ final readonly class RideController
         );
     }
 
-    public function store(StoreRideRequest $request, RecordRide $recordRide): JsonResponse
+    public function store(StoreRideRequest $request, RecordRide $recordRide, ComputeSegmentEfforts $computeEfforts): JsonResponse
     {
         $course = Course::query()->where('slug', $request->string('course')->toString())->firstOrFail();
 
@@ -40,11 +41,13 @@ final readonly class RideController
             $samples,
         );
 
+        $computeEfforts->handle($ride->setRelation('course', $course));
+
         if ($request->boolean('upload_to_strava') && $this->user($request)->stravaConnection()->exists()) {
             UploadRideToStrava::dispatch($ride);
         }
 
-        return new RideResource($ride->load('course'))->response()->setStatusCode(Response::HTTP_CREATED);
+        return new RideResource($ride->load(['course', 'efforts.segment']))->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**

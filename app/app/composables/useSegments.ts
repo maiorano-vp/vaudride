@@ -5,6 +5,8 @@ const RESULT_SHOWN_MS = 8000
 export interface SegmentFinish extends SegmentResult {
   bestS: number
   isBest: boolean
+  /** Faster than the published KOM time (indicative: it only counts once the ride is saved). */
+  beatsKom: boolean
 }
 
 const storageKey = (slug: string, id: string) => `vaudride:segment-best:${slug}:${id}`
@@ -50,7 +52,8 @@ export function useSegments(slug: string, segments: Ref<Segment[]>, state: Ref<{
         const previous = loadBest(slug, result.segment.id)
         const isBest = previous === undefined || result.timeS < previous
         if (isBest) saveBest(slug, result.segment.id, result.timeS)
-        finished.value = { ...result, bestS: isBest ? result.timeS : previous!, isBest }
+        const kom = result.segment.kom_time_s
+        finished.value = { ...result, bestS: isBest ? result.timeS : previous!, isBest, beatsKom: kom == null || result.timeS < kom }
         clearTimeout(hideTimer)
         hideTimer = setTimeout(() => (finished.value = undefined), RESULT_SHOWN_MS)
       }

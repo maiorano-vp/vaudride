@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * A stretch of a course that riders are timed on (a climb, mostly).
@@ -48,6 +49,14 @@ final class Segment extends Model
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * @return HasMany<SegmentEffort, $this>
+     */
+    public function efforts(): HasMany
+    {
+        return $this->hasMany(SegmentEffort::class);
     }
 
     /**

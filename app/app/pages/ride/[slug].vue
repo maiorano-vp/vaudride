@@ -185,6 +185,7 @@ const simPower = computed({
       :elevation-gain-m="state.elevationGainM"
       :recordable="recording.recordable.value"
       :save-state="recording.saveState.value"
+      :efforts="recording.efforts.value"
       :finished="state.finished"
       @save="recording.save($event)"
       @restart="restart()"
