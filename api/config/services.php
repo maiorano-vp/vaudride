@@ -46,6 +46,14 @@ return [
         'client_secret' => env('STRAVA_CLIENT_SECRET', ''),
     ],
 
+    // Live riders: presence channels, positions travel as client events and are never stored
+    'pusher' => [
+        'key' => env('PUSHER_APP_KEY', ''),
+        'secret' => env('PUSHER_APP_SECRET', ''),
+        'app_id' => env('PUSHER_APP_ID', ''),
+        'cluster' => env('PUSHER_APP_CLUSTER', 'eu'),
+    ],
+
     'frontend' => [
         'url' => env('APP_FRONTEND_URL', 'http://localhost:3000'),
     ],

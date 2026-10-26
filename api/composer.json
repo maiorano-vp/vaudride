@@ -12,7 +12,8 @@
         "php": "^8.5.0",
         "laravel/framework": "^13.38.0",
         "laravel/sanctum": "^4.3.3",
-        "nunomaduro/essentials": "^1.2.0"
+        "nunomaduro/essentials": "^1.2.0",
+        "pusher/pusher-php-server": "^7.3"
     },
     "require-dev": {
         "deployer/deployer": "^8.0.5",
