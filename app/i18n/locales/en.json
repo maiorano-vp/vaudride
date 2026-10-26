@@ -68,6 +68,7 @@
     "resetInvalid": "Invalid or expired link.",
     "required": "Required",
     "invalidEmail": "Invalid email address",
-    "passwordMin": "At least 8 characters"
+    "passwordMin": "At least 8 characters",
+    "tagline": "Ride the real roads of Vaud"
   }
 }

@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   ui: { colorMode: false }, // light only: no color-mode module, no `dark` class
   runtimeConfig: { apiBase: 'http://127.0.0.1:8000' }, // NUXT_API_BASE
-  nitro: { preset: 'cloudflare_module', cloudflare: { deployConfig: true, nodeCompat: true, wrangler: { name: 'vaudride' } } },
+  nitro: { preset: 'cloudflare_module', cloudflare: { deployConfig: true, nodeCompat: true, wrangler: { name: 'vaudride', vars: { NUXT_API_BASE: 'https://vaudride.myvaud.dev' } } } },
   typescript: { strict: true },
   vite: { define: { CESIUM_BASE_URL: JSON.stringify('/cesium/') } },
   i18n: {

@@ -68,6 +68,7 @@
     "resetInvalid": "Lien invalide ou expiré.",
     "required": "Champ requis",
     "invalidEmail": "Adresse e-mail invalide",
-    "passwordMin": "8 caractères minimum"
+    "passwordMin": "8 caractères minimum",
+    "tagline": "Pédalez sur les vraies routes vaudoises"
   }
 }

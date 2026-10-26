@@ -12,8 +12,7 @@ require 'recipe/laravel.php';
 // Project name
 set('application', 'vaudride-api');
 
-// TODO: confirm the repository URL once the remote exists.
-set('repository', 'git@gitlab.com:vaud-promotion/vaud/vaudride.git');
+set('repository', 'git@github.com:maiorano-vp/vaudride.git');
 
 // The Laravel app lives in api/ inside the monorepo: only that folder becomes the release.
 set('sub_directory', 'api');
@@ -25,8 +24,7 @@ set('git_tty', false);
 set('keep_releases', 5);
 
 // Public URL checked by deploy:healthcheck after each release (Laravel's built-in /up route).
-// TODO: set once the production hostname is known.
-set('healthcheck_url', 'https://TODO-api-hostname/up');
+set('healthcheck_url', 'https://vaudride.myvaud.dev/up');
 
 /**
  * Optional: on hosts whose docroot cannot be pointed at <release>/public (e.g. Infomaniak shared hosting),
@@ -39,12 +37,10 @@ set('public_path_symlink', null);
 set('http_user', 'www-data');
 
 // Hosts
-// TODO: fill in the production server details.
-
 host('production')
-    ->setHostname('TODO-hostname')
-    ->setRemoteUser('TODO-user')
-    ->setDeployPath('~/sites/TODO-api-hostname')
+    ->setHostname('x17jd.ftp.infomaniak.com')
+    ->setRemoteUser('x17jd_dev')
+    ->setDeployPath('~/sites/vaudride.myvaud.dev')
     ->set('branch', 'main');
 
 /**

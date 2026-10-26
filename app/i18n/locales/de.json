@@ -68,6 +68,7 @@
     "resetInvalid": "Ungültiger oder abgelaufener Link.",
     "required": "Pflichtfeld",
     "invalidEmail": "Ungültige E-Mail-Adresse",
-    "passwordMin": "Mindestens 8 Zeichen"
+    "passwordMin": "Mindestens 8 Zeichen",
+    "tagline": "Fahren Sie auf den echten Waadtländer Strassen"
   }
 }
