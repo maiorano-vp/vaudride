@@ -50,6 +50,7 @@ describe('sheetSection', () => {
     expect(sheetSection(of('lodging'))).toBe('lodging')
     expect(['water', 'bike', 'station', 'shop', 'service'].map((c) => sheetSection(of(c)))).toEqual(Array(5).fill('services'))
     expect([null, 'wine', 'viewpoint', 'activity'].map((c) => sheetSection(of(c)))).toEqual(Array(4).fill('discover'))
-    expect(SHEET_ONLY_CATEGORIES).toContain('lodging')
+    expect(SHEET_ONLY_CATEGORIES).toEqual(expect.arrayContaining(['lodging', 'shop', 'service', 'activity']))
+    expect(SHEET_ONLY_CATEGORIES).not.toContain('viewpoint')
   })
 })

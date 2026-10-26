@@ -10,7 +10,8 @@ use App\Models\LocalhubPlace;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Proposes the Local Hub places near a course as unpublished points of interest, for an admin to review.
+ * Adds the Local Hub places near a course as points of interest. They are the destination's own data, so they are
+ * published at once; an admin can hide any of them afterwards, or ask for drafts.
  * Reads the local copy of the catalogue (see SyncLocalhubPlaces), so it is instant.
  * Places along the road count within 300 m; lodging counts around the start and the finish (3 km).
  */
@@ -24,7 +25,7 @@ final readonly class ImportLocalhubPois
      * @return array{created: int, skipped: int, preview: list<array{title: string, category: string, distance_m: int}>}|null
      *                                                                                                                        null when the course has no profile yet or the catalogue was never synced
      */
-    public function handle(Course $course, bool $dryRun = false, bool $publish = false): ?array
+    public function handle(Course $course, bool $dryRun = false, bool $publish = true): ?array
     {
         $disk = Storage::disk(StoreCourseProfile::DISK);
         $path = StoreCourseProfile::path($course->slug);

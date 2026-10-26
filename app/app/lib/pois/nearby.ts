@@ -14,8 +14,8 @@ export interface Poi {
 export const POI_LEAD_M = 300
 export const POI_LINGER_M = 60
 
-/** Categories that belong to the sheet (where to sleep, what is nearby), not to the road: no pop-up while riding. */
-export const SHEET_ONLY_CATEGORIES = ['lodging']
+/** Categories that belong to the sheet (where to sleep, shops, activities), not to the road: no pop-up while riding. */
+export const SHEET_ONLY_CATEGORIES = ['lodging', 'shop', 'service', 'activity']
 
 /** Where the places of a course go on its sheet. */
 export function sheetSection(poi: Poi): 'lodging' | 'services' | 'discover' {

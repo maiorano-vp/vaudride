@@ -191,7 +191,7 @@ describe('syncing the catalogue', function (): void {
 });
 
 describe('importing a course from the copy', function (): void {
-    it('imports the places along the road and the lodging around the ends, unpublished', function (): void {
+    it('imports the places along the road and the lodging around the ends, published', function (): void {
         syncHits([
             hit('1', 'Cave du Lac', 'cave-et-vin', 4000, extra: ['attributes' => ['a' => attr('Certifié Vaud Oenotourisme')]]),
             hit('2', 'Hôtel du Port', 'hebergement', 800, northM: 1500), // 1.7 km from the start
@@ -213,7 +213,7 @@ describe('importing a course from the copy', function (): void {
             ->and($pois['localhub:1']->url)->toBe('https://example.org/1')
             ->and($pois['localhub:1']->address)->toBe('Rue du Lac 1, 1800 Vevey')
             ->and($pois['localhub:1']->source)->toBe('localhub')
-            ->and($pois['localhub:1']->published)->toBeFalse()
+            ->and($pois['localhub:1']->published)->toBeTrue()
             ->and($pois['localhub:2']->category)->toBe(PoiCategory::Lodging)
             ->and($pois['localhub:6']->category)->toBe(PoiCategory::Food);
     });
@@ -245,12 +245,12 @@ describe('importing a course from the copy', function (): void {
         $this->artisan('localhub:import', ['slug' => 'nope'])->assertFailed();
     });
 
-    it('can publish what it imports, for local development', function (): void {
+    it('can import drafts to review first', function (): void {
         syncHits([hit('1', 'Cave du Lac', 'vin', 4000)]);
 
-        $this->artisan('localhub:import', ['slug' => 'a-course', '--publish' => true])->assertSuccessful();
+        $this->artisan('localhub:import', ['slug' => 'a-course', '--draft' => true])->assertSuccessful();
 
-        expect($this->course->pois()->firstOrFail()->published)->toBeTrue();
+        expect($this->course->pois()->firstOrFail()->published)->toBeFalse();
     });
 
     it('has nothing to import before the first sync or without a profile', function (): void {
@@ -273,7 +273,7 @@ describe('in the admin', function (): void {
 
         Livewire::test(PoisRelationManager::class, ['ownerRecord' => $this->course, 'pageClass' => EditCourse::class])
             ->callTableAction('importLocalhub')
-            ->assertNotified('1 lieu(x) importé(s), 0 ignoré(s). À relire avant publication.');
+            ->assertNotified('1 lieu(x) importé(s), 0 ignoré(s). Publiés: masquez ceux que vous ne voulez pas.');
     });
 
     it('explains what to do when the catalogue was never synced', function (): void {

@@ -128,3 +128,57 @@ describe('in the admin', function (): void {
         expect($course->segments()->count())->toBe(1);
     });
 });
+
+describe('the segments:detect command', function (): void {
+    beforeEach(function (): void {
+        Storage::fake(StoreCourseProfile::DISK);
+    });
+
+    function profileWithClimb(string $slug): void
+    {
+        Storage::disk(StoreCourseProfile::DISK)->put(
+            StoreCourseProfile::path($slug),
+            json_encode(['points' => profileFromLegs([[1000, 0], [2000, 100], [1000, 0]])], JSON_THROW_ON_ERROR),
+        );
+    }
+
+    it('adds the climbs of every course, published, and skips those without a profile', function (): void {
+        $a = Course::factory()->create(['slug' => 'a-course', 'distance_m' => 4000]);
+        $b = Course::factory()->create(['slug' => 'b-course', 'distance_m' => 4000]);
+        $c = Course::factory()->create(['slug' => 'c-course']); // no profile
+        profileWithClimb('a-course');
+        profileWithClimb('b-course');
+
+        $this->artisan('segments:detect')
+            ->expectsOutputToContain('a-course: 1 segment(s) added')
+            ->expectsOutputToContain('b-course: 1 segment(s) added')
+            ->expectsOutputToContain('c-course: no profile yet, skipped')
+            ->assertSuccessful();
+
+        expect($a->segments()->where('published', true)->count())->toBe(1)
+            ->and($b->segments()->count())->toBe(1)
+            ->and($c->segments()->count())->toBe(0);
+    });
+
+    it('can be run again without doubling the segments', function (): void {
+        $course = Course::factory()->create(['slug' => 'a-course', 'distance_m' => 4000]);
+        profileWithClimb('a-course');
+
+        $this->artisan('segments:detect')->assertSuccessful();
+        $this->artisan('segments:detect')->expectsOutputToContain('0 segment(s) added')->assertSuccessful();
+
+        expect($course->segments()->count())->toBe(1);
+    });
+
+    it('adds drafts on request and can target one course', function (): void {
+        $a = Course::factory()->create(['slug' => 'a-course', 'distance_m' => 4000]);
+        $b = Course::factory()->create(['slug' => 'b-course', 'distance_m' => 4000]);
+        profileWithClimb('a-course');
+        profileWithClimb('b-course');
+
+        $this->artisan('segments:detect', ['slug' => 'a-course', '--draft' => true])->assertSuccessful();
+
+        expect($a->segments()->firstOrFail()->published)->toBeFalse()->and($b->segments()->count())->toBe(0);
+        $this->artisan('segments:detect', ['slug' => 'nope'])->assertFailed();
+    });
+});

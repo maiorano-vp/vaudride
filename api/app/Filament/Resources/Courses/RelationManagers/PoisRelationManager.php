@@ -93,7 +93,7 @@ final class PoisRelationManager extends RelationManager
                     }),
                 Action::make('importLocalhub')->label('Importer depuis Local Hub')->icon(Heroicon::OutlinedCloudArrowDown)
                     ->requiresConfirmation()
-                    ->modalDescription('Depuis la copie locale du catalogue Local Hub (mise à jour par « php artisan localhub:sync »): les lieux à moins de 300 m du tracé et les hébergements à moins de 3 km du départ ou de l’arrivée sont ajoutés non publiés, à relire.')
+                    ->modalDescription('Depuis la copie locale du catalogue Local Hub (mise à jour par « php artisan localhub:sync »): les lieux à moins de 300 m du tracé et les hébergements à moins de 3 km du départ ou de l’arrivée sont ajoutés et publiés tout de suite (vous pouvez ensuite en masquer dans la liste).')
                     ->action(function (): void {
                         /** @var Course $course */
                         $course = $this->getOwnerRecord();
@@ -106,7 +106,7 @@ final class PoisRelationManager extends RelationManager
                             return;
                         }
 
-                        Notification::make()->title($result['created'].' lieu(x) importé(s), '.$result['skipped'].' ignoré(s). À relire avant publication.')->success()->send();
+                        Notification::make()->title($result['created'].' lieu(x) importé(s), '.$result['skipped'].' ignoré(s). Publiés: masquez ceux que vous ne voulez pas.')->success()->send();
                     }),
                 CreateAction::make(),
             ])
