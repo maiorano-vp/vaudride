@@ -50,7 +50,8 @@
       "swisstopo": "swisstopo (relief et bâtiments)",
       "light": "Léger (relief seul)",
       "google": "Google (photoréaliste)",
-      "googleIon": "Google via Cesium ion (photoréaliste)"
+      "googleIon": "Google via Cesium ion (photoréaliste)",
+      "mixed": "Mixte (swisstopo proche, Google au loin)"
     }
   },
   "auth": {

@@ -8,6 +8,8 @@ export enum SceneSource {
   Google = 'google',
   /** The same Google tiles through Cesium ion, with an ion access token. */
   GoogleIon = 'googleIon',
+  /** swisstopo around the rider (sharp buildings), Google photogrammetry further away. */
+  Mixed = 'mixed',
 }
 
 /** Which credentials are configured: Google sources are only offered when theirs is. */
@@ -22,9 +24,18 @@ export const parseSceneSource = (value: unknown): SceneSource | undefined =>
 /** Google's mesh replaces the globe. */
 export const isPhotorealistic = (s: SceneSource) => s === SceneSource.Google || s === SceneSource.GoogleIon
 
+/** Sources that stream Google's mesh. */
+export const usesGoogle = (s: SceneSource) => isPhotorealistic(s) || s === SceneSource.Mixed
+
+/** Sources that draw swisstopo's 3D buildings and trees. */
+export const usesSwissBuildings = (s: SceneSource) => s === SceneSource.Swisstopo || s === SceneSource.Mixed
+
 export const availableSceneSources = (keys: SceneKeys): SceneSource[] =>
   Object.values(SceneSource).filter(
-    (s) => (s !== SceneSource.Google || keys.google) && (s !== SceneSource.GoogleIon || keys.ion),
+    (s) =>
+      (s !== SceneSource.Google || keys.google) &&
+      (s !== SceneSource.GoogleIon || keys.ion) &&
+      (s !== SceneSource.Mixed || keys.google || keys.ion),
   )
 
 /** The stored choice if it can be used, the default otherwise. */

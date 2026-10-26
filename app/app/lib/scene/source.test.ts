@@ -17,6 +17,12 @@ describe('scene source', () => {
     expect(availableSceneSources({ google: false, ion: true })).toContain(SceneSource.GoogleIon)
   })
 
+  it('offers the mixed source when any Google credential exists', () => {
+    expect(availableSceneSources(none)).not.toContain(SceneSource.Mixed)
+    expect(availableSceneSources({ google: true, ion: false })).toContain(SceneSource.Mixed)
+    expect(availableSceneSources({ google: false, ion: true })).toContain(SceneSource.Mixed)
+  })
+
   it('falls back to swisstopo when the stored choice is unknown or unavailable', () => {
     expect(resolveSceneSource('light', none)).toBe(SceneSource.Light)
     expect(resolveSceneSource('googleIon', { google: false, ion: true })).toBe(SceneSource.GoogleIon)
@@ -26,6 +32,6 @@ describe('scene source', () => {
 
   it('flags the sources that replace the globe', () => {
     expect([SceneSource.Google, SceneSource.GoogleIon].every(isPhotorealistic)).toBe(true)
-    expect([SceneSource.Swisstopo, SceneSource.Light].some(isPhotorealistic)).toBe(false)
+    expect([SceneSource.Swisstopo, SceneSource.Light, SceneSource.Mixed].some(isPhotorealistic)).toBe(false)
   })
 })

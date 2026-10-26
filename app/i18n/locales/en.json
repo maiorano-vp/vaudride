@@ -50,7 +50,8 @@
       "swisstopo": "swisstopo (terrain and buildings)",
       "light": "Light (terrain only)",
       "google": "Google (photorealistic)",
-      "googleIon": "Google via Cesium ion (photorealistic)"
+      "googleIon": "Google via Cesium ion (photorealistic)",
+      "mixed": "Mixed (swisstopo near, Google far)"
     }
   },
   "auth": {

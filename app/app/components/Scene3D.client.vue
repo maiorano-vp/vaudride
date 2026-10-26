@@ -2,7 +2,8 @@
 import type { Property } from 'cesium'
 import { pointAt, type CourseProfile } from '~/lib/course/profile'
 import { bearingRad, distanceAfter, interpolateAt, lerpAngle } from '~/lib/scene/camera'
-import { isPhotorealistic, SceneSource } from '~/lib/scene/source'
+import { clamp, distanceM as metersBetween, pushWindow, ringAround } from '~/lib/scene/mix'
+import { isPhotorealistic, SceneSource, usesGoogle, usesSwissBuildings } from '~/lib/scene/source'
 
 const props = withDefaults(
   defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string }>(),
@@ -56,6 +57,11 @@ const FOV_SPEED_GAIN = 1.2 // degrees of extra field of view per m/s: speed feel
 const FOV_MAX_EXTRA_DEG = 12
 const AVATAR_SCALE = 1.6
 const MAX_HEIGHT_OFFSET_M = 150 // sanity bound on the correction between the mesh and the terrain heights
+// Mixed source: a hole in Google's mesh around the rider shows the sharp swisstopo scene; Google fills the distance
+const MIX_HOLE_RADIUS_M = 180
+const MIX_HOLE_MOVE_M = 40 // re-cut the hole once the rider moved this far
+const MIX_MEASURE_MS = 2500
+const MIX_WINDOW = 6 // the lowest of the last measures is the ground (trees and roofs only add height)
 const SAMPLE_EVERY = 8 // route points between terrain height samples (~40 m)
 
 const container = ref<HTMLDivElement>()
@@ -139,14 +145,21 @@ async function start() {
   scene.fog.minimumBrightness = 0.12
   if (scene.msaaSupported) scene.msaaSamples = 4 // smooth road, building and avatar edges
 
-  if (isPhotorealistic(props.source)) {
-    // Google's mesh replaces the globe; swisstopo terrain still gives the heights the avatar and camera ride on.
+  const swiss: Array<InstanceType<typeof Cesium.Cesium3DTileset>> = [] // swisstopo buildings and trees, once loaded
+  let google: InstanceType<typeof Cesium.Cesium3DTileset> | undefined
+  if (usesGoogle(props.source)) {
+    // Google's mesh replaces the globe, except in the mixed scene where swisstopo's terrain stays;
+    // swisstopo terrain still gives the heights the avatar and camera ride on.
     // showCreditsOnScreen: Google's attribution must stay visible.
-    scene.globe.show = false
-    // without a Google key the same tiles are streamed through Cesium ion, with the ion token
-    if (props.source === SceneSource.GoogleIon) Cesium.Ion.defaultAccessToken = props.ionToken
-    const key = props.source === SceneSource.Google ? props.googleKey : undefined
-    scene.primitives.add(await Cesium.createGooglePhotorealistic3DTileset({ key }, { showCreditsOnScreen: true, maximumScreenSpaceError: PHOTO_MAX_SCREEN_SPACE_ERROR }))
+    if (isPhotorealistic(props.source)) scene.globe.show = false
+    // the same tiles go through Cesium ion (free token) unless the source is Google-with-a-key
+    const useIon = props.source === SceneSource.GoogleIon || (props.source === SceneSource.Mixed && !!props.ionToken)
+    if (useIon) Cesium.Ion.defaultAccessToken = props.ionToken
+    google = await Cesium.createGooglePhotorealistic3DTileset(
+      { key: useIon ? undefined : props.googleKey },
+      { showCreditsOnScreen: true, maximumScreenSpaceError: PHOTO_MAX_SCREEN_SPACE_ERROR },
+    )
+    scene.primitives.add(google)
   }
 
   // Real 3D buildings and trees (swisstopo 3D Tiles); added as they load so the scene never waits on them
@@ -155,9 +168,10 @@ async function start() {
       .then((tileset) => {
         if (customShader) tileset.customShader = customShader
         viewer.scene.primitives.add(tileset)
+        swiss.push(tileset)
       })
       .catch(() => {}) // optional layers: the terrain scene still works without them
-  if (props.source === SceneSource.Swisstopo) {
+  if (usesSwissBuildings(props.source)) {
     void addTileset(BUILDINGS_URL, new Cesium.CustomShader({ fragmentShaderText: BUILDING_SHADER }))
     void addTileset(VEGETATION_URL)
   }
@@ -209,6 +223,29 @@ async function start() {
   let heightOffset = 0
   let offsetKnown = false
   let lastMeasure = 0
+  // where the rider is and how high the swisstopo ground is there, shared with the measuring step after each frame
+  const rider = { lon: points[0]!.lon, lat: points[0]!.lat, ground: hs[0]! }
+
+  // Mixed scene: Google's mesh is cut open around the rider, and lowered/raised to meet the swisstopo ground
+  const mixed = props.source === SceneSource.Mixed && !!google
+  const clip = mixed && Cesium.ClippingPolygonCollection.isSupported(scene)
+    ? (google!.clippingPolygons = new Cesium.ClippingPolygonCollection({ polygons: [] }))
+    : undefined
+  if (mixed && !clip) google!.show = false // no clipping support: swisstopo only, rather than two overlapping worlds
+  let hole = { lon: Number.NaN, lat: Number.NaN }
+  const moveHole = (lon: number, lat: number) => {
+    if (!clip) return
+    clip.removeAll()
+    clip.add(
+      new Cesium.ClippingPolygon({
+        positions: ringAround(lat, lon, MIX_HOLE_RADIUS_M).map((p) => Cesium.Cartesian3.fromDegrees(p.lon, p.lat)),
+      }),
+    )
+    hole = { lon, lat }
+  }
+  moveHole(points[0]!.lon, points[0]!.lat)
+  let googleShift = 0 // metres Google's mesh is lowered by
+  let recentGaps: number[] = []
 
   viewer.scene.preRender.addEventListener(() => {
     const d = distanceAfter(base.d, props.speedMs, (performance.now() - base.t) / 1000, total)
@@ -220,15 +257,10 @@ async function start() {
       : bearingRad(behind.lat, behind.lon, here.lat, here.lon)
     heading = lerpAngle(heading, target, 0.05)
 
-    if (isPhotorealistic(props.source) && scene.sampleHeightSupported && performance.now() - lastMeasure > 200) {
-      lastMeasure = performance.now()
-      const mesh = scene.sampleHeight(Cesium.Cartographic.fromDegrees(here.lon, here.lat), parts as never[])
-      if (mesh !== undefined) {
-        const wanted = Math.max(-MAX_HEIGHT_OFFSET_M, Math.min(MAX_HEIGHT_OFFSET_M, mesh - interpolateAt(ds, hs, d)))
-        heightOffset = offsetKnown ? heightOffset + (wanted - heightOffset) * 0.2 : wanted
-        offsetKnown = true
-      }
-    }
+    rider.lon = here.lon
+    rider.lat = here.lat
+    rider.ground = interpolateAt(ds, hs, d)
+    if (clip && metersBetween(hole.lat, hole.lon, here.lat, here.lon) > MIX_HOLE_MOVE_M) moveHole(here.lon, here.lat)
 
     avatar = Cesium.Cartesian3.fromDegrees(here.lon, here.lat, interpolateAt(ds, hs, d) + heightOffset)
     enu = Cesium.Transforms.eastNorthUpToFixedFrame(avatar)
@@ -250,6 +282,38 @@ async function start() {
     fovDeg += (FOV_DEG + Math.min(props.speedMs * FOV_SPEED_GAIN, FOV_MAX_EXTRA_DEG) - fovDeg) * 0.05
     frustum.fov = Cesium.Math.toRadians(fovDeg)
     viewer.camera.lookAt(lookAt, new Cesium.HeadingPitchRange(heading, pitch, photoreal ? PHOTO_CAMERA_RANGE_M : CAMERA_RANGE_M))
+  })
+
+  // Height measuring uses depth picks, which must not run in the middle of a render: do it right after each frame.
+  scene.postRender.addEventListener(() => {
+    if (!scene.sampleHeightSupported) return
+    const now = performance.now()
+
+    if (isPhotorealistic(props.source)) {
+      if (now - lastMeasure < 200) return
+      lastMeasure = now
+      const mesh = scene.sampleHeight(Cesium.Cartographic.fromDegrees(rider.lon, rider.lat), parts as never[])
+      if (mesh === undefined) return
+      const wanted = clamp(mesh - rider.ground, MAX_HEIGHT_OFFSET_M)
+      heightOffset = offsetKnown ? heightOffset + (wanted - heightOffset) * 0.2 : wanted
+      offsetKnown = true
+    } else if (clip && google && now - lastMeasure > MIX_MEASURE_MS) {
+      lastMeasure = now
+      // measure Google's mesh just outside the hole (inside it, it is cut away), alone: hide the swisstopo layers for the pick
+      const ahead = pointAt(props.course, Math.min(base.d + MIX_HOLE_RADIUS_M + 40, total))
+      const globeShown = scene.globe.show
+      scene.globe.show = false
+      swiss.forEach((t) => (t.show = false))
+      const mesh = scene.sampleHeight(Cesium.Cartographic.fromDegrees(ahead.lon, ahead.lat), parts as never[])
+      scene.globe.show = globeShown
+      swiss.forEach((t) => (t.show = true))
+      if (mesh === undefined) return
+      // the mesh was measured already lowered by googleShift: add it back to get its own height
+      recentGaps = pushWindow(recentGaps, mesh + googleShift - interpolateAt(ds, hs, ahead.d), MIX_WINDOW)
+      googleShift = clamp(googleShift + (Math.min(...recentGaps) - googleShift) * 0.5, MAX_HEIGHT_OFFSET_M)
+      const up = Cesium.Ellipsoid.WGS84.geodeticSurfaceNormal(avatar, new Cesium.Cartesian3())
+      google.modelMatrix = Cesium.Matrix4.fromTranslation(Cesium.Cartesian3.multiplyByScalar(up, -googleShift, new Cesium.Cartesian3()))
+    }
   })
 
   return () => viewer.destroy()
