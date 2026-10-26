@@ -1,0 +1,35 @@
+{
+  "name": "app",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare && bun run copy-cesium",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run",
+    "copy-cesium": "mkdir -p public/cesium && cp -R node_modules/cesium/Build/Cesium/Workers node_modules/cesium/Build/Cesium/ThirdParty node_modules/cesium/Build/Cesium/Assets node_modules/cesium/Build/Cesium/Widgets public/cesium/",
+    "sync-courses": "mkdir -p public/courses && cp -R ../dist/* public/courses/"
+  },
+  "dependencies": {
+    "@nuxtjs/i18n": "^10.6.0",
+    "@vite-pwa/nuxt": "^1.1.1",
+    "cesium": "^1.146.0",
+    "nuxt": "^4.6.2",
+    "vue": "^3.5.44",
+    "vue-router": "^5.4.0"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.17.0",
+    "@types/web-bluetooth": "^0.0.22",
+    "eslint": "^10.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "~5.9",
+    "vitest": "^5.0.5",
+    "vue-tsc": "^3.3.13"
+  }
+}

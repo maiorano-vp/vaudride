@@ -1,0 +1,45 @@
+{
+  "app": {
+    "title": "Vaud Ride"
+  },
+  "dashboard": {
+    "power": "Puissance",
+    "cadence": "Cadence",
+    "heartRate": "Fréq. cardiaque",
+    "speed": "Vitesse",
+    "grade": "Pente",
+    "distance": "Distance",
+    "climb": "Dénivelé +",
+    "time": "Temps"
+  },
+  "profile": {
+    "label": "Profil altimétrique du parcours"
+  },
+  "ble": {
+    "trainer": "Home trainer",
+    "powerMeter": "Capteur de puissance",
+    "heartRate": "Ceinture cardio",
+    "simPower": "Puissance simulée",
+    "unsupported": "Ce navigateur ne gère pas le Bluetooth Web. Utilisez Chrome ou Edge (ordinateur ou Android).",
+    "state": {
+      "idle": "non connecté",
+      "connecting": "connexion…",
+      "connected": "connecté",
+      "reconnecting": "reconnexion…",
+      "unsupported": "non supporté",
+      "error": "erreur"
+    },
+    "devices": "Appareils"
+  },
+  "ride": {
+    "restart": "Recommencer",
+    "finished": "Parcours terminé !",
+    "notFound": "Parcours introuvable."
+  },
+  "scene": {
+    "show3d": "Vue 3D",
+    "show2d": "Vue 2D",
+    "loading": "Chargement de la scène 3D…",
+    "error": "La scène 3D n'a pas pu être chargée. Utilisez la vue 2D."
+  }
+}
