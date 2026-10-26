@@ -62,6 +62,7 @@ task('deploy', [
     'artisan:route:cache',
     'db:backup',
     'artisan:migrate',
+    'db:seed-courses',
     'deploy:publish',
     'artisan:queue:restart',
 ]);
@@ -91,6 +92,11 @@ task('db:backup', function () {
     // an empty file is the first deploy: nothing worth saving yet
     run("[ -s {$db} ] && mkdir -p {$dir} && cp {$db} {$dir}/database-$(date +%Y%m%d-%H%M%S).sqlite || true");
     run("ls -1t {$dir}/database-*.sqlite 2>/dev/null | tail -n +11 | xargs -r rm -f || true");
+});
+
+desc('Inserts the launch courses that are missing (idempotent: never overwrites admin edits)');
+task('db:seed-courses', function () {
+    run('{{bin/php}} {{release_or_current_path}}/artisan db:seed --class=CourseSeeder --force');
 });
 
 desc('Checks that the API is up');
