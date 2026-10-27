@@ -12,17 +12,25 @@ App de home trainer type Zwift, mais sur les **vraies routes du canton de Vaud**
 
 ## Périmètre MVP
 
-À construire :
+Légende : ✅ fait · 🟡 partiel / à valider · ⬜ à faire (état au 2026-10-27).
 
-1. Connexion home trainer Bluetooth **FTMS** + ceinture cardio (+ capteur de puissance seul en fallback)
-2. Mode simulation de pente : résistance pilotée par la pente réelle du parcours
-3. Catalogue de ~10 parcours vaudois avec profil altimétrique
-4. Vue 3D du relief (terrain + orthophoto) avec avatar simple
-5. Tableau de bord live : puissance, cadence, FC, vitesse, pente, distance, dénivelé
-6. Comptes utilisateurs, historique, export FIT/TCX, sync Strava
-7. POI touristiques Vaud Promotion le long du parcours
+1. ✅ Connexion home trainer Bluetooth **FTMS** + ceinture cardio + capteur de puissance en fallback (`lib/ble`, simulateur `?sim=1`) — 🟡 à valider sur plusieurs trainers réels
+2. ✅ Mode simulation de pente : résistance pilotée par la pente réelle du parcours
+3. ✅ Catalogue de parcours avec profil altimétrique (une soixantaine de sources dans `courses/`, fiche parcours : GPX, accès au départ, ascensions, meilleurs mois et météo) — 🟡 vérifier la licence SuisseMobile avant d'intégrer ces itinéraires
+4. ✅ Vue 3D du relief (swisstopo + photogrammétrie Google via Cesium ion) avec cycliste glTF animé et kit personnalisable
+5. ✅ Tableau de bord live : puissance, cadence, FC, vitesse, pente, distance, dénivelé
+6. ✅ Comptes (pseudo unique), historique, export FIT/TCX, sync Strava
+7. ✅ POI le long du parcours (OpenStreetMap + catalogue Local Hub, relecture dans l'admin, favoris, lecture vocale, carte du parcours)
 
-Hors MVP (V2) : mode ERG / séances structurées, segments chronométrés et classements, rides de groupe / ghosts, création libre de parcours, app iOS native (Capacitor), ANT+ FE-C.
+Fait en plus du périmètre initial : segments chronométrés et classements/KOM, riders en direct sur le même parcours (Pusher), pause, commandes vocales, image de fin de sortie à partager, tableau de bord d'activité anonyme dans l'admin, page « Rapports » de l'admin (période au choix, parcours les plus roulés, saisonnalité, export CSV, sans aucune donnée d'origine des joueurs), admin Filament avec 2FA, PWA configurée, mode découverte sans matériel (`/ride/<slug>?demo=1`, survol à vitesse libre pour salons et vaud.ch).
+
+Hors MVP (V2) :
+- ✅ segments chronométrés et classements · ✅ rides de groupe (riders en direct)
+- ✅ mode ERG / séances structurées (modèles livrés + éditeur simple, FTP gardé dans le navigateur)
+- ✅ ghosts (meilleure sortie, dernière sortie, record du segment)
+- ⬜ création libre de parcours
+- ⬜ app iOS native (Capacitor) — nécessaire pour Safari/iPhone
+- ⬜ ANT+ FE-C
 
 Hors scope : monde ouvert, gamification poussée, vidéo réelle filmée.
 
@@ -156,12 +164,14 @@ Commencer par **Marchairuz** pour le prototype.
 
 ## Ordre de travail recommandé
 
-1. **Prototype** : simulateur BLE + vrai FTMS, profil Marchairuz généré par le pipeline, moteur physique, dashboard + profil 2D. Critère : la montée « se sent » crédible sur un vrai trainer.
-2. Scène 3D Cesium avec terrain du corridor et caméra qui suit le cycliste
-3. Catalogue de parcours, POI, écran de fin de sortie
-4. API : comptes, historique, export FIT/TCX, Strava
-5. Admin Filament pour gérer parcours et POI
-6. PWA, perfs (niveaux de détail, fallback 2D sur machines modestes), beta
+1. ✅ **Prototype** : simulateur BLE + vrai FTMS, profil Marchairuz généré par le pipeline, moteur physique, dashboard + profil 2D. Critère : la montée « se sent » crédible sur un vrai trainer (🟡 réglage fin de la sensation à poursuivre)
+2. ✅ Scène 3D Cesium avec terrain du corridor et caméra qui suit le cycliste
+3. ✅ Catalogue de parcours, POI, écran de fin de sortie
+4. ✅ API : comptes, historique, export FIT/TCX, Strava
+5. ✅ Admin Filament pour gérer parcours et POI (+ imports Local Hub, segments, joueurs, activité)
+6. 🟡 PWA (configurée), perfs (niveaux de détail, fallback 2D sur machines modestes : ⬜), beta : ⬜
+
+Prochaines étapes proposées : « rouler pour de vrai » (suivi des parcours virtuels → réels) · fallback 2D · tests E2E en mode `?sim=1` · Capacitor iOS (écarté pour l'instant ; le mode découverte marche déjà sur Safari/iPhone).
 
 ## Questions ouvertes
 
