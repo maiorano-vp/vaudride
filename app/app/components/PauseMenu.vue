@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type View = 'menu' | 'devices' | 'kit' | 'account' | 'quit'
+type View = 'menu' | 'devices' | 'kit' | 'sound' | 'account' | 'quit'
 
 const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ finish: [] }>()
@@ -7,6 +7,12 @@ const emit = defineEmits<{ finish: [] }>()
 const { trainer, powerMeter, strap } = useDevices()
 const { user, logout } = useAuth()
 const { t } = useI18n()
+const speech = useSpeech()
+const volumePct = computed({
+  get: () => Math.round(speech.volume.value * 100),
+  set: (v: number) => (speech.volume.value = v / 100),
+})
+const testVoice = () => speech.speak(t('sound.testPhrase'), true)
 
 const view = ref<View>('menu')
 // always reopen on the menu itself
@@ -23,6 +29,7 @@ const items = computed(() => [
   { key: 'continue', icon: 'i-lucide-play', action: () => (open.value = false) },
   { key: 'devices', icon: 'i-lucide-bluetooth', action: () => (view.value = 'devices') },
   { key: 'kit', icon: 'i-lucide-shirt', action: () => (view.value = 'kit') },
+  ...(speech.supported.value ? [{ key: 'sound', icon: 'i-lucide-volume-2', action: () => (view.value = 'sound') }] : []),
   { key: 'account', icon: 'i-lucide-user', action: () => (view.value = 'account') },
   { key: 'quit', icon: 'i-lucide-log-out', action: () => (view.value = 'quit') },
 ])
@@ -90,6 +97,15 @@ function finish() {
       </div>
 
       <KitEditor v-else-if="view === 'kit'" :preview="false" />
+
+      <div v-else-if="view === 'sound'" class="space-y-4">
+        <USwitch v-model="speech.enabled.value" :label="$t('sound.readPois')" />
+        <label class="block">
+          {{ $t('sound.volume') }} — {{ volumePct }} %
+          <USlider v-model="volumePct" :min="0" :max="100" :step="5" class="mt-2" />
+        </label>
+        <UButton color="neutral" variant="outline" icon="i-lucide-play" :label="$t('sound.test')" @click="testVoice" />
+      </div>
 
       <div v-else-if="view === 'account'" class="space-y-4">
         <p v-if="user">

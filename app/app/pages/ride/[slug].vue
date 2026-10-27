@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nearbyPoi, SHEET_ONLY_CATEGORIES, type Poi } from '~/lib/pois/nearby'
+import { speechText } from '~/lib/pois/speech'
 import type { Segment } from '~/lib/segments/tracker'
 import { availableSceneSources, resolveSceneSource, type SceneSource } from '~/lib/scene/source'
 
@@ -55,6 +56,21 @@ const poiNearby = computed(() =>
 )
 const { active: activeSegment, finished: finishedSegment } = useSegments(slug, segments, state)
 
+// each place is read aloud once, when it comes up; silence while paused or when it leaves
+const speech = useSpeech()
+const spoken = new Set<string>()
+watch(
+  () => poiNearby.value?.poi,
+  (poi) => {
+    if (!poi) return speech.stop()
+    if (spoken.has(poi.id) || paused.value) return
+    spoken.add(poi.id)
+    speech.speak(speechText(poi, locale.value))
+  },
+)
+watch(paused, (p) => p && speech.stop())
+onBeforeUnmount(speech.stop)
+
 const recording = useRideRecording(
   slug,
   computed(() => ({
@@ -70,6 +86,7 @@ const recording = useRideRecording(
 // the summary opens by itself at the finish line
 watch(() => state.value.finished, (done) => done && (summaryOpen.value = true))
 function restart() {
+  spoken.clear()
   reset()
   recording.reset()
   summaryOpen.value = false
@@ -223,6 +240,16 @@ const simPower = computed({
       </li>
     </ul>
     <UButton
+      v-if="speech.supported"
+      class="mute"
+      color="neutral"
+      variant="solid"
+      :icon="speech.enabled.value && speech.volume.value > 0 ? 'i-lucide-volume-2' : 'i-lucide-volume-x'"
+      :aria-label="$t(speech.enabled.value ? 'sound.mute' : 'sound.unmute')"
+      :aria-pressed="!speech.enabled.value"
+      @click="speech.enabled.value = !speech.enabled.value"
+    />
+    <UButton
       class="pause"
       :icon="menuOpen ? 'i-lucide-play' : 'i-lucide-pause'"
       :label="$t(menuOpen ? 'ride.resume' : 'ride.pause')"
@@ -333,6 +360,12 @@ const simPower = computed({
 .immersive .pause {
   position: absolute;
   right: 0.75rem;
+  bottom: 2rem;
+  z-index: 2;
+}
+.immersive .mute {
+  position: absolute;
+  right: 9.5rem;
   bottom: 2rem;
   z-index: 2;
 }

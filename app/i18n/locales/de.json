@@ -49,7 +49,8 @@
     "connect": "Verbinden",
     "quitHelp": "Was möchten Sie mit dieser Fahrt tun?",
     "finishSave": "Beenden und speichern",
-    "quitWithout": "Beenden ohne zu speichern"
+    "quitWithout": "Beenden ohne zu speichern",
+    "sound": "Ton"
   },
   "scene": {
     "show3d": "3D-Ansicht",
@@ -242,5 +243,13 @@
     "label": "Streckenkarte",
     "start": "Start",
     "finish": "Ziel"
+  },
+  "sound": {
+    "readPois": "Orte vorlesen",
+    "volume": "Lautstärke",
+    "test": "Stimme testen",
+    "mute": "Stimme ausschalten",
+    "unmute": "Stimme einschalten",
+    "testPhrase": "Willkommen im Kanton Waadt."
   }
 }
