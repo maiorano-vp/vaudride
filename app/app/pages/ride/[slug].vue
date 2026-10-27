@@ -141,6 +141,29 @@ const simPower = computed({
   get: () => sim.value?.power ?? 0,
   set: (v: number) => sim.value && (sim.value.power = v),
 })
+
+// ?sim=1&d=1234: the current distance (m, every 10 m) follows in the URL, and opening it puts the rider back there
+const DEBUG_STEP_M = 10
+let seekedFromUrl = false
+watch(
+  course,
+  (c) => {
+    if (!c || seekedFromUrl) return
+    seekedFromUrl = true
+    const d = Number(route.query.d)
+    if (simMode.value && route.query.d !== undefined && Number.isFinite(d) && d > 0) onSeek(d)
+  },
+  { immediate: true },
+)
+watch(
+  () => Math.round(state.value.distanceM / DEBUG_STEP_M) * DEBUG_STEP_M,
+  (d) => {
+    if (!simMode.value || !course.value) return
+    const url = new URL(window.location.href)
+    url.searchParams.set('d', String(d))
+    window.history.replaceState(window.history.state, '', url)
+  },
+)
 </script>
 
 <template>
