@@ -427,6 +427,25 @@
     }
   },
   "course": {
+    "breadcrumb": "Brotkrumennavigation",
+    "home": "Startseite",
+    "itineraries": "Routen",
+    "pillsLabel": "Entdecken",
+    "sections": "Abschnitte der Seite",
+    "photos": "Fotos",
+    "mapTitle": "Profil und Karte",
+    "info": {
+      "title": "Praktische Informationen",
+      "kind": "Art",
+      "destination": "Destination",
+      "distance": "Distanz",
+      "climb": "Höhenmeter aufwärts",
+      "maxGrade": "Maximale Steigung",
+      "altitude": "Höhe",
+      "climbs": "Gemessene Anstiege",
+      "bestMonths": "Beste Zeit",
+      "places": "Orte zu entdecken"
+    },
     "sheet": "Streckeninfo",
     "kind": {
       "velo": "Velo",
