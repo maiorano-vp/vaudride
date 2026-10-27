@@ -55,8 +55,16 @@ async function onSubmit(event: FormSubmitEvent<z.output<typeof schema>>) {
         variant="subtle"
         :description="error"
       />
-      <UFormField :label="$t('auth.nickname')" :help="$t('auth.nicknameHelp')" name="nickname">
-        <UInput v-model="state.nickname" autocomplete="nickname" class="w-full" />
+      <UFormField
+        :label="$t('auth.nickname')"
+        :help="$t('auth.nicknameHelp')"
+        name="nickname"
+      >
+        <UInput
+          v-model="state.nickname"
+          autocomplete="nickname"
+          class="w-full"
+        />
       </UFormField>
       <UFormField :label="$t('auth.email')" name="email">
         <UInput
@@ -77,7 +85,7 @@ async function onSubmit(event: FormSubmitEvent<z.output<typeof schema>>) {
       <UButton type="submit" block>{{ $t('auth.register') }}</UButton>
     </UForm>
     <p class="mt-4 text-sm">
-      <ULink :to="{ path: '/login', query: route.query }">{{
+      <ULink :to="{ path: '/login', query: route.query }" class="underline">{{
         $t('auth.haveAccount')
       }}</ULink>
     </p>

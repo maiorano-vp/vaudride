@@ -73,10 +73,14 @@ async function onSubmit(event: FormSubmitEvent<z.output<typeof schema>>) {
       <UButton type="submit" block>{{ $t('auth.login') }}</UButton>
     </UForm>
     <div class="mt-4 flex justify-between text-sm">
-      <ULink to="/forgot-password">{{ $t('auth.forgot') }}</ULink>
-      <ULink :to="{ path: '/register', query: route.query }">{{
-        $t('auth.noAccount')
+      <ULink to="/forgot-password" class="underline">{{
+        $t('auth.forgot')
       }}</ULink>
+      <ULink
+        :to="{ path: '/register', query: route.query }"
+        class="underline"
+        >{{ $t('auth.noAccount') }}</ULink
+      >
     </div>
   </div>
 </template>

@@ -86,7 +86,7 @@ async function onSubmit(event: FormSubmitEvent<z.output<typeof schema>>) {
       <UButton type="submit" block>{{ $t('auth.resetSubmit') }}</UButton>
     </UForm>
     <p class="mt-4 text-sm">
-      <ULink to="/login">{{ $t('auth.backToLogin') }}</ULink>
+      <ULink to="/login" class="underline">{{ $t('auth.backToLogin') }}</ULink>
     </p>
   </div>
 </template>
