@@ -19,6 +19,7 @@
             {{ l.code }}
           </button>
         </div>
+        <NuxtLink to="/privacy" class="mt-4 inline-block text-sm text-slate-500 underline">{{ $t('privacy.link') }}</NuxtLink>
       </div>
     </section>
 

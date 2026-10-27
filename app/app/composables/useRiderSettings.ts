@@ -119,8 +119,23 @@ export function useRiderSettings() {
     schedulePush()
   }
   const reset = () => update(DEFAULT_SETTINGS)
+
+  /** Erases the settings from the account (nothing is kept there) and from this browser. Fails if the account could not be reached. */
+  async function erase() {
+    clearTimeout(pushTimer)
+    if (user.value) await $fetch('/api/me/settings', { method: 'DELETE' })
+    settings.value = DEFAULT_SETTINGS
+    changedAt.value = undefined
+    sync.value = 'idle'
+    try {
+      localStorage.removeItem(KEY)
+      localStorage.removeItem(OLD_FTP_KEY)
+    } catch {
+      // storage blocked: nothing was kept there
+    }
+  }
   /** Takes the estimate from the rides as the FTP. */
   const useEstimate = () => ftpSuggestion.value && update({ ftp: ftpSuggestion.value.ftp })
 
-  return { settings, params, ftp, difficultyPct, sync, estimate, ftpSuggestion, load, loadEstimate, update, reset, useEstimate }
+  return { settings, params, ftp, difficultyPct, sync, estimate, ftpSuggestion, load, loadEstimate, update, reset, erase, useEstimate }
 }

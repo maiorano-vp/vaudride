@@ -64,6 +64,27 @@ it('keeps each player’s settings to themselves and out of the profile', functi
     $this->actingAs($user, 'sanctum')->getJson('/api/v1/me')->assertJsonMissingPath('data.rider_settings')->assertJsonMissing(['weightKg' => 68.5]);
 });
 
+it('erases the settings, weight included, from the server on request', function (): void {
+    $user = player();
+    $this->actingAs($user, 'sanctum')->putJson('/api/v1/me/settings', validSettings())->assertOk();
+
+    $this->actingAs($user, 'sanctum')->deleteJson('/api/v1/me/settings')->assertNoContent();
+
+    $this->actingAs($user, 'sanctum')->getJson('/api/v1/me/settings')->assertJsonPath('data', null)->assertJsonPath('updated_at', null);
+    $stored = $user->fresh();
+    expect($stored->rider_settings)->toBeNull()->and($stored->rider_settings_updated_at)->toBeNull();
+});
+
+it('only erases the settings of the player who asks', function (): void {
+    $user = player();
+    $other = player();
+    $this->actingAs($other, 'sanctum')->putJson('/api/v1/me/settings', validSettings(['ftp' => 300]));
+
+    $this->actingAs($user, 'sanctum')->deleteJson('/api/v1/me/settings')->assertNoContent();
+
+    expect($other->fresh()->rider_settings['ftp'])->toBe(300);
+});
+
 it('rejects values out of range or unknown', function (array $override, string $field): void {
     $this->actingAs(player(), 'sanctum')
         ->putJson('/api/v1/me/settings', validSettings($override))
@@ -86,6 +107,7 @@ it('needs a signed-in player', function (): void {
     $this->getJson('/api/v1/me/settings')->assertUnauthorized();
     $this->putJson('/api/v1/me/settings', validSettings())->assertUnauthorized();
     $this->getJson('/api/v1/me/ftp-estimate')->assertUnauthorized();
+    $this->deleteJson('/api/v1/me/settings')->assertUnauthorized();
 });
 
 it('suggests no FTP before a 20-minute effort', function (): void {

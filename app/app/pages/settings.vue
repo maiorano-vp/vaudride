@@ -27,6 +27,22 @@ const positionItems = computed(() =>
   })),
 )
 const dateFmt = (iso: string) => new Date(iso).toLocaleDateString()
+
+// the right to deletion: weight and the rest are removed from the account, not just reset
+const erasing = ref(false)
+const eraseState = ref<'done' | 'error'>()
+async function erase() {
+  erasing.value = true
+  eraseState.value = undefined
+  try {
+    await rider.erase()
+    eraseState.value = 'done'
+  } catch {
+    eraseState.value = 'error'
+  } finally {
+    erasing.value = false
+  }
+}
 </script>
 
 <template>
@@ -37,12 +53,12 @@ const dateFmt = (iso: string) => new Date(iso).toLocaleDateString()
     </header>
 
     <p>{{ $t('rider.intro') }}</p>
-    <UAlert
-      color="neutral"
-      variant="subtle"
-      icon="i-lucide-shield-check"
-      :description="$t(loggedIn ? 'rider.privacyAccount' : 'rider.privacyLocal')"
-    />
+    <UAlert color="neutral" variant="subtle" icon="i-lucide-shield-check">
+      <template #description>
+        {{ $t(loggedIn ? 'rider.privacyAccount' : 'rider.privacyLocal') }}
+        <NuxtLink to="/privacy" class="underline">{{ $t('privacy.link') }}</NuxtLink>
+      </template>
+    </UAlert>
 
     <UCard>
       <template #header>{{ $t('rider.you') }}</template>
@@ -94,9 +110,20 @@ const dateFmt = (iso: string) => new Date(iso).toLocaleDateString()
 
     <div class="flex flex-wrap items-center gap-3">
       <UButton color="neutral" variant="outline" icon="i-lucide-rotate-ccw" :label="$t('rider.reset')" @click="rider.reset()" />
+      <UButton
+        color="error"
+        variant="ghost"
+        icon="i-lucide-trash-2"
+        :label="$t(loggedIn ? 'rider.eraseAccount' : 'rider.eraseLocal')"
+        :loading="erasing"
+        @click="erase"
+      />
       <span v-if="loggedIn" class="text-sm text-slate-500" role="status">
         {{ $t(`rider.sync.${sync}`) }}
       </span>
     </div>
+    <p v-if="eraseState" class="text-sm" role="status" :class="eraseState === 'error' ? 'text-red-700' : 'text-slate-500'">
+      {{ $t(`rider.erase.${eraseState}`) }}
+    </p>
   </div>
 </template>

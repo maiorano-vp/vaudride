@@ -74,7 +74,7 @@
     "menu": "Mes réglages",
     "title": "Mes réglages",
     "intro": "Votre poids, votre position et votre puissance de référence rendent la vitesse et la résistance plus justes. La difficulté adoucit les montées pour les débutants ou les home trainers peu puissants.",
-    "privacyAccount": "Ces réglages sont enregistrés sur votre compte et retrouvés sur chacun de vos appareils. Ils ne sont partagés avec personne.",
+    "privacyAccount": "Votre poids et ces réglages sont des données personnelles : ils sont enregistrés sur votre compte, sur un serveur en Suisse, pour être retrouvés sur chacun de vos appareils. Ils ne servent qu'à calculer votre vitesse et la résistance, ne sont visibles que de vous et ne sont partagés avec personne. Vous pouvez les supprimer à tout moment.",
     "privacyLocal": "Ces réglages restent sur cet appareil. Connectez-vous pour les retrouver partout.",
     "you": "Vous et votre vélo",
     "weight": "Poids du cycliste (kg)",
@@ -103,6 +103,12 @@
     "difficultyHelp": "À 100 % vous roulez la pente réelle. À 50 %, une montée à 8 % se pédale comme une montée à 4 %, et vous avancez en conséquence. Idéal pour débuter ou pour un home trainer peu puissant. Le relief affiché reste celui du parcours.",
     "difficultyNow": "Difficulté : {pct} % de la pente",
     "reset": "Remettre les valeurs par défaut",
+    "eraseAccount": "Supprimer mes réglages de mon compte",
+    "eraseLocal": "Supprimer mes réglages de cet appareil",
+    "erase": {
+      "done": "Réglages supprimés.",
+      "error": "Suppression impossible pour le moment : réessayez plus tard."
+    },
     "allSettings": "Tous les réglages",
     "sync": {
       "idle": "",
@@ -110,6 +116,44 @@
       "saved": "Enregistré sur votre compte.",
       "error": "Non enregistré sur le compte : réessayé au prochain changement."
     }
+  },
+  "privacy": {
+    "link": "Protection des données",
+    "title": "Protection des données",
+    "intro": "Voici ce que Vaud Ride garde à votre sujet, pourquoi, et comment le supprimer. L'application respecte la loi suisse sur la protection des données (nLPD). Sans compte, rien n'est envoyé : vos réglages restent sur votre appareil.",
+    "account": {
+      "title": "Votre compte",
+      "text": "Votre pseudo, votre adresse e-mail et votre mot de passe (conservé sous une forme chiffrée qu'on ne peut pas relire). Le pseudo apparaît dans les classements et auprès des autres cyclistes du même parcours ; l'adresse e-mail n'est jamais affichée."
+    },
+    "rides": {
+      "title": "Vos sorties",
+      "text": "Seulement quand vous choisissez de les enregistrer : le parcours, la date, la durée, la distance, le dénivelé et, seconde par seconde, la puissance, la cadence et la fréquence cardiaque. Elles ne sont visibles que de vous. Seuls vos temps sur les segments (avec votre pseudo) figurent dans les classements."
+    },
+    "settings": {
+      "title": "Vos réglages, dont votre poids",
+      "text": "Poids du cycliste et du vélo, position, FTP et difficulté. Le poids est une donnée personnelle sensible : il ne sert qu'à calculer votre vitesse et la résistance, n'est jamais affiché ni partagé, et n'apparaît pas dans votre profil public. Connecté, vos réglages sont enregistrés sur votre compte pour les retrouver sur tous vos appareils ; non connecté, ils restent sur votre appareil. Vous pouvez les supprimer à tout moment depuis la page « Mes réglages »."
+    },
+    "live": {
+      "title": "Pendant une sortie",
+      "text": "Votre pseudo, votre position sur le parcours et votre puissance sont montrés en direct aux autres cyclistes du même parcours. Ces informations ne sont pas conservées."
+    },
+    "extras": {
+      "title": "Équipement, favoris et Strava",
+      "text": "Les couleurs de votre équipement, les lieux que vous mettez en favoris et, si vous connectez Strava, l'autorisation nécessaire pour y envoyer vos sorties. Vous pouvez déconnecter Strava à tout moment."
+    },
+    "origin": {
+      "title": "Ce qui n'est pas gardé",
+      "text": "L'application n'enregistre ni votre pays, ni votre lieu de résidence. Les statistiques d'utilisation montrées aux responsables du service sont des totaux anonymes."
+    },
+    "hosting": {
+      "title": "Où sont les données",
+      "text": "Le serveur et la base de données qui contiennent ces informations sont hébergés en Suisse."
+    },
+    "rights": {
+      "title": "Vos droits",
+      "text": "Vous pouvez demander à voir, corriger ou supprimer vos données. Vos réglages (dont le poids) se suppriment vous-même depuis la page « Mes réglages » ; pour le reste, écrivez-nous."
+    },
+    "contact": "Pour toute demande :"
   },
   "workout": {
     "intro": "Le home trainer tient la puissance de la séance, quelle que soit la pente. Sans séance, il suit le relief du parcours.",

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\AuthorizeLiveChannelController;
 use App\Http\Controllers\Api\V1\CourseController;
 use App\Http\Controllers\Api\V1\CourseGhostsController;
 use App\Http\Controllers\Api\V1\CourseProfileController;
+use App\Http\Controllers\Api\V1\DeleteRiderSettingsController;
 use App\Http\Controllers\Api\V1\DisconnectStravaController;
 use App\Http\Controllers\Api\V1\ExportRideController;
 use App\Http\Controllers\Api\V1\FavoritePoiController;
@@ -56,6 +57,7 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
         Route::put('me/avatar', UpdateAvatarController::class)->name('me.avatar');
         Route::get('me/settings', ShowRiderSettingsController::class)->name('me.settings.show');
         Route::put('me/settings', UpdateRiderSettingsController::class)->name('me.settings.update');
+        Route::delete('me/settings', DeleteRiderSettingsController::class)->name('me.settings.destroy');
         Route::get('me/ftp-estimate', ShowFtpEstimateController::class)->middleware('throttle:30,1')->name('me.ftp-estimate');
         Route::post('broadcasting/auth', AuthorizeLiveChannelController::class)->middleware('throttle:30,1')->name('broadcasting.auth');
         Route::apiResource('rides', RideController::class)->only(['index', 'store', 'show']);
