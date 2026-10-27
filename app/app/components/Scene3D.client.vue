@@ -4,6 +4,7 @@ import { bearingRad, destination, distanceAfter, interpolateAt, lerpAngle, openn
 import { createCyclist, type Cyclist } from '~/lib/scene/cyclist'
 import { DEFAULT_KIT, sanitizeKit, type Kit } from '~/lib/kit/kit'
 import { clamp, corridorQuads, distanceM as metersBetween, pushWindow, ringAround } from '~/lib/scene/mix'
+import { FpsWatchdog, PROFILES, type QualityProfile } from '~/lib/scene/quality'
 import { isPhotorealistic, SceneSource, usesGoogle, usesSwissBuildings } from '~/lib/scene/source'
 
 /** A rider seen through live tracking, drawn in their own kit. */
@@ -16,9 +17,11 @@ interface OtherRider {
 }
 
 const props = withDefaults(
-  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string; kit?: Kit; cadenceRpm?: number; others?: OtherRider[] }>(),
-  { source: SceneSource.Swisstopo, googleKey: '', ionToken: '', kit: () => DEFAULT_KIT, cadenceRpm: undefined, others: () => [] },
+  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string; kit?: Kit; cadenceRpm?: number; others?: OtherRider[]; quality?: QualityProfile }>(),
+  { source: SceneSource.Swisstopo, googleKey: '', ionToken: '', kit: () => DEFAULT_KIT, cadenceRpm: undefined, others: () => [], quality: () => PROFILES.high },
 )
+// the scene noticed it cannot keep up: the page decides whether to make it lighter
+const emit = defineEmits<{ slow: [] }>()
 
 const TERRAIN_URL = 'https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/'
 const IMAGERY_URL = 'https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.swissimage/default/current/3857/{z}/{x}/{y}.jpeg'
@@ -74,7 +77,6 @@ const OPEN_BEARINGS_RAD = [-60, -30, 0, 30, 60].map((d) => (d * Math.PI) / 180) 
 const OPEN_DISTANCES_M = [500, 1200, 2500]
 const OPEN_MEASURE_MS = 500
 const AVATAR_SCALE = 1.6
-const MAX_OTHER_MODELS = 8 // the nearest riders get a 3D model, the others stay on the profile
 const MAX_HEIGHT_OFFSET_M = 150 // sanity bound on the correction between the mesh and the terrain heights
 // Mixed source: a hole in Google's mesh around the rider shows the sharp swisstopo scene; Google fills the distance
 const MIX_HOLE_RADIUS_M = 180
@@ -92,12 +94,14 @@ const SAMPLE_EVERY = 8 // route points between terrain height samples (~40 m)
 const container = ref<HTMLDivElement>()
 const status = ref<'loading' | 'ready' | 'error'>('loading')
 let destroy: (() => void) | undefined
+let requalify: (() => void) | undefined
 let base = { d: 0, t: performance.now() }
 
 watch(
   () => props.distanceM,
   (d) => (base = { d, t: performance.now() }),
 )
+watch(() => props.quality, () => requalify?.())
 
 async function start() {
   ;(window as unknown as { CESIUM_BASE_URL: string }).CESIUM_BASE_URL = '/cesium/'
@@ -155,7 +159,6 @@ async function start() {
   }
 
   const { scene } = viewer
-  scene.globe.maximumScreenSpaceError = 1.5
 
   // Fixed sunny late morning (summer, Vaud) so the sky is always blue and slopes are shaded the same way for everyone
   viewer.clock.currentTime = Cesium.JulianDate.fromIso8601('2026-06-21T09:30:00Z')
@@ -168,9 +171,25 @@ async function start() {
   scene.fog.enabled = true
   scene.fog.density = 0.00018 // soft haze toward the horizon
   scene.fog.minimumBrightness = 0.12
-  if (scene.msaaSupported) scene.msaaSamples = 4 // smooth road, building and avatar edges
 
   const swiss: Array<InstanceType<typeof Cesium.Cesium3DTileset>> = [] // swisstopo buildings and trees, once loaded
+  let vegetation: InstanceType<typeof Cesium.Cesium3DTileset> | undefined
+
+  // How much the machine is asked: set now, and again whenever the quality profile changes (the rider's choice or the
+  // frame rate). The watchdog starts its warm-up over each time, since the scene just changed.
+  const watchdog = new FpsWatchdog()
+  const applyQuality = () => {
+    const q = props.quality
+    scene.globe.maximumScreenSpaceError = q.globeSse
+    if (scene.msaaSupported) scene.msaaSamples = q.msaaSamples // smooth road, building and avatar edges
+    viewer.resolutionScale = q.resolutionScale
+    viewer.targetFrameRate = q.targetFrameRate as number // undefined: as often as the screen refreshes
+    swiss.forEach((tileset) => (tileset.maximumScreenSpaceError = q.tilesetSse))
+    if (vegetation) vegetation.show = q.trees
+    watchdog.reset()
+  }
+  applyQuality()
+  requalify = applyQuality
   let google: InstanceType<typeof Cesium.Cesium3DTileset> | undefined
   if (usesGoogle(props.source)) {
     // Google's mesh replaces the globe, except in the mixed scene where swisstopo's terrain stays;
@@ -189,7 +208,7 @@ async function start() {
 
   // Real 3D buildings and trees (swisstopo 3D Tiles); added as they load so the scene never waits on them
   const addTileset = (url: string, customShader?: InstanceType<typeof Cesium.CustomShader>) =>
-    Cesium.Cesium3DTileset.fromUrl(url, { maximumScreenSpaceError: 6 })
+    Cesium.Cesium3DTileset.fromUrl(url, { maximumScreenSpaceError: props.quality.tilesetSse })
       .then((tileset) => {
         if (customShader) tileset.customShader = customShader
         viewer.scene.primitives.add(tileset)
@@ -211,6 +230,10 @@ async function start() {
   if (usesSwissBuildings(props.source)) {
     void addTileset(BUILDINGS_URL, new Cesium.CustomShader({ fragmentShaderText: BUILDING_SHADER }))
     void addTileset(VEGETATION_URL).then((tileset) => {
+      if (tileset) {
+        vegetation = tileset
+        tileset.show = props.quality.trees
+      }
       if (tileset && Cesium.ClippingPolygonCollection.isSupported(scene)) {
         trees = tileset.clippingPolygons = new Cesium.ClippingPolygonCollection({ polygons: [] })
       }
@@ -237,7 +260,7 @@ async function start() {
   const crowd = new Map<string, Cyclist>()
   const loading = new Set<string>()
   const syncCrowd = (dtS: number, ground: (d: number) => number) => {
-    const wanted = [...props.others].sort((a, b) => Math.abs(a.gapM) - Math.abs(b.gapM)).slice(0, MAX_OTHER_MODELS)
+    const wanted = [...props.others].sort((a, b) => Math.abs(a.gapM) - Math.abs(b.gapM)).slice(0, props.quality.maxOtherModels) // the nearest riders get a 3D model, the others stay on the profile
     const ids = new Set(wanted.map((o) => o.id))
     for (const [id, c] of crowd) {
       if (!ids.has(id)) {
@@ -296,6 +319,7 @@ async function start() {
   let recentGaps: number[] = []
 
   viewer.scene.preRender.addEventListener(() => {
+    if (watchdog.frame(performance.now())) emit('slow')
     const d = distanceAfter(base.d, props.speedMs, (performance.now() - base.t) / 1000, total)
     const here = pointAt(props.course, d)
     const ahead = pointAt(props.course, Math.min(d + LOOKAHEAD_M, total))
@@ -378,7 +402,10 @@ async function start() {
     }
   })
 
-  return () => viewer.destroy()
+  return () => {
+    requalify = undefined
+    viewer.destroy()
+  }
 }
 
 onMounted(async () => {

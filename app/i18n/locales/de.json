@@ -54,6 +54,7 @@
     "sound": "Ton",
     "workout": "Training",
     "rider": "Einstellungen",
+    "display": "Anzeige",
     "ghost": "Geist"
   },
   "demo": {
@@ -176,6 +177,22 @@
     "done": "Training beendet, der Heimtrainer folgt wieder dem Profil.",
     "unsupported": "Dieser Heimtrainer unterstützt den ERG-Modus nicht: zurück zur Steigungssimulation.",
     "needsTrainer": "Verbinden Sie einen FTMS-Heimtrainer für den ERG-Modus."
+  },
+  "quality": {
+    "label": "Qualität",
+    "intro": "Weniger Details bedeuten eine flüssigere Ansicht und weniger Akkuverbrauch. Bei Auto wählt die App nach Gerät, Akku und Flüssigkeit.",
+    "noWebgl": "Dieser Browser kann kein 3D zeichnen: Es wird die 2D-Ansicht verwendet.",
+    "auto": "Auto",
+    "autoNow": "Für Sie gewählt: {level}",
+    "high": "Hoch",
+    "highHelp": "Alle Details: Gebäude, Bäume, glatte Kanten.",
+    "balanced": "Ausgewogen",
+    "balancedHelp": "Etwas weniger scharf, dafür flüssiger.",
+    "low": "Sparmodus",
+    "lowHelp": "Einfache Szene mit 30 Bildern pro Sekunde: für kleine Geräte oder um den Akku zu schonen.",
+    "2d": "2D-Ansicht",
+    "2dHelp": "Profil und Zahlen, ohne 3D.",
+    "lowered": "Szene vereinfacht ({level}), damit es flüssig bleibt."
   },
   "scene": {
     "show3d": "3D-Ansicht",

@@ -54,6 +54,7 @@
     "sound": "Sound",
     "workout": "Workout",
     "rider": "Settings",
+    "display": "Display",
     "ghost": "Ghost"
   },
   "demo": {
@@ -176,6 +177,22 @@
     "done": "Workout done, the trainer follows the terrain again.",
     "unsupported": "This trainer does not support ERG mode: back to grade simulation.",
     "needsTrainer": "Connect an FTMS trainer to use ERG mode."
+  },
+  "quality": {
+    "label": "Quality",
+    "intro": "Less detail means a smoother view and less battery use. On Auto, the app chooses from your device, your battery and how smooth it runs.",
+    "noWebgl": "This browser cannot draw 3D: the 2D view is used.",
+    "auto": "Auto",
+    "autoNow": "Chosen for you: {level}",
+    "high": "High",
+    "highHelp": "All the detail: buildings, trees, smooth edges.",
+    "balanced": "Balanced",
+    "balancedHelp": "A little less sharp, smoother.",
+    "low": "Battery saver",
+    "lowHelp": "A simple scene at 30 frames per second: for small devices or to save the battery.",
+    "2d": "2D view",
+    "2dHelp": "The profile and the figures, no 3D.",
+    "lowered": "Scene made lighter ({level}) to stay smooth."
   },
   "scene": {
     "show3d": "3D view",

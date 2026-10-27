@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { CHOICES } from '~/lib/scene/quality'
 import { TEMPLATES } from '~/lib/workout/templates'
 import { totalDuration, workoutName, type Workout } from '~/lib/workout/workout'
 
-type View = 'menu' | 'devices' | 'kit' | 'workout' | 'rider' | 'ghost' | 'sound' | 'account' | 'quit'
+type View = 'menu' | 'devices' | 'kit' | 'workout' | 'rider' | 'display' | 'ghost' | 'sound' | 'account' | 'quit'
 
 const open = defineModel<boolean>('open', { required: true })
 /** Discovery mode: no devices, workouts, ghosts or account, and leaving does not save anything. */
@@ -36,6 +37,17 @@ const workoutItems = computed(() => workouts.value.map((w) => ({ value: w.id, la
 const selectedId = ref(TEMPLATES[0]!.id)
 const selected = computed(() => workouts.value.find((w) => w.id === selectedId.value))
 const ftp = computed({ get: () => workout.ftp.value, set: (v: number) => Number.isFinite(v) && workout.setFtp(v) })
+
+// display: how the scene is drawn (Auto follows the machine, the battery and the frame rate)
+const sceneQuality = useSceneQuality()
+const qualityItems = computed(() =>
+  CHOICES.map((c) => ({
+    value: c,
+    label: t(`quality.${c}`),
+    description: c === 'auto' ? t('quality.autoNow', { level: t(`quality.${sceneQuality.effective.value}`) }) : t(`quality.${c}Help`),
+  })),
+)
+const qualityChoice = computed({ get: () => sceneQuality.choice.value, set: sceneQuality.choose })
 
 // rider settings: the difficulty can be changed on the fly; the rest is on the settings page
 const rider = useRiderSettings()
@@ -101,6 +113,7 @@ const items = computed(() =>
     { key: 'kit', icon: 'i-lucide-shirt', action: () => (view.value = 'kit') },
     { key: 'workout', icon: 'i-lucide-timer', action: () => (view.value = 'workout') },
     { key: 'rider', icon: 'i-lucide-sliders-horizontal', action: () => (view.value = 'rider') },
+    { key: 'display', icon: 'i-lucide-monitor', action: () => (view.value = 'display') },
     { key: 'ghost', icon: 'i-lucide-ghost', action: () => (view.value = 'ghost') },
     ...(speech.supported.value ? [{ key: 'sound', icon: 'i-lucide-volume-2', action: () => (view.value = 'sound') }] : []),
     { key: 'account', icon: 'i-lucide-user', action: () => (view.value = 'account') },
@@ -257,6 +270,12 @@ function finish() {
         />
         <!-- a new tab: leaving this page would lose the ride in progress -->
         <UButton to="/settings" target="_blank" color="neutral" variant="outline" icon="i-lucide-sliders-horizontal" :label="$t('rider.allSettings')" />
+      </div>
+
+      <div v-else-if="view === 'display'" class="space-y-4">
+        <p class="text-sm text-slate-500">{{ $t('quality.intro') }}</p>
+        <p v-if="!sceneQuality.device.value.webgl2" role="alert" class="text-sm text-red-700">{{ $t('quality.noWebgl') }}</p>
+        <URadioGroup v-model="qualityChoice" :items="qualityItems" />
       </div>
 
       <div v-else-if="view === 'ghost'" class="space-y-4">
