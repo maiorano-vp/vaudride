@@ -51,7 +51,19 @@
     "finishSave": "Finish and save",
     "quitWithout": "Quit without saving",
     "sound": "Sound",
-    "workout": "Workout"
+    "workout": "Workout",
+    "ghost": "Ghost"
+  },
+  "ghost": {
+    "intro": "Ride against a ghost: it rides next to you at the pace of the recorded ride.",
+    "needsAccount": "Sign in to find your rides.",
+    "off": "No ghost",
+    "best": "My best ride",
+    "last": "My last ride",
+    "kom": "Segment record (KOM)",
+    "komHelp": "The next timed segment, with the record holder.",
+    "none": "No finished ride",
+    "label": "Ghost"
   },
   "workout": {
     "intro": "The trainer holds the workout's power whatever the grade. Without a workout, it follows the course's terrain.",

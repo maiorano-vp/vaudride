@@ -51,7 +51,19 @@
     "finishSave": "Beenden und speichern",
     "quitWithout": "Beenden ohne zu speichern",
     "sound": "Ton",
-    "workout": "Training"
+    "workout": "Training",
+    "ghost": "Geist"
+  },
+  "ghost": {
+    "intro": "Fahren Sie gegen einen Geist: Er fährt neben Ihnen, im Tempo der aufgezeichneten Fahrt.",
+    "needsAccount": "Melden Sie sich an, um Ihre Fahrten zu finden.",
+    "off": "Kein Geist",
+    "best": "Meine beste Fahrt",
+    "last": "Meine letzte Fahrt",
+    "kom": "Streckenrekord (KOM)",
+    "komHelp": "Der nächste gemessene Abschnitt, mit dem Rekordhalter.",
+    "none": "Keine beendete Fahrt",
+    "label": "Geist"
   },
   "workout": {
     "intro": "Der Heimtrainer hält die Leistung des Trainings, unabhängig von der Steigung. Ohne Training folgt er dem Profil der Strecke.",

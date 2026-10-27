@@ -82,7 +82,7 @@ const marker = computed(() => {
     <rect v-for="b in bands" :key="b.id" :x="b.x" y="0" :width="b.width" :height="H" class="segment" />
     <polyline :points="geometry.line" class="line" />
     <rect v-for="p in poiMarkers" :key="p.id" :x="p.cx - 5" :y="p.cy - 5" width="10" height="10" class="poi" :transform="`rotate(45 ${p.cx} ${p.cy})`" />
-    <circle v-for="o in otherMarkers" :key="o.id" :cx="o.cx" :cy="o.cy" r="6" class="other" />
+    <circle v-for="o in otherMarkers" :key="o.id" :cx="o.cx" :cy="o.cy" r="6" class="other" :class="{ ghost: o.id === 'ghost' }" />
     <circle :cx="marker.cx" :cy="marker.cy" r="7" class="marker" />
   </svg>
 </template>
@@ -119,6 +119,9 @@ const marker = computed(() => {
   fill: #0a4069;
   stroke: #fff;
   stroke-width: 2;
+}
+.other.ghost {
+  fill: #9aa5b1;
 }
 .marker {
   fill: #d33;
