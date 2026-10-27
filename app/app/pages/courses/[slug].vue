@@ -215,45 +215,46 @@ const { active } = useScrollSpy(computed(() => nav.value.map((n) => n.id)))
 <template>
   <div v-if="course" class="min-h-dvh bg-white">
     <!-- white, like vaud.ch: the tinted rows of the table show on it -->
-    <div class="mx-auto max-w-[56.5rem] p-4">
-      <AppHeader />
+    <div class="page-header" :class="{ 'has-image': course.image_url }">
+      <div class="mx-auto max-w-[56.5rem] px-4 pt-4">
+        <AppHeader />
 
-      <nav
-        :aria-label="$t('course.breadcrumb')"
-        class="mb-6 text-sm text-vaud-800"
-      >
-        <ol class="m-0 flex list-none flex-wrap items-center gap-x-2 p-0">
-          <li>
-            <NuxtLink to="/" :aria-label="$t('course.home')"
-              ><UIcon name="i-lucide-house" class="align-text-bottom"
-            /></NuxtLink>
-          </li>
-          <li aria-hidden="true">›</li>
-          <li>
-            <NuxtLink to="/" class="underline">{{
-              $t('course.itineraries')
-            }}</NuxtLink>
-          </li>
-          <li aria-hidden="true">›</li>
-          <li aria-current="page" class="font-display uppercase tracking-wide">
-            {{ name }}
-          </li>
-        </ol>
-      </nav>
+        <nav :aria-label="$t('course.breadcrumb')" class="breadcrumb">
+          <ol>
+            <li>
+              <NuxtLink to="/" :aria-label="$t('course.home')"
+                ><UIcon name="i-lucide-house" class="home"
+              /></NuxtLink>
+            </li>
+            <li aria-hidden="true">
+              <UIcon name="i-lucide-chevron-right" class="sep" />
+            </li>
+            <li>
+              <NuxtLink to="/">{{ $t('course.itineraries') }}</NuxtLink>
+            </li>
+            <li aria-hidden="true">
+              <UIcon name="i-lucide-chevron-right" class="sep" />
+            </li>
+            <li aria-current="page">{{ name }}</li>
+          </ol>
+        </nav>
 
-      <figure
-        v-if="course.image_url"
-        class="relative m-0 aspect-[873/400] overflow-hidden bg-vaud-100"
-      >
-        <img :src="course.image_url" alt="" class="size-full object-cover" >
-        <figcaption
-          v-if="creditText(course.image_credit)"
-          class="absolute right-0 bottom-0 bg-vaud-800/85 px-2 py-0.5 text-xs text-white"
+        <figure
+          v-if="course.image_url"
+          class="relative m-0 aspect-[873/400] overflow-hidden bg-vaud-100"
         >
-          {{ creditText(course.image_credit) }}
-        </figcaption>
-      </figure>
+          <img :src="course.image_url" alt="" class="size-full object-cover" >
+          <figcaption
+            v-if="creditText(course.image_credit)"
+            class="absolute right-0 bottom-0 bg-vaud-800/85 px-2 py-0.5 text-xs text-white"
+          >
+            {{ creditText(course.image_credit) }}
+          </figcaption>
+        </figure>
+      </div>
+    </div>
 
+    <div class="mx-auto max-w-[56.5rem] px-4 pb-4">
       <div class="mt-8 flex flex-wrap items-center gap-3 text-vaud-800">
         <span
           v-if="kindKey"
@@ -519,6 +520,47 @@ const { active } = useScrollSpy(computed(() => nav.value.map((n) => n.id)))
 </template>
 
 <style scoped>
+/* the header of an event page on vaud.ch: a tint behind the right half of the page, from the top down to a little
+   above the foot of the photo, so the photo sits half on it and half on the white */
+.page-header {
+  position: relative;
+  isolation: isolate;
+}
+.page-header.has-image::after {
+  position: absolute;
+  inset: 0 0 60px 50%;
+  z-index: -1;
+  content: '';
+  background: rgb(10 64 105 / 10%);
+}
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+  list-style: none;
+  color: var(--color-vaud-800);
+}
+.breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+}
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+.breadcrumb .home {
+  vertical-align: -0.12em;
+}
+.breadcrumb .sep {
+  font-size: 0.8em;
+  color: #272e3d;
+}
 /* the page of an event on vaud.ch: a 873 px column, a very large title, a green line, a lead, then sections */
 .course-title {
   margin: 0.5rem 0 1.25rem;
