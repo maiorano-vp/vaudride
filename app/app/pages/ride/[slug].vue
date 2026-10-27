@@ -31,7 +31,20 @@ const powerW = computed(() => trainer.data.value.powerW ?? powerMeter.data.value
 const cadenceRpm = computed(() => trainer.data.value.cadenceRpm ?? powerMeter.data.value.cadenceRpm)
 const heartRate = computed(() => strap.bpm.value ?? trainer.data.value.heartRate)
 
-const { state, paused, reset, seek } = useRide(computed(() => course.value ?? undefined), powerW, trainer.setGrade)
+// ERG: during a workout the trainer holds the workout's power instead of following the grade
+const workout = useWorkout()
+onMounted(workout.load)
+onBeforeUnmount(workout.stop)
+const { state, paused, reset, seek } = useRide(
+  computed(() => course.value ?? undefined),
+  powerW,
+  trainer.setGrade,
+  workout.targetW,
+  trainer.setTargetPower,
+)
+watch(() => state.value.elapsedS, workout.tick)
+// a trainer without ERG support: the workout stops and the grade takes over again
+watch(trainer.ergRefused, (refused) => refused && workout.stop())
 
 // 3D needs WebGL; fall back to the 2D layout when unavailable or on request
 const view = ref<'3d' | '2d'>('2d')
@@ -87,6 +100,7 @@ const recording = useRideRecording(
 // the summary opens by itself at the finish line
 watch(() => state.value.finished, (done) => done && (summaryOpen.value = true))
 function restart() {
+  workout.stop()
   spoken.clear()
   reset()
   recording.reset()
@@ -271,6 +285,15 @@ watch(
       :distance-m="state.distanceM"
       :elapsed-s="state.elapsedS"
     />
+    <WorkoutHud
+      class="workout-hud"
+      :workout="workout.active.value"
+      :progress="workout.progress.value"
+      :ftp="workout.ftp.value"
+      :power-w="powerW"
+      :completed="workout.completed.value"
+      :refused="trainer.ergRefused.value"
+    />
     <ul v-if="others.length" class="riders" :aria-label="$t('live.riders')">
       <li v-for="o in others.slice(0, 5)" :key="o.id">
         <span>{{ o.nickname }}</span> <span>{{ o.powerW }} W</span> <strong>{{ gap(o.gapM) }}</strong>
@@ -383,6 +406,13 @@ watch(
 .immersive .segment-hud {
   position: absolute;
   top: 6.5rem;
+  right: 0.75rem;
+  z-index: 2;
+  min-width: 14rem;
+}
+.immersive .workout-hud {
+  position: absolute;
+  top: 11rem;
   right: 0.75rem;
   z-index: 2;
   min-width: 14rem;

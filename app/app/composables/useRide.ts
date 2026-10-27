@@ -1,8 +1,18 @@
 import type { CourseProfile } from '~/lib/course/profile'
 import { advance, initialRide, seekRide } from '~/lib/ride'
 
-/** Runs the physics loop (~4 Hz) and pushes the current grade to `onGrade`. */
-export function useRide(course: Ref<CourseProfile | undefined>, powerW: Ref<number>, onGrade: (pct: number) => void) {
+/**
+ * Runs the physics loop (~4 Hz) and pushes the current grade to `onGrade`.
+ * While a workout gives a `targetW` (ERG), the trainer gets that power instead of the grade:
+ * the rider still rides the course, but the resistance is the workout's.
+ */
+export function useRide(
+  course: Ref<CourseProfile | undefined>,
+  powerW: Ref<number>,
+  onGrade: (pct: number) => void,
+  targetW?: Ref<number | undefined>,
+  onTarget?: (watts: number) => void,
+) {
   const state = ref(initialRide())
   const paused = ref(false)
   let timer: ReturnType<typeof setInterval> | undefined
@@ -16,12 +26,13 @@ export function useRide(course: Ref<CourseProfile | undefined>, powerW: Ref<numb
       last = now
       if (!course.value || paused.value) return
       state.value = advance(state.value, powerW.value, course.value, dt)
-      onGrade(state.value.gradePct)
+      if (targetW?.value !== undefined && onTarget) onTarget(targetW.value)
+      else onGrade(state.value.gradePct)
     }, 250)
   })
   onBeforeUnmount(() => clearInterval(timer))
 
-  // stop the clock and release the trainer's resistance; the next tick sends the grade again
+  // stop the clock and release the trainer's resistance; the next tick sends the grade (or target) again
   watch(paused, (p) => p && onGrade(0))
 
   function reset() {
@@ -32,7 +43,7 @@ export function useRide(course: Ref<CourseProfile | undefined>, powerW: Ref<numb
   function seek(distanceM: number) {
     if (!course.value) return
     state.value = seekRide(state.value, course.value, distanceM)
-    onGrade(state.value.gradePct)
+    if (targetW?.value === undefined) onGrade(state.value.gradePct)
   }
   return { state, paused, reset, seek }
 }

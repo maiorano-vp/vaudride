@@ -50,7 +50,30 @@
     "quitHelp": "What do you want to do with this ride?",
     "finishSave": "Finish and save",
     "quitWithout": "Quit without saving",
-    "sound": "Sound"
+    "sound": "Sound",
+    "workout": "Workout"
+  },
+  "workout": {
+    "intro": "The trainer holds the workout's power whatever the grade. Without a workout, it follows the course's terrain.",
+    "ftp": "My FTP (W)",
+    "choose": "Workout",
+    "start": "Start workout",
+    "stop": "Stop workout",
+    "custom": "My workout",
+    "edit": "Edit my workout",
+    "steps": "Steps",
+    "minutes": "Duration (min)",
+    "percent": "% of FTP",
+    "addStep": "Add a step",
+    "removeStep": "Remove step",
+    "save": "Save and start",
+    "total": "Total time: {min} min",
+    "step": "Step {n}/{total}",
+    "target": "Target {watts} W",
+    "next": "Next {watts} W · {min}",
+    "done": "Workout done, the trainer follows the terrain again.",
+    "unsupported": "This trainer does not support ERG mode: back to grade simulation.",
+    "needsTrainer": "Connect an FTMS trainer to use ERG mode."
   },
   "scene": {
     "show3d": "3D view",

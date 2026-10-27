@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cadenceBetween, parseCyclingPower } from './cycling-power'
-import { FtmsTrainer, FTMS_SERVICE, parseIndoorBikeData, simulationCommand, type BikeData } from './ftms'
+import { FtmsTrainer, FTMS_SERVICE, parseIndoorBikeData, simulationCommand, targetPowerCommand, type BikeData } from './ftms'
 import { parseHeartRate } from './heart-rate'
 import { createSimTransport, type SimDevice } from './sim'
 import { reconnectOnDrop } from './transport'
@@ -31,6 +31,11 @@ describe('parsers', () => {
     // flags 0x0044; speed 3250 (32.5 km/h); cadence 170 (85 rpm); power 220
     const d = parseIndoorBikeData(view(0x44, 0x00, 0xb2, 0x0c, 170, 0, 220, 0))
     expect(d).toEqual({ speedKmh: 32.5, cadenceRpm: 85, powerW: 220 })
+  })
+
+  it('target power command is a sint16 in watts', () => {
+    expect([...targetPowerCommand(250)]).toEqual([0x05, 250, 0])
+    expect([...targetPowerCommand(300)]).toEqual([0x05, 0x2c, 0x01])
   })
 
   it('simulation command encodes grade 0.01 %, Crr and Cw', () => {
@@ -95,6 +100,45 @@ describe('FtmsTrainer on the simulator', () => {
     trainer.setGrade(4)
     await vi.advanceTimersByTimeAsync(500)
     expect(device.commands.filter((c) => c[0] === 0x11)).toHaveLength(2)
+  })
+
+  it('ERG: sends the target power, only when it changes', async () => {
+    await trainer.setup()
+    device.commands.length = 0
+    trainer.setTargetPower(250)
+    await vi.advanceTimersByTimeAsync(300)
+    trainer.setTargetPower(250) // unchanged
+    await vi.advanceTimersByTimeAsync(300)
+    trainer.setTargetPower(180)
+    await vi.advanceTimersByTimeAsync(300)
+    expect(device.commands).toEqual([
+      [0x05, 250, 0],
+      [0x05, 180, 0],
+    ])
+    expect(device.power).toBe(180) // the simulated trainer holds it
+  })
+
+  it('goes back to the grade after ERG, even if the grade is the one last sent', async () => {
+    await trainer.setup()
+    trainer.setGrade(4)
+    await vi.advanceTimersByTimeAsync(300)
+    trainer.setTargetPower(200)
+    await vi.advanceTimersByTimeAsync(300)
+    device.commands.length = 0
+    trainer.setGrade(4)
+    await vi.advanceTimersByTimeAsync(300)
+    expect(device.commands.map((c) => c[0])).toEqual([0x11])
+  })
+
+  it('tells the caller when the trainer refuses ERG', async () => {
+    const refused = vi.fn()
+    const erg = new FtmsTrainer(device, () => {}, DEFAULT_PARAMS, refused)
+    await erg.setup()
+    device.failOpcode = 0x05
+    erg.setTargetPower(200)
+    await vi.advanceTimersByTimeAsync(300)
+    expect(refused).toHaveBeenCalledTimes(1)
+    erg.stop()
   })
 })
 

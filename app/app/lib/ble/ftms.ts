@@ -5,7 +5,7 @@ export const FTMS_SERVICE = 0x1826
 export const INDOOR_BIKE_DATA = 0x2ad2
 export const CONTROL_POINT = 0x2ad9
 
-const OP = { requestControl: 0x00, start: 0x07, setSimulation: 0x11, response: 0x80 } as const
+const OP = { requestControl: 0x00, setTargetPower: 0x05, start: 0x07, setSimulation: 0x11, response: 0x80 } as const
 const RESULT_SUCCESS = 0x01
 const MIN_GRADE_INTERVAL_MS = 250 // at most 4 grade updates per second
 const RESPONSE_TIMEOUT_MS = 3000
@@ -59,19 +59,36 @@ export function simulationCommand(gradePct: number, p: RiderParams): Uint8Array 
   return new Uint8Array(b.buffer)
 }
 
+/** Set Target Power (0x05), ERG mode: sint16 watts. */
+export function targetPowerCommand(watts: number): Uint8Array {
+  const b = new DataView(new ArrayBuffer(3))
+  b.setUint8(0, OP.setTargetPower)
+  b.setInt16(1, Math.round(watts), true)
+  return new Uint8Array(b.buffer)
+}
+
+/** The trainer answered a command with something other than "success". */
+export class FtmsRefusal extends Error {}
+
+/** What the trainer is asked to do: follow the course's grade (simulation) or hold a power (ERG). */
+type Control = { kind: 'grade'; hundredths: number } | { kind: 'power'; watts: number }
+
 interface Pending {
   opcode: number
   resolve: () => void
   reject: (e: Error) => void
 }
 
+const sameControl = (a: Control, b?: Control) =>
+  !!b && a.kind === b.kind && (a.kind === 'grade' ? a.hundredths === (b as typeof a).hundredths : a.watts === (b as typeof a).watts)
+
 export class FtmsTrainer {
   private controlPoint?: BleCharacteristic
   private unsubscribe: Array<() => void> = []
   private queue: Promise<unknown> = Promise.resolve()
   private pending?: Pending
-  private sentGrade?: number
-  private wantedGrade?: number
+  private sent?: Control
+  private wanted?: Control
   private lastSentAt = 0
   private timer?: ReturnType<typeof setTimeout>
 
@@ -79,13 +96,15 @@ export class FtmsTrainer {
     private readonly device: BleDevice,
     private readonly onData: (data: BikeData) => void,
     private readonly params: RiderParams = DEFAULT_PARAMS,
+    /** Called when the trainer refuses a target power: it does not support ERG. */
+    private readonly onErgRefused: () => void = () => {},
   ) {}
 
   /** Subscribes and takes control. Called on first connect and again after every reconnect. */
   async setup() {
     this.unsubscribe.forEach((u) => u())
     this.unsubscribe = []
-    this.sentGrade = undefined
+    this.sent = undefined
     const data = await this.device.characteristic(FTMS_SERVICE, INDOOR_BIKE_DATA)
     this.unsubscribe.push(await data.subscribe((v) => this.onData(parseIndoorBikeData(v))))
     this.controlPoint = await this.device.characteristic(FTMS_SERVICE, CONTROL_POINT)
@@ -96,12 +115,21 @@ export class FtmsTrainer {
 
   /** Grade in percent. Sent at most 4×/s and only when it changed (0.01 % resolution). */
   setGrade(gradePct: number) {
-    this.wantedGrade = Math.round(Math.max(-20, Math.min(20, gradePct)) * 100)
+    this.want({ kind: 'grade', hundredths: Math.round(Math.max(-20, Math.min(20, gradePct)) * 100) })
+  }
+
+  /** ERG: the trainer holds this power whatever the rider's cadence or the grade. Same throttling as the grade. */
+  setTargetPower(watts: number) {
+    this.want({ kind: 'power', watts: Math.round(Math.max(0, Math.min(2000, watts))) })
+  }
+
+  private want(control: Control) {
+    this.wanted = control
     if (this.timer) return
     const wait = Math.max(0, this.lastSentAt + MIN_GRADE_INTERVAL_MS - Date.now())
     this.timer = setTimeout(() => {
       this.timer = undefined
-      void this.flushGrade()
+      void this.flush()
     }, wait)
   }
 
@@ -112,15 +140,18 @@ export class FtmsTrainer {
     this.unsubscribe = []
   }
 
-  private async flushGrade() {
-    const grade = this.wantedGrade
-    if (grade === undefined || grade === this.sentGrade) return
+  private async flush() {
+    const control = this.wanted
+    if (!control || sameControl(control, this.sent)) return
     this.lastSentAt = Date.now()
     try {
-      await this.command(simulationCommand(grade / 100, this.params))
-      this.sentGrade = grade
-    } catch {
-      // not acknowledged: leave sentGrade unchanged so the next setGrade retries
+      await this.command(
+        control.kind === 'grade' ? simulationCommand(control.hundredths / 100, this.params) : targetPowerCommand(control.watts),
+      )
+      this.sent = control
+    } catch (e) {
+      // not acknowledged: leave `sent` unchanged so the next call retries
+      if (control.kind === 'power' && e instanceof FtmsRefusal) this.onErgRefused()
     }
   }
 
@@ -153,6 +184,6 @@ export class FtmsTrainer {
     const { resolve, reject, opcode } = this.pending
     this.pending = undefined
     if (v.getUint8(2) === RESULT_SUCCESS) resolve()
-    else reject(new Error(`FTMS: commande 0x${opcode.toString(16)} refusée (code ${v.getUint8(2)})`))
+    else reject(new FtmsRefusal(`FTMS: commande 0x${opcode.toString(16)} refusée (code ${v.getUint8(2)})`))
   }
 }

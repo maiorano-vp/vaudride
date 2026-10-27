@@ -50,7 +50,30 @@
     "quitHelp": "Was möchten Sie mit dieser Fahrt tun?",
     "finishSave": "Beenden und speichern",
     "quitWithout": "Beenden ohne zu speichern",
-    "sound": "Ton"
+    "sound": "Ton",
+    "workout": "Training"
+  },
+  "workout": {
+    "intro": "Der Heimtrainer hält die Leistung des Trainings, unabhängig von der Steigung. Ohne Training folgt er dem Profil der Strecke.",
+    "ftp": "Meine FTP (W)",
+    "choose": "Training",
+    "start": "Training starten",
+    "stop": "Training beenden",
+    "custom": "Mein Training",
+    "edit": "Mein Training bearbeiten",
+    "steps": "Abschnitte",
+    "minutes": "Dauer (Min.)",
+    "percent": "% der FTP",
+    "addStep": "Abschnitt hinzufügen",
+    "removeStep": "Abschnitt entfernen",
+    "save": "Speichern und starten",
+    "total": "Gesamtdauer: {min} Min.",
+    "step": "Abschnitt {n}/{total}",
+    "target": "Ziel {watts} W",
+    "next": "Danach {watts} W · {min}",
+    "done": "Training beendet, der Heimtrainer folgt wieder dem Profil.",
+    "unsupported": "Dieser Heimtrainer unterstützt den ERG-Modus nicht: zurück zur Steigungssimulation.",
+    "needsTrainer": "Verbinden Sie einen FTMS-Heimtrainer für den ERG-Modus."
   },
   "scene": {
     "show3d": "3D-Ansicht",
