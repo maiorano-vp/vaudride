@@ -24,6 +24,8 @@ export default defineNuxtConfig({
   i18n: {
     defaultLocale: 'fr',
     strategy: 'no_prefix',
+    // first visit: the browser's language if it is one of ours (French otherwise), then the visitor's own choice
+    detectBrowserLanguage: { useCookie: true, cookieKey: 'i18n_redirected', fallbackLocale: 'fr', redirectOn: 'root' },
     locales: [
       { code: 'fr', language: 'fr-CH', file: 'fr.json', name: 'Français' },
       { code: 'de', language: 'de-CH', file: 'de.json', name: 'Deutsch' },

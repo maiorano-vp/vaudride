@@ -49,7 +49,10 @@ async function erase() {
   <div class="mx-auto max-w-2xl space-y-6 p-4">
     <header class="flex items-center justify-between">
       <h1 class="font-display text-3xl uppercase tracking-wide text-vaud-800">{{ $t('rider.title') }}</h1>
-      <UButton to="/" variant="ghost" color="neutral">{{ $t('auth.back') }}</UButton>
+      <div class="flex items-center gap-3">
+        <LocaleSwitcher />
+        <UButton to="/" variant="ghost" color="neutral">{{ $t('auth.back') }}</UButton>
+      </div>
     </header>
 
     <p>{{ $t('rider.intro') }}</p>

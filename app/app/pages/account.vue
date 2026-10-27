@@ -4,6 +4,7 @@ const { user, logout } = useAuth()
 
 <template>
   <div class="mx-auto max-w-xl p-4">
+    <LocaleSwitcher class="mb-4" />
     <UCard>
       <h1
         class="mb-4 font-display text-2xl uppercase tracking-wide text-vaud-800"

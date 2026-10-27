@@ -28,7 +28,10 @@ const devices = computed(() => [
   <div class="mx-auto max-w-3xl space-y-4 p-4">
     <header class="flex items-center justify-between">
       <h1 class="font-display text-3xl uppercase tracking-wide text-vaud-800">{{ $t('intro.title') }}</h1>
-      <UserMenu />
+      <div class="flex items-center gap-3">
+        <LocaleSwitcher />
+        <UserMenu />
+      </div>
     </header>
 
     <p>{{ $t('intro.lead') }}</p>

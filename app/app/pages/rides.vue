@@ -27,7 +27,10 @@ const clock = (s: number) => {
   <div class="mx-auto max-w-4xl p-4">
     <header class="mb-4 flex items-center justify-between">
       <h1 class="font-display text-3xl uppercase tracking-wide text-vaud-800">{{ $t('rides.title') }}</h1>
-      <UButton to="/" variant="ghost" color="neutral">{{ $t('auth.back') }}</UButton>
+      <div class="flex items-center gap-3">
+        <LocaleSwitcher />
+        <UButton to="/" variant="ghost" color="neutral">{{ $t('auth.back') }}</UButton>
+      </div>
     </header>
     <p v-if="status === 'error'" role="alert">{{ $t('rides.error') }}</p>
     <p v-else-if="!rides.length" class="text-slate-500">{{ $t('rides.empty') }}</p>
