@@ -10,6 +10,7 @@ use App\Models\CourseImport;
 use App\Models\Poi;
 use App\Services\LocalhubClient;
 use App\Services\LocalhubPlaceMapper;
+use Illuminate\Support\Collection;
 
 /**
  * Fills what a course card shows (photo, copyright, tourism destination, kind of ride) from the Local Hub tour each
@@ -33,9 +34,7 @@ final readonly class ApplyLocalhubCourseCards
     {
         $result = ['tours' => 0, 'matched' => 0, 'updated' => 0, 'unmatched' => 0, 'fallback' => 0];
         $categories = collect($this->localhub->tourCategories())->keyBy('slug');
-        $courseByGpx = CourseImport::query()
-            ->where('source', ImportSource::Localhub)->whereNotNull('course_slug')->whereNotNull('source_url')
-            ->pluck('course_slug', 'source_url');
+        $courseByGpx = $this->courseByGpx();
 
         foreach (self::KINDS as $kind) {
             $categoryId = $categories[$kind]['id'] ?? null;
@@ -78,6 +77,25 @@ final readonly class ApplyLocalhubCourseCards
         $result['fallback'] = $this->fallbackToPlaceImages($dryRun);
 
         return $result;
+    }
+
+    /**
+     * The course each GPX address belongs to: the imports of this database, completed by the list shipped with the API
+     * (`database/data/course-sources.json`, from `courses/<slug>/source.yaml`), because a server that was only seeded
+     * from the repository has no import rows and the deployment does not carry the `courses/` folder.
+     *
+     * @return Collection<string, string>
+     */
+    private function courseByGpx(): Collection
+    {
+        /** @var array<string, string> $shipped */
+        $shipped = json_decode((string) file_get_contents(database_path('data/course-sources.json')), true, flags: JSON_THROW_ON_ERROR);
+
+        return collect(array_flip($shipped))->merge(
+            CourseImport::query()
+                ->where('source', ImportSource::Localhub)->whereNotNull('course_slug')->whereNotNull('source_url')
+                ->pluck('course_slug', 'source_url'),
+        );
     }
 
     /**

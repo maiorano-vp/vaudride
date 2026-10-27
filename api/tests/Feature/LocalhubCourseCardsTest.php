@@ -188,3 +188,14 @@ it('gives an empty gallery, not null, in the course resource', function (): void
 
     $this->getJson('/api/v1/courses')->assertOk()->assertJsonPath('data.0.images', []);
 });
+
+it('finds the course of a tour from the list shipped with the API when this database holds no import', function (): void {
+    $course = Course::factory()->create(['slug' => 'lavaux']);
+    fakeTours(['velo' => [cardTour('https://sos-ch-gva-2.exo.io/sit-prod/media/11541/3090.gpx', 'Montreux Riviera')]]);
+
+    $this->artisan('localhub:course-cards')->assertSuccessful();
+
+    expect(CourseImport::query()->count())->toBe(0)
+        ->and($course->refresh()->destination)->toBe('Montreux Riviera')
+        ->and($course->image_url)->not->toBeNull();
+});
