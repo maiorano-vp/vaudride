@@ -4,6 +4,8 @@ import { bearingRad, destination, distanceAfter, interpolateAt, lerpAngle, openn
 import { createCyclist, type Cyclist } from '~/lib/scene/cyclist'
 import { DEFAULT_KIT, sanitizeKit, type Kit } from '~/lib/kit/kit'
 import { clamp, corridorQuads, distanceM as metersBetween, pushWindow, ringAround } from '~/lib/scene/mix'
+import { categoryColor } from '~/lib/map/route'
+import { PIN_LABEL_RANGE_M, visiblePins, type ScenePin } from '~/lib/scene/pins'
 import { FpsWatchdog, PROFILES, type QualityProfile } from '~/lib/scene/quality'
 import { isPhotorealistic, SceneSource, usesGoogle, usesSwissBuildings } from '~/lib/scene/source'
 
@@ -17,8 +19,8 @@ interface OtherRider {
 }
 
 const props = withDefaults(
-  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string; kit?: Kit; cadenceRpm?: number; others?: OtherRider[]; quality?: QualityProfile; reducedMotion?: boolean }>(),
-  { source: SceneSource.Swisstopo, googleKey: '', ionToken: '', kit: () => DEFAULT_KIT, cadenceRpm: undefined, others: () => [], quality: () => PROFILES.high, reducedMotion: false },
+  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string; kit?: Kit; cadenceRpm?: number; others?: OtherRider[]; quality?: QualityProfile; reducedMotion?: boolean; pois?: ScenePin[] }>(),
+  { source: SceneSource.Swisstopo, googleKey: '', ionToken: '', kit: () => DEFAULT_KIT, cadenceRpm: undefined, others: () => [], quality: () => PROFILES.high, reducedMotion: false, pois: () => [] },
 )
 // the scene noticed it cannot keep up: the page decides whether to make it lighter
 const emit = defineEmits<{ slow: [] }>()
@@ -90,6 +92,9 @@ const TREE_CORRIDOR_AHEAD_M = 120
 const TREE_CORRIDOR_MOVE_M = 20 // re-cut the corridor once the rider moved this far
 const TREE_CORRIDOR_STEP_M = 20
 const SAMPLE_EVERY = 8 // route points between terrain height samples (~40 m)
+const PIN_SIZE_PX = 44
+const PIN_LABEL_LIFT_PX = 54 // the name sits above the pin's head
+const PIN_NO_DEPTH_TEST_M = 1500 // within this distance a pin shows through a hill or a roof, to find the place
 
 const container = ref<HTMLDivElement>()
 const status = ref<'loading' | 'ready' | 'error'>('loading')
@@ -289,6 +294,73 @@ async function start() {
     }
   }
 
+  // Place pins: one planted where the place really is (it can be off the road), with its name, from 800 m before it.
+  // Created as a place comes into range and removed when it leaves, like the other riders.
+  const pinBuilder = new Cesium.PinBuilder()
+  const pinImages = new Map<string, HTMLCanvasElement>() // one per colour
+  const pins = new Map<string, { entity: InstanceType<typeof Cesium.Entity>; title: string }>()
+  const pinGround = new Map<string, number>() // terrain height at the place itself, once known
+  const pinImage = (category: string | null) => {
+    const color = categoryColor(category)
+    if (!pinImages.has(color)) pinImages.set(color, pinBuilder.fromColor(Cesium.Color.fromCssColorString(color), PIN_SIZE_PX))
+    return pinImages.get(color)!
+  }
+  const syncPins = (d: number, offset: number) => {
+    const wanted = visiblePins(props.pois, d, props.quality.maxPins)
+    const ids = new Set(wanted.map((p) => p.id))
+    for (const [id, pin] of pins) {
+      if (!ids.has(id)) {
+        viewer.entities.remove(pin.entity)
+        pins.delete(id)
+      }
+    }
+    for (const poi of wanted) {
+      let pin = pins.get(poi.id)
+      if (pin && pin.title !== poi.title) {
+        viewer.entities.remove(pin.entity) // the language changed
+        pins.delete(poi.id)
+        pin = undefined
+      }
+      if (!pinGround.has(poi.id)) {
+        // until the terrain answers, the pin stands at the road's height; a failed answer settles on that too
+        const roadHeight = interpolateAt(ds, hs, poi.distance_m)
+        pinGround.set(poi.id, roadHeight)
+        Cesium.sampleTerrainMostDetailed(terrain, [Cesium.Cartographic.fromDegrees(poi.lon, poi.lat)])
+          .then(([at]) => at?.height !== undefined && pinGround.set(poi.id, at.height))
+          .catch(() => {})
+      }
+      const position = Cesium.Cartesian3.fromDegrees(poi.lon, poi.lat, pinGround.get(poi.id)! + offset)
+      if (pin) {
+        pin.entity.position = new Cesium.ConstantPositionProperty(position)
+        continue
+      }
+      pins.set(poi.id, {
+        title: poi.title,
+        entity: viewer.entities.add({
+          position,
+          billboard: {
+            image: pinImage(poi.category),
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            scaleByDistance: new Cesium.NearFarScalar(30, 1, 900, 0.45),
+            disableDepthTestDistance: PIN_NO_DEPTH_TEST_M,
+          },
+          label: {
+            text: poi.title,
+            font: '600 15px sans-serif',
+            style: Cesium.LabelStyle.FILL,
+            fillColor: Cesium.Color.WHITE,
+            showBackground: true,
+            backgroundColor: Cesium.Color.fromCssColorString('#0a4069').withAlpha(0.92), // white on it passes AA
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -PIN_LABEL_LIFT_PX),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, PIN_LABEL_RANGE_M),
+            disableDepthTestDistance: PIN_NO_DEPTH_TEST_M,
+          },
+        }),
+      })
+    }
+  }
+
   // Photoreal mesh: its heights differ from the swisstopo terrain (datum, trees, roofs), which would put the
   // rider and camera under the surface. Measure the mesh under the rider and shift every height by that offset.
   let heightOffset = 0
@@ -342,6 +414,7 @@ async function start() {
     cyclist?.place(avatar, heading)
     cyclist?.animate(dtS, props.speedMs, props.cadenceRpm ?? props.speedMs * 6)
     syncCrowd(dtS, (at) => interpolateAt(ds, hs, at) + heightOffset)
+    syncPins(d, heightOffset)
 
     const frameMs = performance.now()
     if (frameMs - lastOpenMeasure > OPEN_MEASURE_MS) {

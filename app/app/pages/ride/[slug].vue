@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { nearbyPoi, SHEET_ONLY_CATEGORIES, type Poi } from '~/lib/pois/nearby'
+import { nearbyPoi, poiTitle, SHEET_ONLY_CATEGORIES, type Poi } from '~/lib/pois/nearby'
 import { isFavoriteCommand } from '~/lib/pois/favorites'
 import { speechText } from '~/lib/pois/speech'
 import type { Segment } from '~/lib/segments/tracker'
+import type { ScenePin } from '~/lib/scene/pins'
 import { CHOICES } from '~/lib/scene/quality'
 import { availableSceneSources, resolveSceneSource, SceneSource } from '~/lib/scene/source'
 
@@ -92,6 +93,14 @@ const { locale } = useI18n()
 const courseName = computed(() => courseInfo.value?.data.name?.[locale.value] ?? courseInfo.value?.data.name?.fr ?? course.value?.name ?? '')
 const segments = computed(() => courseInfo.value?.data.segments ?? [])
 const pois = computed(() => courseInfo.value?.data.pois ?? [])
+// the places of the road get a pin in the 3D scene, where they really are; lodging, shops and the like stay on the sheet
+const scenePins = computed<ScenePin[]>(() =>
+  pois.value.flatMap((p) =>
+    p.lat != null && p.lon != null && !SHEET_ONLY_CATEGORIES.includes(p.category ?? '')
+      ? [{ id: p.id, distance_m: p.distance_m, lat: p.lat, lon: p.lon, title: poiTitle(p, locale.value), category: p.category }]
+      : [],
+  ),
+)
 const poiNearby = computed(() =>
   nearbyPoi(
     state.value.distanceM,
@@ -239,6 +248,7 @@ watch(
       :speed-ms="state.speedMs"
       :source="sceneSource"
       :quality="quality.profile.value"
+      :pois="scenePins"
       :reduced-motion="motion.reduced.value"
       :google-key="googleMapsKey"
       :ion-token="cesiumIonToken"

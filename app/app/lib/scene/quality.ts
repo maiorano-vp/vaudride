@@ -19,14 +19,16 @@ export interface QualityProfile {
   targetFrameRate?: number
   /** The nearest riders that get a 3D model. */
   maxOtherModels: number
+  /** The most place pins shown at once. */
+  maxPins: number
   /** Whether the swisstopo trees are drawn. */
   trees: boolean
 }
 
 export const PROFILES: Record<QualityLevel, QualityProfile> = {
-  high: { msaaSamples: 4, globeSse: 1.5, tilesetSse: 6, resolutionScale: 1, maxOtherModels: 8, trees: true },
-  balanced: { msaaSamples: 2, globeSse: 2.5, tilesetSse: 10, resolutionScale: 0.85, maxOtherModels: 4, trees: true },
-  low: { msaaSamples: 1, globeSse: 4, tilesetSse: 16, resolutionScale: 0.65, targetFrameRate: 30, maxOtherModels: 2, trees: false },
+  high: { msaaSamples: 4, globeSse: 1.5, tilesetSse: 6, resolutionScale: 1, maxOtherModels: 8, maxPins: 5, trees: true },
+  balanced: { msaaSamples: 2, globeSse: 2.5, tilesetSse: 10, resolutionScale: 0.85, maxOtherModels: 4, maxPins: 4, trees: true },
+  low: { msaaSamples: 1, globeSse: 4, tilesetSse: 16, resolutionScale: 0.65, targetFrameRate: 30, maxOtherModels: 2, maxPins: 2, trees: false },
 }
 
 /** What the browser tells about the machine; every field is optional because many browsers hide them. */
