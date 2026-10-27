@@ -177,6 +177,10 @@
       "all": "Alle"
     }
   },
+  "menu": {
+    "ride": "Fahren",
+    "profile": "Mein Profil"
+  },
   "real": {
     "title": "In echt fahren",
     "intro": "Sie sind diese Strecke zu Hause gefahren? So fahren Sie sie vor Ort, in vier Schritten.",

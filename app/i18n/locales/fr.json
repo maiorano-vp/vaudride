@@ -177,6 +177,10 @@
       "all": "Tous"
     }
   },
+  "menu": {
+    "ride": "Rouler",
+    "profile": "Mon profil"
+  },
   "real": {
     "title": "Rouler pour de vrai",
     "intro": "Vous avez roulé ce parcours à la maison ? Voici comment le rouler sur place, en quatre étapes.",
