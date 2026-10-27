@@ -19,10 +19,11 @@ MATERIALS = {
     "jersey": ("#0a7d3b", 0.0, 0.9),
     "accent": ("#ffffff", 0.0, 0.9),
     "shorts": ("#222222", 0.0, 0.9),
-    "helmet": ("#ffffff", 0.0, 0.4),
-    "bike": ("#0a4069", 0.5, 0.4),
+    "helmet": ("#ffffff", 0.0, 0.3),
+    "bike": ("#0a4069", 0.6, 0.3),
     "skin": ("#e0ac82", 0.0, 0.8),
     "dark": ("#1b1b1b", 0.2, 0.7),
+    "lens": ("#16222c", 0.6, 0.15),
 }
 
 Vec = tuple[float, float, float]
@@ -178,14 +179,26 @@ R_WHEEL = 0.34
 HIP_Y, HIP_Z, HIP_X = 0.93, -0.15, 0.09
 THIGH = SHIN = 0.42
 
+_dt = norm(sub(HEAD_BOT, BB))
+_up = norm(cross((1.0, 0.0, 0.0), _dt))  # perpendicular to the down tube, pointing up and back
+
+
+def _on_down_tube(t: float) -> Vec:
+    return add(add(mul(BB, 1 - t), mul(HEAD_BOT, t)), mul(_up, 0.05))
+
+
 frame = prims(
     bike=[
         tube(BB, SEAT, 0.018), tube(SEAT, HEAD_TOP, 0.016), tube(BB, HEAD_BOT, 0.02),
         tube(BB, REAR, 0.012), tube(SEAT, REAR, 0.01), tube(HEAD_BOT, FRONT, 0.014),
         tube(HEAD_BOT, HEAD_TOP, 0.022), tube(SEAT, (0.0, 0.86, -0.185), 0.011),
     ],
+    accent=[capsule(_on_down_tube(0.3), _on_down_tube(0.62), 0.03, 8)],
     dark=[
-        ellipsoid((0.0, 0.875, -0.18), 0.065, 0.02, 0.13), tube((0.0, 0.74, 0.37), (0.0, 0.80, 0.40), 0.012),
+        tube(_on_down_tube(0.3), _on_down_tube(0.1), 0.012, 6),
+        tube((0.18, 0.74, 0.50), (0.17, 0.68, 0.45), 0.01), tube((-0.18, 0.74, 0.50), (-0.17, 0.68, 0.45), 0.01),
+        tube((0.17, 0.68, 0.45), (0.21, 0.80, 0.42), 0.01), tube((-0.17, 0.68, 0.45), (-0.21, 0.80, 0.42), 0.01),
+        ellipsoid((0.0, 0.875, -0.18), 0.065, 0.02, 0.13), ellipsoid((0.0, 0.872, -0.06), 0.02, 0.016, 0.06, 8, 5), tube((0.0, 0.74, 0.37), (0.0, 0.80, 0.40), 0.012),
         tube((0.21, 0.80, 0.42), (-0.21, 0.80, 0.42), 0.012), tube((0.21, 0.80, 0.42), (0.18, 0.74, 0.50), 0.01),
         tube((-0.21, 0.80, 0.42), (-0.18, 0.74, 0.50), 0.01),
     ],
@@ -198,13 +211,17 @@ spoked = prims(
 )
 disc = prims(bike=[tube((0.012, 0, 0), (-0.012, 0, 0), R_WHEEL - 0.04, 36)])
 crank = prims(dark=[tube((0.07, 0, 0), (0.07, 0.17, 0), 0.012), tube((-0.07, 0, 0), (-0.07, -0.17, 0), 0.012),
-                    tube((0.07, 0, 0), (-0.07, 0, 0), 0.02), ellipsoid((0.0, 0.0, 0.0), 0.05, 0.05, 0.05, 10, 6)])
+                    tube((0.07, 0, 0), (-0.07, 0, 0), 0.02), ellipsoid((0.0, 0.0, 0.0), 0.05, 0.05, 0.05, 10, 6),
+                    tube((0.05, 0, 0), (0.04, 0, 0), 0.085, 20)])
 pedal = prims(dark=[box((0, 0, 0), (0.1, 0.02, 0.07))])
 
 # --- the rider -------------------------------------------------------------------------------------
 TORSO0, TORSO1 = (0.0, 0.98, -0.12), (0.0, 1.17, 0.14)
 shorts = prims(shorts=[ellipsoid((0.0, HIP_Y, HIP_Z), 0.16, 0.11, 0.17)])
-torso = prims(jersey=[capsule(TORSO0, TORSO1, 0.14)])
+torso = prims(
+    jersey=[capsule(TORSO0, TORSO1, 0.14, 14), ellipsoid((0.0, 1.155, 0.15), 0.2, 0.075, 0.085, 14, 6)],
+    skin=[tube((0.0, 1.19, 0.18), (0.0, 1.27, 0.23), 0.04, 8)],
+)
 
 
 def torso_ring(t: float, width: float) -> Geo:
@@ -216,15 +233,26 @@ def torso_ring(t: float, width: float) -> Geo:
 stripes = prims(accent=[torso_ring(t, 0.025) for t in (0.3, 0.5, 0.7)])
 band = prims(accent=[torso_ring(0.55, 0.11)])
 arms = prims(
-    jersey=[capsule((s * 0.18, 1.16, 0.14), (s * 0.19, 1.04, 0.28), 0.045) for s in (1, -1)],
-    skin=[capsule((s * 0.19, 1.04, 0.28), (s * 0.17, 0.84, 0.42), 0.036) for s in (1, -1)],
+    jersey=[capsule((s * 0.19, 1.15, 0.13), (s * 0.23, 0.99, 0.21), 0.047, 12) for s in (1, -1)],
+    skin=[capsule((s * 0.23, 0.99, 0.21), (s * 0.205, 0.84, 0.42), 0.036, 10) for s in (1, -1)],
+    dark=[ellipsoid((s * 0.2, 0.82, 0.435), 0.04, 0.035, 0.055, 10, 6) for s in (1, -1)],
 )
-head = prims(skin=[ellipsoid((0.0, 1.30, 0.24), 0.085, 0.10, 0.10)])
+head = prims(
+    skin=[ellipsoid((0.0, 1.30, 0.24), 0.085, 0.10, 0.10)],
+    lens=[ellipsoid((0.0, 1.30, 0.325), 0.082, 0.026, 0.02, 12, 5)],
+)
 helmet_road = prims(helmet=[ellipsoid((0.0, 1.335, 0.225), 0.105, 0.075, 0.135)])
 helmet_aero = prims(helmet=[ellipsoid((0.0, 1.325, 0.17), 0.095, 0.075, 0.23)])
 helmet_cap = prims(helmet=[ellipsoid((0.0, 1.365, 0.235), 0.10, 0.04, 0.10), box((0.0, 1.34, 0.325), (0.1, 0.012, 0.07))])
-thigh = prims(shorts=[capsule((0, 0, 0), (0, -THIGH, 0), 0.068)])
-shin = prims(skin=[capsule((0, 0, 0), (0, -SHIN, 0), 0.05)], dark=[ellipsoid((0.0, -SHIN - 0.02, 0.05), 0.045, 0.03, 0.10)])
+thigh = prims(
+    shorts=[capsule((0, 0, 0), (0, -0.30, 0), 0.07, 12), ellipsoid((0.0, -0.14, 0.012), 0.082, 0.17, 0.085, 12, 6)],
+    skin=[capsule((0, -0.30, 0), (0, -THIGH, 0), 0.054, 10)],
+)
+shin = prims(
+    skin=[capsule((0, 0, 0), (0, -SHIN, 0), 0.045, 10), ellipsoid((0.0, -0.13, -0.022), 0.056, 0.11, 0.06, 10, 6)],
+    accent=[tube((0, -0.33, 0), (0, -0.39, 0), 0.05, 10, False)],
+    dark=[ellipsoid((0.0, -SHIN - 0.02, 0.05), 0.048, 0.032, 0.11), ellipsoid((0.0, -SHIN - 0.045, 0.055), 0.045, 0.01, 0.105, 10, 4)],
+)
 
 
 # --- glTF assembly ---------------------------------------------------------------------------------
