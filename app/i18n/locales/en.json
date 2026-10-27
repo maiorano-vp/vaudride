@@ -166,6 +166,16 @@
     },
     "contact": "For any request:"
   },
+  "home": {
+    "titleLead": "Our",
+    "titleWord": "routes",
+    "count": "{n} route | {n} routes",
+    "ride": "Ride",
+    "filter": {
+      "label": "Filter the routes by type",
+      "all": "All"
+    }
+  },
   "real": {
     "title": "Ride it for real",
     "intro": "You rode this course at home? Here is how to ride it on the spot, in four steps.",
@@ -418,6 +428,11 @@
   },
   "course": {
     "sheet": "Course details",
+    "kind": {
+      "velo": "Bike",
+      "mtb": "Mountain bike",
+      "scooter": "E-scooter"
+    },
     "ride": "Ride this course",
     "fly": "Fly over without equipment",
     "gpx": "Download the GPX",

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { creditText } from '~/lib/course/card'
 import { categoryCounts, filterPois, poiDescription, poiTitle, sheetSection, type Poi } from '~/lib/pois/nearby'
 import { segmentName, type Segment } from '~/lib/segments/tracker'
 
@@ -6,6 +7,9 @@ interface CourseInfo {
   name: Record<string, string>
   description: Record<string, string> | null
   attribution: string
+  image_url?: string | null
+  image_credit?: string | null
+  destination?: string | null
   best_months?: number[] | null
   forecast?: Array<{ day: string; temp_min: number | null; temp_max: number | null; precipitation_mm: number | null; place?: string | null }>
   pois?: Poi[]
@@ -55,6 +59,16 @@ const km = (m: number) => (m / 1000).toFixed(1)
         <UButton to="/" variant="ghost" color="neutral">{{ $t('auth.back') }}</UButton>
       </div>
     </header>
+
+    <figure v-if="course.image_url" class="relative m-0 aspect-[16/7] overflow-hidden bg-vaud-100">
+      <img :src="course.image_url" alt="" class="size-full object-cover" >
+      <figcaption v-if="creditText(course.image_credit)" class="absolute right-0 bottom-0 bg-vaud-800/85 px-2 py-0.5 text-xs text-white">
+        {{ creditText(course.image_credit) }}
+      </figcaption>
+    </figure>
+    <p v-if="course.destination" class="flex items-center gap-2 text-vaud-800">
+      <UIcon name="i-lucide-map-pin" />{{ course.destination }}
+    </p>
 
     <p v-if="description" class="max-w-prose whitespace-pre-line">{{ description }}</p>
 
