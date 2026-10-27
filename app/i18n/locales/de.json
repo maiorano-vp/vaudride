@@ -54,6 +54,9 @@
     "workout": "Training",
     "ghost": "Geist"
   },
+  "demo": {
+    "speed": "Tempo"
+  },
   "ghost": {
     "intro": "Fahren Sie gegen einen Geist: Er fährt neben Ihnen, im Tempo der aufgezeichneten Fahrt.",
     "needsAccount": "Melden Sie sich an, um Ihre Fahrten zu finden.",
@@ -260,6 +263,7 @@
   "course": {
     "sheet": "Streckeninfo",
     "ride": "Diese Strecke fahren",
+    "fly": "Ohne Gerät überfliegen",
     "gpx": "GPX herunterladen",
     "transit": "Mit dem ÖV zum Start",
     "start": "Start auf der Karte",

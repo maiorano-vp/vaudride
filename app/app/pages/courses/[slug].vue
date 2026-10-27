@@ -93,6 +93,7 @@ function downloadGpx() {
 
     <div class="flex flex-wrap gap-3">
       <UButton :to="`/ride/${slug}`" :label="$t('course.ride')" />
+      <UButton :to="{ path: `/ride/${slug}`, query: { demo: '1' } }" color="neutral" variant="outline" icon="i-lucide-plane" :label="$t('course.fly')" />
       <UButton v-if="profile" color="neutral" variant="outline" :label="$t('course.gpx')" @click="downloadGpx" />
       <UButton v-if="links" color="neutral" variant="outline" :to="links.transit" target="_blank" rel="noopener" :label="$t('course.transit')" />
       <UButton v-if="links" color="neutral" variant="outline" :to="links.map" target="_blank" rel="noopener" :label="$t('course.start')" />

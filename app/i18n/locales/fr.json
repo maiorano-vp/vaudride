@@ -54,6 +54,9 @@
     "workout": "Séance",
     "ghost": "Fantôme"
   },
+  "demo": {
+    "speed": "Vitesse"
+  },
   "ghost": {
     "intro": "Roulez contre un fantôme : il avance à côté de vous, à la vitesse de la sortie enregistrée.",
     "needsAccount": "Connectez-vous pour retrouver vos sorties.",
@@ -260,6 +263,7 @@
   "course": {
     "sheet": "Fiche du parcours",
     "ride": "Rouler ce parcours",
+    "fly": "Survoler sans matériel",
     "gpx": "Télécharger le GPX",
     "transit": "Aller au départ en transports publics",
     "start": "Voir le départ sur la carte",

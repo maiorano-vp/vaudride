@@ -9,6 +9,13 @@ const route = useRoute()
 const slug = String(route.params.slug)
 const { data: course, status } = useCourseProfile(slug)
 
+// ?demo=1: discovery mode, a fly-over at a speed chosen by hand (trade fairs, vaud.ch): no trainer, nothing recorded.
+// ?speed=60 sets the starting speed in km/h.
+const demo = route.query.demo === '1'
+const FLY_KMH = { min: 10, max: 150, start: 40 }
+const flyKmh = ref(Math.min(FLY_KMH.max, Math.max(FLY_KMH.min, Number(route.query.speed) || FLY_KMH.start)))
+const flyMs = computed(() => (demo ? flyKmh.value / 3.6 : undefined))
+
 const { trainer, powerMeter, strap } = useDevices()
 const { kit } = useKit()
 const summaryOpen = ref(false)
@@ -41,6 +48,7 @@ const { state, paused, reset, seek } = useRide(
   trainer.setGrade,
   workout.targetW,
   trainer.setTargetPower,
+  flyMs,
 )
 watch(() => state.value.elapsedS, workout.tick)
 // a trainer without ERG support: the workout stops and the grade takes over again
@@ -72,7 +80,7 @@ const { active: activeSegment, finished: finishedSegment } = useSegments(slug, s
 
 // the ghost (own best or last ride, or the segment record) rides next to the live riders
 const ghost = useGhost()
-onMounted(() => ghost.load(slug))
+onMounted(() => !demo && ghost.load(slug))
 const ghostRider = useGhostRider(ghost, state, segments, activeSegment, computed(() => t('ghost.label')))
 
 // each place is read aloud once, when it comes up; silence while paused or when it leaves
@@ -102,8 +110,18 @@ const recording = useRideRecording(
   })),
   computed(() => state.value.elevationGainM),
 )
-// the summary opens by itself at the finish line
-watch(() => state.value.finished, (done) => done && (summaryOpen.value = true))
+// the summary opens by itself at the finish line; the discovery fly-over starts again by itself instead
+const LOOP_DELAY_MS = 5000
+let loopTimer: ReturnType<typeof setTimeout> | undefined
+watch(
+  () => state.value.finished,
+  (done) => {
+    if (!done) return
+    if (demo) loopTimer = setTimeout(restart, LOOP_DELAY_MS)
+    else summaryOpen.value = true
+  },
+)
+onBeforeUnmount(() => clearTimeout(loopTimer))
 function restart() {
   workout.stop()
   spoken.clear()
@@ -116,9 +134,9 @@ function restart() {
 const { others } = useLiveRiders(
   String(route.params.slug),
   { distanceM: computed(() => state.value.distanceM), powerW },
-  paused,
+  computed(() => paused.value || demo), // a fly-over is not a ride: it does not show up for the live riders
 )
-const riders = computed(() => (ghostRider.value ? [ghostRider.value, ...others.value] : others.value))
+const riders = computed(() => (demo ? [] : ghostRider.value ? [ghostRider.value, ...others.value] : others.value))
 const gap = (m: number) => `${m >= 0 ? '+' : '−'}${Math.round(Math.abs(m))} m`
 const ghostGapS = (o: object) => (o as { gapS?: number }).gapS
 const gapSeconds = (s: number) => `${s >= 0 ? '+' : '−'}${Math.round(Math.abs(s))} s`
@@ -205,7 +223,13 @@ watch(
       :others="riders"
     />
 
-    <details class="panel" :open="trainer.connection.value === 'idle'">
+    <!-- discovery mode: one speed control instead of devices -->
+    <label v-if="demo" class="demo-speed">
+      {{ $t('demo.speed') }} {{ Math.round(flyKmh) }} km/h
+      <input v-model.number="flyKmh" type="range" :min="FLY_KMH.min" :max="FLY_KMH.max" step="5" >
+    </label>
+
+    <details v-else class="panel" :open="trainer.connection.value === 'idle'">
       <summary>{{ course.name }} · {{ $t('ble.devices') }}</summary>
       <p v-if="unsupported" role="alert">{{ $t('ble.unsupported') }}</p>
       <div class="devices">
@@ -251,6 +275,7 @@ watch(
     <RideDashboard
       class="hud-top"
       :overlay="view === '3d'"
+      :demo="demo"
       :power-w="powerW"
       :cadence-rpm="cadenceRpm"
       :heart-rate="heartRate"
@@ -271,6 +296,7 @@ watch(
       @seek="onSeek"
     />
     <RideSummary
+      v-if="!demo"
       v-model:open="summaryOpen"
       :summary="recording.summary.value"
       :elevation-gain-m="state.elevationGainM"
@@ -327,7 +353,7 @@ watch(
       :disabled="state.finished"
       @click="menuOpen = !menuOpen"
     />
-    <PauseMenu v-model:open="menuOpen" @finish="summaryOpen = true" />
+    <PauseMenu v-model:open="menuOpen" :demo="demo" @finish="summaryOpen = true" />
     <p v-if="state.finished" class="finished" role="status">{{ $t('ride.finished') }}</p>
     <small v-if="view === '2d'">{{ course.attribution }}</small>
   </div>
@@ -418,6 +444,21 @@ watch(
   position: absolute;
   top: 6.5rem;
   right: 0.75rem;
+  z-index: 2;
+  min-width: 14rem;
+}
+.demo-speed {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.5rem 0.9rem;
+  color: #fff;
+  background: rgb(10 64 105 / 85%);
+  border-radius: 0.5rem;
+}
+.immersive .demo-speed {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 2rem;
   z-index: 2;
   min-width: 14rem;
 }

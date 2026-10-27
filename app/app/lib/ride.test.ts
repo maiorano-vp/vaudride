@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { pointAt, type CourseProfile } from './course/profile'
-import { advance, initialRide, seekRide } from './ride'
+import { advance, fly, initialRide, seekRide } from './ride'
 import { connectDevice } from './ble/connect'
 import { FTMS_SERVICE } from './ble/ftms'
 import { createSimTransport } from './ble/sim'
@@ -40,6 +40,22 @@ describe('advance', () => {
   it('does not move without power on a climb', () => {
     const s = advance(initialRide(course), 0, course, 0.25)
     expect(s.distanceM).toBeLessThan(0.1)
+  })
+})
+
+describe('fly', () => {
+  it('covers the course at the chosen speed whatever the climb, and finishes', () => {
+    let s = initialRide(course)
+    for (let i = 0; i < 1000 && !s.finished; i++) s = fly(s, 10, course, 0.25)
+    expect(s.finished).toBe(true)
+    expect(s.distanceM).toBe(1000)
+    expect(s.elapsedS).toBeCloseTo(100, 0) // 1 km at 10 m/s
+    expect(s.elevationGainM).toBeCloseTo(80, 0)
+  })
+
+  it('does not move once finished', () => {
+    const done = { ...initialRide(course), distanceM: 1000, finished: true }
+    expect(fly(done, 10, course, 0.25)).toBe(done)
   })
 })
 

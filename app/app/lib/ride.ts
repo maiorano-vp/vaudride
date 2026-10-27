@@ -25,6 +25,22 @@ export function seekRide(s: RideState, course: CourseProfile, distanceM: number)
   return { ...s, distanceM: d, gradePct: pointAt(course, d).grade, finished: false }
 }
 
+/** Discovery mode: one step at a speed chosen by hand, with no rider and no physics. */
+export function fly(s: RideState, speedMs: number, course: CourseProfile, dtS: number): RideState {
+  if (s.finished) return s
+  const here = pointAt(course, s.distanceM)
+  const distanceM = Math.min(s.distanceM + speedMs * dtS, course.distance_m)
+  const next = pointAt(course, distanceM)
+  return {
+    distanceM,
+    speedMs,
+    elevationGainM: s.elevationGainM + Math.max(0, next.ele - here.ele),
+    elapsedS: s.elapsedS + dtS,
+    gradePct: next.grade,
+    finished: distanceM >= course.distance_m,
+  }
+}
+
 /** One physics step: power + current grade → new speed, distance, climb. */
 export function advance(
   s: RideState,
