@@ -150,7 +150,7 @@
     },
     "origin": {
       "title": "What is not kept",
-      "text": "The app does not record your country or where you live. The usage statistics shown to those in charge of the service are anonymous totals."
+      "text": "The app does not record your country or where you live. The usage statistics shown to those in charge of the service are anonymous totals: for example, how many times a course's GPX was taken or a public-transport link opened, counted with no identifier and no address."
     },
     "hosting": {
       "title": "Where the data is",

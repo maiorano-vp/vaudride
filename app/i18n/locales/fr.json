@@ -150,7 +150,7 @@
     },
     "origin": {
       "title": "Ce qui n'est pas gardé",
-      "text": "L'application n'enregistre ni votre pays, ni votre lieu de résidence. Les statistiques d'utilisation montrées aux responsables du service sont des totaux anonymes."
+      "text": "L'application n'enregistre ni votre pays, ni votre lieu de résidence. Les statistiques d'utilisation montrées aux responsables du service sont des totaux anonymes : par exemple, combien de fois le GPX d'un parcours a été pris ou un lien de transports publics ouvert, compté sans aucun identifiant ni adresse."
     },
     "hosting": {
       "title": "Où sont les données",

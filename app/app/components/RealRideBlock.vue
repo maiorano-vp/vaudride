@@ -23,6 +23,14 @@ const props = defineProps<{
 const { locale } = useI18n()
 const origin = useRequestURL().origin
 const gpx = useGpx(toRef(props, 'profile'), toRef(props, 'name'))
+const { track } = useCourseAction(props.slug)
+function download() {
+  gpx.download()
+  track('gpx_download')
+}
+async function share() {
+  if (await gpx.share()) track('gpx_share')
+}
 
 const start = computed(() => (props.profile?.points[0] ? startLinks(props.profile.points[0]) : undefined))
 const finish = computed(() => (props.profile?.points.length ? endLinks(props.profile.points[props.profile.points.length - 1]!) : undefined))
@@ -44,8 +52,8 @@ const dayName = (iso: string) => new Intl.DateTimeFormat(locale.value, { weekday
         <UCard class="h-full">
           <h3 class="mb-2 font-display uppercase tracking-wide text-vaud-800">1 · {{ $t('real.getThere') }}</h3>
           <div class="flex flex-wrap gap-2">
-            <UButton v-if="start" color="neutral" variant="outline" icon="i-lucide-train-front" :to="start.transit" target="_blank" rel="noopener" :label="$t('course.transit')" />
-            <UButton v-if="start" color="neutral" variant="outline" icon="i-lucide-map-pin" :to="start.map" target="_blank" rel="noopener" :label="$t('course.start')" />
+            <UButton v-if="start" color="neutral" variant="outline" icon="i-lucide-train-front" :to="start.transit" target="_blank" rel="noopener" :label="$t('course.transit')" @click="track('transit_start')" />
+            <UButton v-if="start" color="neutral" variant="outline" icon="i-lucide-map-pin" :to="start.map" target="_blank" rel="noopener" :label="$t('course.start')" @click="track('map_start')" />
           </div>
         </UCard>
       </li>
@@ -55,8 +63,8 @@ const dayName = (iso: string) => new Intl.DateTimeFormat(locale.value, { weekday
           <h3 class="mb-2 font-display uppercase tracking-wide text-vaud-800">2 · {{ $t('real.takeTheRoute') }}</h3>
           <div class="flex flex-wrap items-start gap-4">
             <div class="flex flex-col gap-2">
-              <UButton v-if="profile" icon="i-lucide-download" :label="$t('course.gpx')" @click="gpx.download()" />
-              <UButton v-if="profile && gpx.canShare.value" color="neutral" variant="outline" icon="i-lucide-share-2" :label="$t('real.gpxShare')" @click="gpx.share()" />
+              <UButton v-if="profile" icon="i-lucide-download" :label="$t('course.gpx')" @click="download" />
+              <UButton v-if="profile && gpx.canShare.value" color="neutral" variant="outline" icon="i-lucide-share-2" :label="$t('real.gpxShare')" @click="share" />
             </div>
             <figure class="m-0 hidden sm:block">
               <QrCode :text="courseUrl(origin, slug)" :label="$t('real.qrLabel')" :size="112" />
@@ -92,7 +100,7 @@ const dayName = (iso: string) => new Intl.DateTimeFormat(locale.value, { weekday
       <li>
         <UCard class="h-full">
           <h3 class="mb-2 font-display uppercase tracking-wide text-vaud-800">4 · {{ $t('real.getBack') }}</h3>
-          <UButton v-if="finish" color="neutral" variant="outline" icon="i-lucide-train-front" :to="finish.transit" target="_blank" rel="noopener" :label="$t('real.transitEnd')" />
+          <UButton v-if="finish" color="neutral" variant="outline" icon="i-lucide-train-front" :to="finish.transit" target="_blank" rel="noopener" :label="$t('real.transitEnd')" @click="track('transit_end')" />
         </UCard>
       </li>
     </ol>
