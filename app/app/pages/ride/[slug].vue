@@ -4,10 +4,12 @@ import { isFavoriteCommand } from '~/lib/pois/favorites'
 import { speechText } from '~/lib/pois/speech'
 import type { Segment } from '~/lib/segments/tracker'
 import type { ScenePin } from '~/lib/scene/pins'
+import { courseUrl } from '~/lib/course/realworld'
 import { CHOICES } from '~/lib/scene/quality'
 import { availableSceneSources, resolveSceneSource, SceneSource } from '~/lib/scene/source'
 
 const route = useRoute()
+const origin = useRequestURL().origin
 const slug = String(route.params.slug)
 const { data: course, status } = useCourseProfile(slug)
 
@@ -350,6 +352,7 @@ watch(
       :save-state="recording.saveState.value"
       :efforts="recording.efforts.value"
       :course-name="courseName"
+      :course-slug="slug"
       :course-profile="course ?? undefined"
       :kept-places="pois.filter((p) => favorites.added.value.includes(p.id))"
       :finished="state.finished"
@@ -399,7 +402,12 @@ watch(
       @click="menuOpen = !menuOpen"
     />
     <PauseMenu v-model:open="menuOpen" :demo="demo" @finish="summaryOpen = true" />
-    <p v-if="state.finished" class="finished" role="status">{{ $t('ride.finished') }}</p>
+    <p v-if="state.finished" class="finished" role="status">{{ $t(demo ? 'real.demoFinished' : 'ride.finished') }}</p>
+    <!-- discovery mode on a stand: scanning the code opens the course sheet on the phone, with how to ride it for real -->
+    <figure v-if="demo" class="demo-qr">
+      <QrCode :text="courseUrl(origin, slug)" :label="$t('real.qrLabel')" :size="104" />
+      <figcaption>{{ $t('real.demoQr') }}</figcaption>
+    </figure>
     <small v-if="view === '2d'">{{ course.attribution }}</small>
   </div>
   <p v-else-if="status === 'error'">{{ $t('ride.notFound') }}</p>
@@ -491,6 +499,22 @@ watch(
   right: 0.75rem;
   z-index: 2;
   min-width: 14rem;
+}
+.demo-qr {
+  max-width: 8.5rem;
+  padding: 0.4rem;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: var(--color-vaud-800);
+  background: #fff;
+  border-radius: 0.5rem;
+}
+.immersive .demo-qr {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 2;
 }
 .demo-speed {
   display: grid;
