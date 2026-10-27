@@ -1,6 +1,7 @@
 {
   "app": {
-    "title": "Vaud Ride"
+    "title": "Vaud Ride",
+    "language": "Sprache"
   },
   "dashboard": {
     "power": "Leistung",

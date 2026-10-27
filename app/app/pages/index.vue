@@ -21,7 +21,10 @@ const km = (m: number) => (m / 1000).toFixed(1)
         <!-- the logo already spells "Vaud" -->
         <span class="font-display text-3xl uppercase tracking-wide text-vaud-800">Ride</span>
       </h1>
-      <UserMenu />
+      <div class="flex items-center gap-3">
+        <LocaleSwitcher />
+        <UserMenu />
+      </div>
     </header>
     <UButton class="mb-4" :label="$t('intro.title')" :to="{ path: '/intro', query: route.query }" />
     <ul class="space-y-3">

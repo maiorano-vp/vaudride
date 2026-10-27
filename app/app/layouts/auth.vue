@@ -8,17 +8,7 @@
           <span class="font-display text-3xl uppercase tracking-wide text-vaud-800">Ride</span>
         </NuxtLink>
         <slot />
-        <div class="mt-8 flex gap-3 text-sm">
-          <button
-            v-for="l in locales"
-            :key="l.code"
-            class="font-display uppercase tracking-wide"
-            :class="l.code === locale ? 'text-vaud-800 underline' : 'text-slate-500'"
-            @click="setLocale(l.code)"
-          >
-            {{ l.code }}
-          </button>
-        </div>
+        <LocaleSwitcher class="mt-8" />
         <NuxtLink to="/privacy" class="mt-4 inline-block text-sm text-slate-500 underline">{{ $t('privacy.link') }}</NuxtLink>
       </div>
     </section>
@@ -33,6 +23,3 @@
   </main>
 </template>
 
-<script setup lang="ts">
-const { locale, locales, setLocale } = useI18n()
-</script>

@@ -29,7 +29,10 @@ function remove(id: string) {
   <div class="mx-auto max-w-4xl space-y-6 p-4">
     <header class="flex items-center justify-between">
       <h1 class="font-display text-3xl uppercase tracking-wide text-vaud-800">{{ $t('favorites.title') }}</h1>
-      <UButton to="/" variant="ghost" color="neutral">{{ $t('auth.back') }}</UButton>
+      <div class="flex items-center gap-3">
+        <LocaleSwitcher />
+        <UButton to="/" variant="ghost" color="neutral">{{ $t('auth.back') }}</UButton>
+      </div>
     </header>
     <p v-if="status === 'error'" role="alert">{{ $t('favorites.error') }}</p>
     <p v-else-if="!byCourse.length" class="text-slate-500">{{ $t('favorites.empty') }}</p>
