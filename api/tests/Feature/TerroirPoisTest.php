@@ -73,13 +73,13 @@ beforeEach(function (): void {
 });
 
 describe('reading the partners', function (): void {
-    it('asks for the three groups of the canton with the token, and maps each to a category', function (): void {
+    it('asks for the three groups with the token, and maps each to a category', function (): void {
         fakeTerroir([5 => [[partner(1, 'Ferme du Lac')]], 12 => [[partner(2)]], 6 => [[partner(3, 'Epicerie du village')]]]);
 
         $places = resolve(ImportTerroirPois::class)->partners();
 
         expect(collect($places)->pluck('category')->all())->toBe([PoiCategory::Agritourism, PoiCategory::Bakery, PoiCategory::Grocery]);
-        Http::assertSent(fn (Request $r): bool => str_contains($r->url(), '/v1/partners?') && $r->hasHeader('Authorization', 'Bearer secret-token') && $r['canton'] === 'VD' && $r['group'] === 12);
+        Http::assertSent(fn (Request $r): bool => str_contains($r->url(), '/v1/partners?') && $r->hasHeader('Authorization', 'Bearer secret-token') && $r['group'] === 12 && ! isset($r['canton']));
         Http::assertNotSent(fn (Request $r): bool => str_contains($r->url(), 'group=99'));
     });
 
@@ -110,6 +110,11 @@ describe('mapping a partner', function (): void {
 
         expect($place['title']['fr'])->toBe('Raison sociale SA')
             ->and($place['image_url'])->toBe('https://cdn.test/logo.png');
+    });
+
+    it('has no image rather than a logo that is only a file name', function () use ($map): void {
+        expect($map(partner(8, extra: ['cover_image' => null, 'logo' => 'c0efc55188023e96.png']))['image_url'])->toBeNull()
+            ->and($map(partner(8, extra: ['cover_image' => '', 'logo' => null]))['image_url'])->toBeNull();
     });
 
     it('ignores a partner without a usable position or a name', function () use ($map): void {

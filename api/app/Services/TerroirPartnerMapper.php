@@ -42,7 +42,7 @@ final readonly class TerroirPartnerMapper
             'lon' => $lon,
             'address' => $this->address($partner),
             'url' => $this->url($partner['website'] ?? null),
-            'image_url' => $this->text($partner['cover_image'] ?? null) ?? $this->text($partner['logo'] ?? null),
+            'image_url' => $this->imageUrl($partner['cover_image'] ?? null) ?? $this->imageUrl($partner['logo'] ?? null),
             'category' => $category,
         ];
     }
@@ -73,6 +73,14 @@ final readonly class TerroirPartnerMapper
         $parts = array_filter([$this->text($partner['address'] ?? null), $this->text($partner['postal_locality'] ?? null)]);
 
         return $parts === [] ? null : implode(', ', $parts);
+    }
+
+    /** Only a full address: the API gives some logos as a bare file name, which leads nowhere. */
+    private function imageUrl(mixed $value): ?string
+    {
+        $url = $this->text($value);
+
+        return $url !== null && preg_match('#^https?://#i', $url) === 1 ? $url : null;
     }
 
     private function url(mixed $value): ?string

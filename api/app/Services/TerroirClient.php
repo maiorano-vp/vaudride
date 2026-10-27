@@ -31,7 +31,7 @@ final readonly class TerroirClient
     }
 
     /**
-     * The partners of one group in the canton of Vaud, page after page.
+     * The partners of one group, page after page. No canton filter: the API writes "Vaud" in full and the corridor of a course does the sorting.
      *
      * @return iterable<array<string, mixed>>
      */
@@ -42,7 +42,6 @@ final readonly class TerroirClient
         do {
             $response = $this->request()->get('/v1/partners', [
                 'group' => $groupId,
-                'canton' => 'VD',
                 'per_page' => self::PER_PAGE,
                 'page' => $page,
             ])->throw();
