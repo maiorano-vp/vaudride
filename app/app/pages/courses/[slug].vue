@@ -216,9 +216,8 @@ const { active } = useScrollSpy(computed(() => nav.value.map((n) => n.id)))
   <div v-if="course" class="min-h-dvh bg-white">
     <!-- white, like vaud.ch: the tinted rows of the table show on it -->
     <div class="page-header" :class="{ 'has-image': course.image_url }">
-      <div class="mx-auto max-w-[56.5rem] px-4 pt-4">
-        <AppHeader />
-
+      <AppHeader />
+      <div class="mx-auto max-w-[56.5rem] px-4">
         <nav :aria-label="$t('course.breadcrumb')" class="breadcrumb">
           <ol>
             <li>

@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Vaud Ride",
-    "language": "Sprache"
+    "language": "Sprache",
+    "menu": "Hauptmenü"
   },
   "dashboard": {
     "power": "Leistung",
