@@ -450,3 +450,27 @@ describe('cover images', function (): void {
             ->assertJsonPath('data.pois.0.image_credit', '© Studio Jantet');
     });
 });
+
+describe('importing for every course', function (): void {
+    it('adds the new places to each course, skips the ones without a profile and leaves existing ones alone', function (): void {
+        syncHits([hit('1', 'Cave du Lac', 'cave-et-vin', 4000)]);
+        Course::factory()->create(['slug' => 'no-profile']);
+
+        $this->artisan('localhub:import')
+            ->expectsOutputToContain('a-course: 1 imported')
+            ->expectsOutputToContain('no-profile: no profile yet')
+            ->assertSuccessful();
+
+        $this->artisan('localhub:import')->expectsOutputToContain('a-course: 0 imported, 1 skipped')->assertSuccessful();
+
+        expect($this->course->pois()->count())->toBe(1);
+    });
+
+    it('writes nothing on a dry run', function (): void {
+        syncHits([hit('1', 'Cave du Lac', 'cave-et-vin', 4000)]);
+
+        $this->artisan('localhub:import --dry-run')->expectsOutputToContain('1 would be imported. Nothing was written.')->assertSuccessful();
+
+        expect($this->course->pois()->count())->toBe(0);
+    });
+});
