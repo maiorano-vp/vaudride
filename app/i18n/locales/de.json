@@ -218,7 +218,20 @@
     "progress": "{count} von {total} Strecken",
     "done": "Schon gefahren",
     "todo": "Zu entdecken",
-    "open": "Meinen Pass ansehen"
+    "open": "Meinen Pass ansehen",
+    "counterLabel": "Strecken in echt gefahren",
+    "start": "Zum Einstieg",
+    "startHelp": "Noch nichts in Ihrem Pass. Hier sind die drei kürzesten und leichtesten Strecken für den Start: Jede hat ihre Seite mit Route, Start und Rückreise mit dem ÖV.",
+    "howTo": "So fahren Sie sie",
+    "stamp": "Gefahren",
+    "stampLabel": "In echt gefahren am {date}",
+    "nothing": "Keine Strecke passt zu diesem Filter.",
+    "filter": {
+      "label": "Pass filtern",
+      "all": "Alle",
+      "done": "Gefahren",
+      "todo": "Zu entdecken"
+    }
   },
   "workout": {
     "intro": "Der Heimtrainer hält die Leistung des Trainings, unabhängig von der Steigung. Ohne Training folgt er dem Profil der Strecke.",
