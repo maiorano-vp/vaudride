@@ -14,8 +14,11 @@ const { data: course, status } = useCourseProfile(slug)
 // ?speed=60 sets the starting speed in km/h.
 const demo = route.query.demo === '1'
 const FLY_KMH = { min: 10, max: 150, start: 40 }
+// faster than this, the places go by before they could be read out: the voice is cut
+const SPEECH_MAX_KMH = 60
 const flyKmh = ref(Math.min(FLY_KMH.max, Math.max(FLY_KMH.min, Number(route.query.speed) || FLY_KMH.start)))
 const flyMs = computed(() => (demo ? flyKmh.value / 3.6 : undefined))
+const tooFastToSpeak = computed(() => demo && flyKmh.value > SPEECH_MAX_KMH)
 
 const { trainer, powerMeter, strap } = useDevices()
 const { kit } = useKit()
@@ -112,12 +115,13 @@ watch(
   () => poiNearby.value?.poi,
   (poi) => {
     if (!poi) return speech.stop()
-    if (spoken.has(poi.id) || paused.value) return
+    if (spoken.has(poi.id) || paused.value || tooFastToSpeak.value) return
     spoken.add(poi.id)
     speech.speak(speechText(poi, locale.value))
   },
 )
 watch(paused, (p) => p && speech.stop())
+watch(tooFastToSpeak, (fast) => fast && speech.stop())
 onBeforeUnmount(speech.stop)
 
 const recording = useRideRecording(
@@ -252,6 +256,7 @@ watch(
     <label v-if="demo" class="demo-speed">
       {{ $t('demo.speed') }} {{ Math.round(flyKmh) }} km/h
       <input v-model.number="flyKmh" type="range" :min="FLY_KMH.min" :max="FLY_KMH.max" step="5" >
+      <small v-if="tooFastToSpeak" role="status">{{ $t('demo.muted', { kmh: SPEECH_MAX_KMH }) }}</small>
     </label>
 
     <details v-else class="panel" :open="trainer.connection.value === 'idle'">
