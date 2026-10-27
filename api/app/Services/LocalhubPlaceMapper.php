@@ -190,10 +190,11 @@ final readonly class LocalhubPlaceMapper
      * The cover image of a place: the one flagged as cover (else the first), as a scaled copy served by Local Hub
      * (a few hundred KB instead of the original's megabytes) and its copyright line. Documents such as PDFs are no image.
      *
-     * @param  array<string, mixed>  $hit
+     * @param  array<string, mixed>  $hit  a place, or a tour: both carry their pictures in `images`
+     * @param  int|null  $width  the width of the copy, in pixels (a bit more than the place photos for a course card)
      * @return array{image_url: string|null, image_credit: string|null}
      */
-    private function image(array $hit): array
+    public function image(array $hit, ?int $width = null): array
     {
         $images = array_values(array_filter(
             $hit['images'] ?? [],
@@ -211,7 +212,7 @@ final readonly class LocalhubPlaceMapper
         $credit = mb_trim((string) ($cover['copyright'] ?? ''));
 
         return [
-            'image_url' => mb_rtrim((string) config('services.localhub.url'), '/').'/api/image/'.$cover['id'].'/scale/'.self::IMAGE_WIDTH,
+            'image_url' => mb_rtrim((string) config('services.localhub.url'), '/').'/api/image/'.$cover['id'].'/scale/'.($width ?? self::IMAGE_WIDTH),
             'image_credit' => $credit === '' ? null : $credit,
         ];
     }

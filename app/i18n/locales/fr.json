@@ -166,6 +166,16 @@
     },
     "contact": "Pour toute demande :"
   },
+  "home": {
+    "titleLead": "Nos",
+    "titleWord": "itinéraires",
+    "count": "{n} itinéraire | {n} itinéraires",
+    "ride": "Rouler",
+    "filter": {
+      "label": "Filtrer les itinéraires par type",
+      "all": "Tous"
+    }
+  },
   "real": {
     "title": "Rouler pour de vrai",
     "intro": "Vous avez roulé ce parcours à la maison ? Voici comment le rouler sur place, en quatre étapes.",
@@ -418,6 +428,11 @@
   },
   "course": {
     "sheet": "Fiche du parcours",
+    "kind": {
+      "velo": "Vélo",
+      "mtb": "VTT",
+      "scooter": "Trottinette"
+    },
     "ride": "Rouler ce parcours",
     "fly": "Survoler sans matériel",
     "gpx": "Télécharger le GPX",

@@ -18,6 +18,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -63,6 +64,11 @@ final class CourseResource extends Resource
             TextInput::make('distance_m')->label('Distance (m)')->hiddenOn('create')->disabled()->dehydrated(false),
             TextInput::make('elevation_gain_m')->label('Dénivelé + (m)')->hiddenOn('create')->disabled()->dehydrated(false),
             TextInput::make('attribution')->required()->default('© swisstopo'),
+            // the card on the home page (filled by `localhub:course-cards`, editable here)
+            Select::make('kind')->label('Type')->options(['velo' => 'Vélo', 'mtb' => 'VTT', 'scooter' => 'Trottinette'])->placeholder('—'),
+            TextInput::make('destination')->label('Destination touristique')->maxLength(255),
+            TextInput::make('image_url')->label('Image (adresse)')->url()->maxLength(2000)->columnSpanFull(),
+            TextInput::make('image_credit')->label('Crédit photo')->maxLength(255),
             Toggle::make('published')->label('Publié'),
         ]);
     }

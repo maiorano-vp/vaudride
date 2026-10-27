@@ -21,6 +21,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int $distance_m
  * @property-read int $elevation_gain_m
  * @property-read string $attribution
+ * @property-read string|null $image_url
+ * @property-read string|null $image_credit
+ * @property-read string|null $destination
+ * @property-read string|null $kind
  * @property-read bool $published
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
@@ -47,6 +51,10 @@ final class Course extends Model
             'distance_m' => 'integer',
             'elevation_gain_m' => 'integer',
             'attribution' => 'string',
+            'image_url' => 'string',
+            'image_credit' => 'string',
+            'destination' => 'string',
+            'kind' => 'string',
             'published' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',

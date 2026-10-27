@@ -166,6 +166,16 @@
     },
     "contact": "Für jede Anfrage:"
   },
+  "home": {
+    "titleLead": "Unsere",
+    "titleWord": "Routen",
+    "count": "{n} Route | {n} Routen",
+    "ride": "Fahren",
+    "filter": {
+      "label": "Routen nach Art filtern",
+      "all": "Alle"
+    }
+  },
   "real": {
     "title": "In echt fahren",
     "intro": "Sie sind diese Strecke zu Hause gefahren? So fahren Sie sie vor Ort, in vier Schritten.",
@@ -418,6 +428,11 @@
   },
   "course": {
     "sheet": "Streckeninfo",
+    "kind": {
+      "velo": "Velo",
+      "mtb": "MTB",
+      "scooter": "Trottinett"
+    },
     "ride": "Diese Strecke fahren",
     "fly": "Ohne Gerät überfliegen",
     "gpx": "GPX herunterladen",
