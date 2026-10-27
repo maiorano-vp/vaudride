@@ -162,6 +162,12 @@ Commencer par **Marchairuz** pour le prototype.
 - Pas de données personnelles en query string ; hébergement et données utilisateurs en Suisse (nLPD)
 - Commits petits et explicites ; une PR par fonctionnalité
 
+## Déploiement
+
+- **API** (`api/deploy.php`, Deployer → Infomaniak, `vaudride.myvaud.dev`) : `cd api && vendor/bin/dep deploy production`. Sauvegarde de la base, migrations, `CourseSeeder`, vidage d'OPcache, contrôle `/up`. **Claude ne peut actuellement pas déployer l'API lui-même** : c'est l'équipe qui lance cette commande (Claude prépare le code et indique si une migration est à lancer).
+- **App** (Worker Cloudflare `vaudride`, variables dans `nitro.cloudflare.wrangler.vars` de `app/nuxt.config.ts`) : `cd app && bun run build && bunx wrangler deploy`. Les variables publiques du Worker (clé Pusher, jeton Cesium ion, adresse de contact de la page « Protection des données ») sont dans ce fichier ; les secrets restent hors du dépôt.
+- Ordre : l'API d'abord (les migrations), puis l'app.
+
 ## Ordre de travail recommandé
 
 1. ✅ **Prototype** : simulateur BLE + vrai FTMS, profil Marchairuz généré par le pipeline, moteur physique, dashboard + profil 2D. Critère : la montée « se sent » crédible sur un vrai trainer (🟡 réglage fin de la sensation à poursuivre)
