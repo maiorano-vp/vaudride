@@ -15,7 +15,7 @@ const { data: course, status } = useCourseProfile(slug)
 const demo = route.query.demo === '1'
 const FLY_KMH = { min: 10, max: 150, start: 40 }
 // faster than this, the places go by before they could be read out: the voice is cut
-const SPEECH_MAX_KMH = 60
+const SPEECH_MAX_KMH = 45
 const flyKmh = ref(Math.min(FLY_KMH.max, Math.max(FLY_KMH.min, Number(route.query.speed) || FLY_KMH.start)))
 const flyMs = computed(() => (demo ? flyKmh.value / 3.6 : undefined))
 const tooFastToSpeak = computed(() => demo && flyKmh.value > SPEECH_MAX_KMH)
