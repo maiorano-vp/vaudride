@@ -3,7 +3,8 @@ import { nearbyPoi, SHEET_ONLY_CATEGORIES, type Poi } from '~/lib/pois/nearby'
 import { isFavoriteCommand } from '~/lib/pois/favorites'
 import { speechText } from '~/lib/pois/speech'
 import type { Segment } from '~/lib/segments/tracker'
-import { availableSceneSources, resolveSceneSource, type SceneSource } from '~/lib/scene/source'
+import { CHOICES } from '~/lib/scene/quality'
+import { availableSceneSources, resolveSceneSource, SceneSource } from '~/lib/scene/source'
 
 const route = useRoute()
 const slug = String(route.params.slug)
@@ -57,11 +58,28 @@ watch(() => state.value.elapsedS, workout.tick)
 // a trainer without ERG support: the workout stops and the grade takes over again
 watch(trainer.ergRefused, (refused) => refused && workout.stop())
 
-// 3D needs WebGL; fall back to the 2D layout when unavailable or on request
+// How the scene is drawn follows the rider's choice and, in Auto, the machine: 3D needs WebGL2, and the lightest level
+// uses the light scene (no 3D buildings or Google tiles). The 2D layout is the fallback and can be picked.
+const quality = useSceneQuality()
+const toast = useToast()
 const view = ref<'3d' | '2d'>('2d')
+let stopListening: (() => void) | undefined
 onMounted(() => {
-  if (document.createElement('canvas').getContext('webgl2')) view.value = '3d'
+  stopListening = quality.detect()
+  view.value = quality.effective.value === '2d' ? '2d' : '3d'
 })
+onBeforeUnmount(() => stopListening?.())
+watch(
+  () => quality.effective.value === '2d',
+  (is2d) => (view.value = is2d ? '2d' : '3d'),
+)
+const sceneSource = computed(() => (quality.level.value === 'low' ? SceneSource.Light : source.value))
+const qualityItems = computed(() => CHOICES.map((c) => ({ value: c, label: t(`quality.${c}`) })))
+const qualityChoice = computed({ get: () => quality.choice.value, set: quality.choose })
+function onSlow() {
+  const lower = quality.stepDown()
+  if (lower) toast.add({ title: t('quality.lowered', { level: t(`quality.${lower}`) }), icon: 'i-lucide-gauge', color: 'neutral' })
+}
 
 // timed segments (climbs) of the course, loaded alongside; the ride works without them
 const { data: courseInfo } = useAsyncData(
@@ -213,17 +231,19 @@ watch(
   <div v-if="course" class="stage" :class="{ immersive: view === '3d' }">
     <Scene3D
       v-if="view === '3d'"
-      :key="source"
+      :key="sceneSource"
       class="fill"
       :course="course"
       :distance-m="state.distanceM"
       :speed-ms="state.speedMs"
-      :source="source"
+      :source="sceneSource"
+      :quality="quality.profile.value"
       :google-key="googleMapsKey"
       :ion-token="cesiumIonToken"
       :cadence-rpm="cadenceRpm"
       :kit="kit"
       :others="riders"
+      @slow="onSlow"
     />
 
     <!-- discovery mode: one speed control instead of devices -->
@@ -264,6 +284,10 @@ watch(
           @click="view = view === '3d' ? '2d' : '3d'"
         />
       </div>
+      <label class="mt-2 flex items-center gap-2">
+        {{ $t('quality.label') }}
+        <USelect v-model="qualityChoice" :items="qualityItems" size="sm" class="min-w-44" />
+      </label>
       <label v-if="view === '3d'" class="mt-2 flex items-center gap-2">
         {{ $t('scene.source.label') }}
         <USelect v-model="source" :items="sourceItems" size="sm" class="min-w-56" />

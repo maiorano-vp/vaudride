@@ -54,6 +54,7 @@
     "sound": "Son",
     "workout": "Séance",
     "rider": "Réglages",
+    "display": "Affichage",
     "ghost": "Fantôme"
   },
   "demo": {
@@ -176,6 +177,22 @@
     "done": "Séance terminée, le home trainer suit à nouveau le relief.",
     "unsupported": "Ce home trainer ne gère pas le mode ERG : retour à la simulation de pente.",
     "needsTrainer": "Connectez un home trainer FTMS pour le mode ERG."
+  },
+  "quality": {
+    "label": "Qualité",
+    "intro": "Moins de détails, c'est une vue plus fluide et moins de batterie. En Auto, l'application choisit selon votre appareil, votre batterie et la fluidité.",
+    "noWebgl": "Ce navigateur ne sait pas dessiner la 3D : la vue 2D est utilisée.",
+    "auto": "Auto",
+    "autoNow": "Choisi pour vous : {level}",
+    "high": "Élevée",
+    "highHelp": "Tous les détails : bâtiments, arbres, bords lissés.",
+    "balanced": "Équilibrée",
+    "balancedHelp": "Un peu moins net, plus fluide.",
+    "low": "Économie",
+    "lowHelp": "Scène simple, 30 images par seconde : pour les petits appareils ou pour ménager la batterie.",
+    "2d": "Vue 2D",
+    "2dHelp": "Le profil et les chiffres, sans 3D.",
+    "lowered": "Scène allégée ({level}) pour rester fluide."
   },
   "scene": {
     "show3d": "Vue 3D",
