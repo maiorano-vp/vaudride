@@ -10,7 +10,8 @@
     "grade": "Grade",
     "distance": "Distance",
     "climb": "Climb",
-    "time": "Time"
+    "time": "Time",
+    "difficulty": "Difficulty"
   },
   "profile": {
     "label": "Course elevation profile"
@@ -52,6 +53,7 @@
     "quitWithout": "Quit without saving",
     "sound": "Sound",
     "workout": "Workout",
+    "rider": "Settings",
     "ghost": "Ghost"
   },
   "demo": {
@@ -67,6 +69,47 @@
     "komHelp": "The next timed segment, with the record holder.",
     "none": "No finished ride",
     "label": "Ghost"
+  },
+  "rider": {
+    "menu": "My settings",
+    "title": "My settings",
+    "intro": "Your weight, position and reference power make speed and resistance more accurate. Difficulty softens the climbs for beginners or lower-powered trainers.",
+    "privacyAccount": "These settings are saved on your account and found again on each of your devices. They are shared with nobody.",
+    "privacyLocal": "These settings stay on this device. Sign in to find them everywhere.",
+    "you": "You and your bike",
+    "weight": "Rider weight (kg)",
+    "weightHelp": "With your kit. The heavier you are, the harder the climbs.",
+    "bike": "Bike weight (kg)",
+    "bikeHelp": "A road bike weighs 8 to 10 kg.",
+    "position": {
+      "label": "Riding position",
+      "hoods": "Hands on the hoods",
+      "drops": "Hands in the drops",
+      "aero": "Aerodynamic position",
+      "tops": "Hands on the tops",
+      "custom": "Custom value"
+    },
+    "positionHelp": "The lower you are, the less the air slows you down: it matters most on the flat and downhill.",
+    "cda": "Frontal area (CdA, m²)",
+    "cdaHelp": "From 0.25 (very aero) to 0.45 (upright).",
+    "power": "Power",
+    "ftp": "FTP (W)",
+    "ftpHelp": "The power you can hold for about an hour. If you do not know it: 95 % of your best 20-minute average.",
+    "ftpEstimate": "Estimated FTP: {watts} W",
+    "ftpEstimateFrom": "From your best 20-minute effort ({watts} W average, on {date}).",
+    "ftpUse": "Use this value",
+    "ftpNone": "Ride 20 minutes flat out in one go and save the ride: we will suggest an FTP.",
+    "difficulty": "Difficulty",
+    "difficultyHelp": "At 100 % you ride the real grade. At 50 %, an 8 % climb pedals like a 4 % one, and you move accordingly. Ideal to start or for a lower-powered trainer. The terrain you see stays the course's.",
+    "difficultyNow": "Difficulty: {pct} % of the grade",
+    "reset": "Restore the defaults",
+    "allSettings": "All settings",
+    "sync": {
+      "idle": "",
+      "saving": "Saving…",
+      "saved": "Saved on your account.",
+      "error": "Not saved on the account: will retry with the next change."
+    }
   },
   "workout": {
     "intro": "The trainer holds the workout's power whatever the grade. Without a workout, it follows the course's terrain.",

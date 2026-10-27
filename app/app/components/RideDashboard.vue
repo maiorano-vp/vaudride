@@ -3,6 +3,8 @@ const props = defineProps<{
   overlay?: boolean
   /** Discovery mode: no rider, so no power, cadence or heart rate. */
   demo?: boolean
+  /** Share of the real grade the rider rides; a tile reminds them when it is below 100. */
+  difficultyPct?: number
   powerW?: number
   cadenceRpm?: number
   heartRate?: number
@@ -30,6 +32,9 @@ const tiles = computed(() => [
       ]),
   { key: 'speed', value: (props.speedMs * 3.6).toFixed(1), unit: 'km/h' },
   { key: 'grade', value: props.gradePct.toFixed(1), unit: '%' },
+  ...(!props.demo && props.difficultyPct !== undefined && props.difficultyPct < 100
+    ? [{ key: 'difficulty', value: props.difficultyPct.toFixed(0), unit: '%' }]
+    : []),
   { key: 'distance', value: (props.distanceM / 1000).toFixed(2), unit: 'km' },
   { key: 'climb', value: props.elevationGainM.toFixed(0), unit: 'm' },
   { key: 'time', value: time.value, unit: '' },

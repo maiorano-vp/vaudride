@@ -2,7 +2,7 @@
 import { TEMPLATES } from '~/lib/workout/templates'
 import { totalDuration, workoutName, type Workout } from '~/lib/workout/workout'
 
-type View = 'menu' | 'devices' | 'kit' | 'workout' | 'ghost' | 'sound' | 'account' | 'quit'
+type View = 'menu' | 'devices' | 'kit' | 'workout' | 'rider' | 'ghost' | 'sound' | 'account' | 'quit'
 
 const open = defineModel<boolean>('open', { required: true })
 /** Discovery mode: no devices, workouts, ghosts or account, and leaving does not save anything. */
@@ -36,6 +36,10 @@ const workoutItems = computed(() => workouts.value.map((w) => ({ value: w.id, la
 const selectedId = ref(TEMPLATES[0]!.id)
 const selected = computed(() => workouts.value.find((w) => w.id === selectedId.value))
 const ftp = computed({ get: () => workout.ftp.value, set: (v: number) => Number.isFinite(v) && workout.setFtp(v) })
+
+// rider settings: the difficulty can be changed on the fly; the rest is on the settings page
+const rider = useRiderSettings()
+const difficultyPct = computed({ get: () => rider.difficultyPct.value, set: (v: number) => rider.update({ difficultyPct: v }) })
 const trainerReady = computed(() => trainer.connection.value === 'connected')
 function startSelected() {
   if (!selected.value) return
@@ -89,13 +93,14 @@ const devices = computed(() => [
   { key: 'heartRate', label: t('ble.heartRate'), icon: 'i-lucide-heart-pulse', device: strap },
 ])
 
-const DEMO_HIDDEN = ['devices', 'workout', 'ghost', 'account']
+const DEMO_HIDDEN = ['devices', 'workout', 'rider', 'ghost', 'account']
 const items = computed(() =>
   [
     { key: 'continue', icon: 'i-lucide-play', action: () => (open.value = false) },
     { key: 'devices', icon: 'i-lucide-bluetooth', action: () => (view.value = 'devices') },
     { key: 'kit', icon: 'i-lucide-shirt', action: () => (view.value = 'kit') },
     { key: 'workout', icon: 'i-lucide-timer', action: () => (view.value = 'workout') },
+    { key: 'rider', icon: 'i-lucide-sliders-horizontal', action: () => (view.value = 'rider') },
     { key: 'ghost', icon: 'i-lucide-ghost', action: () => (view.value = 'ghost') },
     ...(speech.supported.value ? [{ key: 'sound', icon: 'i-lucide-volume-2', action: () => (view.value = 'sound') }] : []),
     { key: 'account', icon: 'i-lucide-user', action: () => (view.value = 'account') },
@@ -174,6 +179,14 @@ function finish() {
           {{ $t('workout.ftp') }}
           <UInput v-model.number="ftp" type="number" min="50" max="600" step="5" class="mt-1 w-32" />
         </label>
+        <UAlert
+          v-if="rider.ftpSuggestion.value"
+          color="primary"
+          variant="subtle"
+          icon="i-lucide-trending-up"
+          :title="$t('rider.ftpEstimate', { watts: rider.ftpSuggestion.value.ftp })"
+          :actions="[{ label: $t('rider.ftpUse'), onClick: () => rider.useEstimate() }]"
+        />
 
         <template v-if="!editing">
           <label class="block">
@@ -226,6 +239,24 @@ function finish() {
             <UButton icon="i-lucide-play" :label="$t('workout.save')" :disabled="!trainerReady || !draftSteps.length" @click="saveDraft" />
           </div>
         </div>
+      </div>
+
+      <div v-else-if="view === 'rider'" class="space-y-4">
+        <p class="text-sm text-slate-500">{{ $t('rider.difficultyHelp') }}</p>
+        <label class="block">
+          {{ $t('rider.difficultyNow', { pct: difficultyPct }) }}
+          <USlider v-model="difficultyPct" :min="30" :max="100" :step="5" class="mt-3" />
+        </label>
+        <UAlert
+          v-if="rider.ftpSuggestion.value"
+          color="primary"
+          variant="subtle"
+          icon="i-lucide-trending-up"
+          :title="$t('rider.ftpEstimate', { watts: rider.ftpSuggestion.value.ftp })"
+          :actions="[{ label: $t('rider.ftpUse'), onClick: () => rider.useEstimate() }]"
+        />
+        <!-- a new tab: leaving this page would lose the ride in progress -->
+        <UButton to="/settings" target="_blank" color="neutral" variant="outline" icon="i-lucide-sliders-horizontal" :label="$t('rider.allSettings')" />
       </div>
 
       <div v-else-if="view === 'ghost'" class="space-y-4">

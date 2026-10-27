@@ -10,7 +10,8 @@
     "grade": "Steigung",
     "distance": "Distanz",
     "climb": "Höhenmeter",
-    "time": "Zeit"
+    "time": "Zeit",
+    "difficulty": "Schwierigkeit"
   },
   "profile": {
     "label": "Höhenprofil der Strecke"
@@ -52,6 +53,7 @@
     "quitWithout": "Beenden ohne zu speichern",
     "sound": "Ton",
     "workout": "Training",
+    "rider": "Einstellungen",
     "ghost": "Geist"
   },
   "demo": {
@@ -67,6 +69,47 @@
     "komHelp": "Der nächste gemessene Abschnitt, mit dem Rekordhalter.",
     "none": "Keine beendete Fahrt",
     "label": "Geist"
+  },
+  "rider": {
+    "menu": "Meine Einstellungen",
+    "title": "Meine Einstellungen",
+    "intro": "Mit Ihrem Gewicht, Ihrer Position und Ihrer Referenzleistung stimmen Tempo und Widerstand besser. Die Schwierigkeit macht Anstiege für Einsteiger oder schwächere Heimtrainer sanfter.",
+    "privacyAccount": "Diese Einstellungen werden in Ihrem Konto gespeichert und auf all Ihren Geräten wiedergefunden. Sie werden mit niemandem geteilt.",
+    "privacyLocal": "Diese Einstellungen bleiben auf diesem Gerät. Melden Sie sich an, um sie überall zu finden.",
+    "you": "Sie und Ihr Velo",
+    "weight": "Gewicht der Fahrerin / des Fahrers (kg)",
+    "weightHelp": "Mit Ausrüstung. Je schwerer, desto härter die Anstiege.",
+    "bike": "Gewicht des Velos (kg)",
+    "bikeHelp": "Ein Rennvelo wiegt 8 bis 10 kg.",
+    "position": {
+      "label": "Sitzposition",
+      "hoods": "Hände auf den Bremsgriffen",
+      "drops": "Hände im Unterlenker",
+      "aero": "Aerodynamische Position",
+      "tops": "Hände oben am Lenker",
+      "custom": "Eigener Wert"
+    },
+    "positionHelp": "Je tiefer Sie sitzen, desto weniger bremst der Wind: das zählt vor allem in der Ebene und bergab.",
+    "cda": "Stirnfläche (CdA, m²)",
+    "cdaHelp": "Von 0,25 (sehr aerodynamisch) bis 0,45 (aufrechte Position).",
+    "power": "Leistung",
+    "ftp": "FTP (W)",
+    "ftpHelp": "Die Leistung, die Sie etwa eine Stunde halten können. Wenn Sie sie nicht kennen: 95 % Ihres besten 20-Minuten-Durchschnitts.",
+    "ftpEstimate": "Geschätzte FTP: {watts} W",
+    "ftpEstimateFrom": "Nach Ihrer besten 20-Minuten-Belastung ({watts} W im Schnitt, am {date}).",
+    "ftpUse": "Diesen Wert verwenden",
+    "ftpNone": "Fahren Sie 20 Minuten am Stück voll und speichern Sie die Fahrt: Wir schlagen dann eine FTP vor.",
+    "difficulty": "Schwierigkeit",
+    "difficultyHelp": "Bei 100 % fahren Sie die echte Steigung. Bei 50 % tritt sich ein Anstieg von 8 % wie einer von 4 %, und Sie kommen entsprechend voran. Ideal für den Einstieg oder einen schwächeren Heimtrainer. Das angezeigte Relief bleibt das der Strecke.",
+    "difficultyNow": "Schwierigkeit: {pct} % der Steigung",
+    "reset": "Standardwerte wiederherstellen",
+    "allSettings": "Alle Einstellungen",
+    "sync": {
+      "idle": "",
+      "saving": "Wird gespeichert…",
+      "saved": "In Ihrem Konto gespeichert.",
+      "error": "Nicht im Konto gespeichert: neuer Versuch bei der nächsten Änderung."
+    }
   },
   "workout": {
     "intro": "Der Heimtrainer hält die Leistung des Trainings, unabhängig von der Steigung. Ohne Training folgt er dem Profil der Strecke.",

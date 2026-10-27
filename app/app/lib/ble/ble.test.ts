@@ -130,6 +130,19 @@ describe('FtmsTrainer on the simulator', () => {
     expect(device.commands.map((c) => c[0])).toEqual([0x11])
   })
 
+  it('sends the simulation again, with the new weight and drag area, when the rider settings change', async () => {
+    await trainer.setup()
+    trainer.setGrade(4)
+    await vi.advanceTimersByTimeAsync(300)
+    device.commands.length = 0
+    trainer.setParams({ ...DEFAULT_PARAMS, cda: 0.4 })
+    await vi.advanceTimersByTimeAsync(300)
+    expect(device.commands).toHaveLength(1)
+    expect(device.commands[0]![0]).toBe(0x11)
+    expect(device.commands[0]![6]).toBe(Math.round(0.5 * DEFAULT_PARAMS.rho * 0.4 * 100)) // Cw follows CdA
+    expect(new DataView(Uint8Array.from(device.commands[0]!).buffer).getInt16(3, true)).toBe(400) // same grade
+  })
+
   it('tells the caller when the trainer refuses ERG', async () => {
     const refused = vi.fn()
     const erg = new FtmsTrainer(device, () => {}, DEFAULT_PARAMS, refused)

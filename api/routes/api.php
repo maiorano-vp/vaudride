@@ -19,10 +19,13 @@ use App\Http\Controllers\Api\V1\ResetPasswordController;
 use App\Http\Controllers\Api\V1\RideController;
 use App\Http\Controllers\Api\V1\SegmentGhostController;
 use App\Http\Controllers\Api\V1\SegmentLeaderboardController;
+use App\Http\Controllers\Api\V1\ShowFtpEstimateController;
+use App\Http\Controllers\Api\V1\ShowRiderSettingsController;
 use App\Http\Controllers\Api\V1\ShowStravaController;
 use App\Http\Controllers\Api\V1\StravaCallbackController;
 use App\Http\Controllers\Api\V1\StravaConnectController;
 use App\Http\Controllers\Api\V1\UpdateAvatarController;
+use App\Http\Controllers\Api\V1\UpdateRiderSettingsController;
 use App\Http\Controllers\Api\V1\UploadRideToStravaController;
 use Illuminate\Support\Facades\Route;
 
@@ -51,6 +54,9 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
         Route::put('me/favorites/{poi}', [FavoritePoiController::class, 'store'])->name('me.favorites.store');
         Route::delete('me/favorites/{poi}', [FavoritePoiController::class, 'destroy'])->name('me.favorites.destroy');
         Route::put('me/avatar', UpdateAvatarController::class)->name('me.avatar');
+        Route::get('me/settings', ShowRiderSettingsController::class)->name('me.settings.show');
+        Route::put('me/settings', UpdateRiderSettingsController::class)->name('me.settings.update');
+        Route::get('me/ftp-estimate', ShowFtpEstimateController::class)->middleware('throttle:30,1')->name('me.ftp-estimate');
         Route::post('broadcasting/auth', AuthorizeLiveChannelController::class)->middleware('throttle:30,1')->name('broadcasting.auth');
         Route::apiResource('rides', RideController::class)->only(['index', 'store', 'show']);
         Route::get('rides/{ride}/export/{format}', ExportRideController::class)->whereIn('format', ['fit', 'tcx'])->name('rides.export');

@@ -95,7 +95,7 @@ export class FtmsTrainer {
   constructor(
     private readonly device: BleDevice,
     private readonly onData: (data: BikeData) => void,
-    private readonly params: RiderParams = DEFAULT_PARAMS,
+    private params: RiderParams = DEFAULT_PARAMS,
     /** Called when the trainer refuses a target power: it does not support ERG. */
     private readonly onErgRefused: () => void = () => {},
   ) {}
@@ -116,6 +116,13 @@ export class FtmsTrainer {
   /** Grade in percent. Sent at most 4×/s and only when it changed (0.01 % resolution). */
   setGrade(gradePct: number) {
     this.want({ kind: 'grade', hundredths: Math.round(Math.max(-20, Math.min(20, gradePct)) * 100) })
+  }
+
+  /** New weight and drag area: the simulation is sent again, since they are part of the command (Crr, Cw). */
+  setParams(params: RiderParams) {
+    this.params = params
+    this.sent = undefined
+    if (this.wanted?.kind === 'grade') this.want(this.wanted)
   }
 
   /** ERG: the trainer holds this power whatever the rider's cadence or the grade. Same throttling as the grade. */

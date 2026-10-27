@@ -10,7 +10,8 @@
     "grade": "Pente",
     "distance": "Distance",
     "climb": "Dénivelé +",
-    "time": "Temps"
+    "time": "Temps",
+    "difficulty": "Difficulté"
   },
   "profile": {
     "label": "Profil altimétrique du parcours"
@@ -52,6 +53,7 @@
     "quitWithout": "Quitter sans enregistrer",
     "sound": "Son",
     "workout": "Séance",
+    "rider": "Réglages",
     "ghost": "Fantôme"
   },
   "demo": {
@@ -67,6 +69,47 @@
     "komHelp": "Le prochain segment chronométré, avec le détenteur du record.",
     "none": "Aucune sortie terminée",
     "label": "Fantôme"
+  },
+  "rider": {
+    "menu": "Mes réglages",
+    "title": "Mes réglages",
+    "intro": "Votre poids, votre position et votre puissance de référence rendent la vitesse et la résistance plus justes. La difficulté adoucit les montées pour les débutants ou les home trainers peu puissants.",
+    "privacyAccount": "Ces réglages sont enregistrés sur votre compte et retrouvés sur chacun de vos appareils. Ils ne sont partagés avec personne.",
+    "privacyLocal": "Ces réglages restent sur cet appareil. Connectez-vous pour les retrouver partout.",
+    "you": "Vous et votre vélo",
+    "weight": "Poids du cycliste (kg)",
+    "weightHelp": "Avec l'équipement. Plus on est lourd, plus les montées sont dures.",
+    "bike": "Poids du vélo (kg)",
+    "bikeHelp": "Un vélo de route pèse 8 à 10 kg.",
+    "position": {
+      "label": "Position sur le vélo",
+      "hoods": "Mains sur les cocottes",
+      "drops": "Mains en bas du guidon",
+      "aero": "Position aérodynamique",
+      "tops": "Mains en haut du guidon",
+      "custom": "Valeur personnalisée"
+    },
+    "positionHelp": "Plus on est penché, moins on freine l'air : c'est ce qui compte surtout en plaine et en descente.",
+    "cda": "Surface frontale (CdA, m²)",
+    "cdaHelp": "De 0,25 (très aéro) à 0,45 (position droite).",
+    "power": "Puissance",
+    "ftp": "FTP (W)",
+    "ftpHelp": "La puissance que vous pouvez tenir environ une heure. Si vous ne la connaissez pas : 95 % de votre meilleure moyenne sur 20 minutes.",
+    "ftpEstimate": "FTP estimé : {watts} W",
+    "ftpEstimateFrom": "D'après votre meilleur effort de 20 minutes ({watts} W de moyenne, le {date}).",
+    "ftpUse": "Utiliser cette valeur",
+    "ftpNone": "Roulez 20 minutes d'affilée à fond et enregistrez la sortie : nous proposerons un FTP.",
+    "difficulty": "Difficulté",
+    "difficultyHelp": "À 100 % vous roulez la pente réelle. À 50 %, une montée à 8 % se pédale comme une montée à 4 %, et vous avancez en conséquence. Idéal pour débuter ou pour un home trainer peu puissant. Le relief affiché reste celui du parcours.",
+    "difficultyNow": "Difficulté : {pct} % de la pente",
+    "reset": "Remettre les valeurs par défaut",
+    "allSettings": "Tous les réglages",
+    "sync": {
+      "idle": "",
+      "saving": "Enregistrement…",
+      "saved": "Enregistré sur votre compte.",
+      "error": "Non enregistré sur le compte : réessayé au prochain changement."
+    }
   },
   "workout": {
     "intro": "Le home trainer tient la puissance de la séance, quelle que soit la pente. Sans séance, il suit le relief du parcours.",

@@ -48,10 +48,12 @@ export function advance(
   course: CourseProfile,
   dtS: number,
   params: RiderParams = DEFAULT_PARAMS,
+  /** The share of the real grade the rider rides (0.5 = half as steep); the course and the climb stay real. */
+  gradeScale = 1,
 ): RideState {
   if (s.finished) return s
   const here = pointAt(course, s.distanceM)
-  const speedMs = stepSpeed(s.speedMs, powerW, here.grade, dtS, params)
+  const speedMs = stepSpeed(s.speedMs, powerW, here.grade * gradeScale, dtS, params)
   const distanceM = Math.min(s.distanceM + speedMs * dtS, course.distance_m)
   const next = pointAt(course, distanceM)
   return {
