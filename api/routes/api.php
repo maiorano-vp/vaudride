@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\LoginController;
 use App\Http\Controllers\Api\V1\LogoutController;
 use App\Http\Controllers\Api\V1\MeController;
+use App\Http\Controllers\Api\V1\RealRideController;
 use App\Http\Controllers\Api\V1\RecordCourseActionController;
 use App\Http\Controllers\Api\V1\RegisterController;
 use App\Http\Controllers\Api\V1\ResetPasswordController;
@@ -57,6 +58,9 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
         Route::put('me/favorites/{poi}', [FavoritePoiController::class, 'store'])->name('me.favorites.store');
         Route::delete('me/favorites/{poi}', [FavoritePoiController::class, 'destroy'])->name('me.favorites.destroy');
         Route::put('me/avatar', UpdateAvatarController::class)->name('me.avatar');
+        Route::get('me/real-rides', [RealRideController::class, 'index'])->name('me.real-rides.index');
+        Route::put('me/real-rides/{slug}', [RealRideController::class, 'store'])->name('me.real-rides.store');
+        Route::delete('me/real-rides/{realRide}', [RealRideController::class, 'destroy'])->name('me.real-rides.destroy');
         Route::get('me/settings', ShowRiderSettingsController::class)->name('me.settings.show');
         Route::put('me/settings', UpdateRiderSettingsController::class)->name('me.settings.update');
         Route::delete('me/settings', DeleteRiderSettingsController::class)->name('me.settings.destroy');

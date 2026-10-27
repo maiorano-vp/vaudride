@@ -20,6 +20,7 @@ const items = computed(() => [
     { label: t('rides.menu'), icon: 'i-lucide-history', to: '/rides' },
     { label: t('favorites.menu'), icon: 'i-lucide-star', to: '/favorites' },
     { label: t('kit.menu'), icon: 'i-lucide-shirt', to: '/kit' },
+    { label: t('passport.menu'), icon: 'i-lucide-badge-check', to: '/passport' },
     { label: t('rider.menu'), icon: 'i-lucide-sliders-horizontal', to: '/settings' },
     { label: t('auth.account'), icon: 'i-lucide-settings', to: '/account' },
     {

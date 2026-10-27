@@ -24,6 +24,34 @@ const { locale } = useI18n()
 const origin = useRequestURL().origin
 const gpx = useGpx(toRef(props, 'profile'), toRef(props, 'name'))
 const { track } = useCourseAction(props.slug)
+
+// "I rode it for real": on the rider's account, theirs alone
+const { loggedIn } = useAuth()
+const real = useRealRides()
+const mine = computed(() => real.forCourse(props.slug))
+const today = ref('') // the rider's own day, known once mounted
+const day = ref('')
+const saving = ref(false)
+const failed = ref(false)
+onMounted(() => {
+  const now = new Date()
+  today.value = new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10)
+  day.value = today.value
+  void real.load()
+})
+async function declare() {
+  if (!day.value) return
+  saving.value = true
+  failed.value = false
+  try {
+    await real.declare(props.slug, day.value)
+  } catch {
+    failed.value = true
+  } finally {
+    saving.value = false
+  }
+}
+const dateLabel = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale.value)
 function download() {
   gpx.download()
   track('gpx_download')
@@ -104,5 +132,31 @@ const dayName = (iso: string) => new Intl.DateTimeFormat(locale.value, { weekday
         </UCard>
       </li>
     </ol>
+
+    <UCard>
+      <h3 class="mb-2 font-display uppercase tracking-wide text-vaud-800">{{ $t('real.iDidIt') }}</h3>
+      <template v-if="loggedIn">
+        <form class="flex flex-wrap items-end gap-3" @submit.prevent="declare">
+          <label class="text-sm">
+            {{ $t('real.when') }}
+            <UInput v-model="day" type="date" :max="today" class="mt-1 w-44" />
+          </label>
+          <UButton type="submit" icon="i-lucide-badge-check" :loading="saving" :label="$t('real.declare')" />
+        </form>
+        <p v-if="failed" role="alert" class="mt-2 text-sm text-red-700">{{ $t('real.declareError') }}</p>
+        <ul v-if="mine.length" class="mt-3 space-y-1 text-sm">
+          <li v-for="r in mine" :key="r.id" class="flex items-center gap-2">
+            <UIcon name="i-lucide-badge-check" class="text-vaud-green-700" />
+            {{ $t('real.rodeOn', { date: dateLabel(r.ridden_on) }) }}
+            <UButton size="md" variant="link" color="neutral" :label="$t('real.remove')" @click="real.remove(r.id)" />
+          </li>
+        </ul>
+        <NuxtLink to="/passport" class="mt-3 inline-block text-sm underline">{{ $t('passport.open') }}</NuxtLink>
+      </template>
+      <p v-else class="m-0 text-sm">
+        {{ $t('real.signIn') }}
+        <NuxtLink to="/login" class="underline">{{ $t('auth.login') }}</NuxtLink>
+      </p>
+    </UCard>
   </section>
 </template>

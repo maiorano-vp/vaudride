@@ -136,6 +136,10 @@
       "title": "Your rides",
       "text": "Only when you choose to save them: the course, the date, the duration, the distance, the climb and, second by second, power, cadence and heart rate. They are visible to you alone. Only your times on segments (with your nickname) appear in the leaderboards."
     },
+    "real": {
+      "title": "Courses ridden for real",
+      "text": "If you declare that you rode a course for real: the course and the day. Only you see them in your passport, you can remove them at any time, and they go with your account. The statistics only keep the number of declarations per course."
+    },
     "settings": {
       "title": "Your settings, including your weight",
       "text": "Rider and bike weight, position, FTP and difficulty. Weight is sensitive personal data: it is only used to work out your speed and the resistance, is never displayed or shared, and is not in your public profile. Signed in, your settings are saved on your account so you find them on every device; signed out, they stay on your device. You can delete them at any time from the \"My settings\" page."
@@ -183,7 +187,23 @@
     "summaryInvite": "You just rode \"{name}\": ride it for real.",
     "summaryLink": "See how to ride it on the spot",
     "demoFinished": "Fancy riding it for real? Scan the code.",
-    "demoQr": "Ride this course for real: scan"
+    "demoQr": "Ride this course for real: scan",
+    "iDidIt": "I rode it for real",
+    "when": "The day you rode it",
+    "declare": "Add to my passport",
+    "declareError": "Cannot save right now: please try again later.",
+    "rodeOn": "Rode on {date}",
+    "remove": "Remove",
+    "signIn": "Sign in to note this course in your Vaud passport."
+  },
+  "passport": {
+    "menu": "My passport",
+    "title": "My Vaud passport",
+    "intro": "The courses you rode for real, as you declared them. Only you can see them.",
+    "progress": "{count} of {total} courses",
+    "done": "Already ridden",
+    "todo": "To discover",
+    "open": "See my passport"
   },
   "workout": {
     "intro": "The trainer holds the workout's power whatever the grade. Without a workout, it follows the course's terrain.",
