@@ -17,6 +17,8 @@ export function useRideRecording(slug: string, reading: Ref<RideReading>, elevat
   const version = ref(0) // bumped on each sample so the summary below recomputes
   const saveState = ref<SaveState>('idle')
   const efforts = ref<SegmentEffort[]>([])
+  // a ride where the rider was moved by hand (sim mode) is not a ride: it cannot be saved
+  const teleported = ref(false)
 
   watch(
     () => reading.value.elapsedS,
@@ -33,11 +35,11 @@ export function useRideRecording(slug: string, reading: Ref<RideReading>, elevat
   })
   const recordable = computed(() => {
     void version.value
-    return recorder.recordable
+    return recorder.recordable && !teleported.value
   })
 
   async function save(uploadToStrava: boolean) {
-    if (!recorder.recordable || !recorder.startedAt) return
+    if (!recordable.value || !recorder.startedAt) return
     saveState.value = 'saving'
     try {
       const { data } = await $fetch<{ data: { efforts?: SegmentEffort[] } }>('/api/rides', {
@@ -62,7 +64,8 @@ export function useRideRecording(slug: string, reading: Ref<RideReading>, elevat
     version.value++
     saveState.value = 'idle'
     efforts.value = []
+    teleported.value = false
   }
 
-  return { summary, recordable, saveState, efforts, save, reset }
+  return { summary, recordable, teleported, saveState, efforts, save, reset }
 }

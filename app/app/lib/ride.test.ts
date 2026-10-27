@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { pointAt, type CourseProfile } from './course/profile'
-import { advance, initialRide } from './ride'
+import { advance, initialRide, seekRide } from './ride'
 import { connectDevice } from './ble/connect'
 import { FTMS_SERVICE } from './ble/ftms'
 import { createSimTransport } from './ble/sim'
@@ -52,5 +52,20 @@ describe('connectDevice', () => {
     expect(setups).toBe(1)
     expect(states).toEqual(['connected'])
     stop()
+  })
+})
+
+describe('seekRide', () => {
+  it('moves the rider, keeps the clock and takes the grade of the new point', () => {
+    const start = { ...initialRide(course), speedMs: 6, elapsedS: 40, elevationGainM: 12 }
+    const there = seekRide(start, { ...course, points: course.points.map((p) => ({ ...p, grade: p.d >= 500 ? 3 : 8 })) }, 600)
+    expect(there).toMatchObject({ distanceM: 600, gradePct: 3, speedMs: 6, elapsedS: 40, elevationGainM: 12, finished: false })
+  })
+
+  it('clamps to the course and clears a finish', () => {
+    const done = { ...initialRide(course), distanceM: 1000, finished: true }
+    expect(seekRide(done, course, -50).distanceM).toBe(0)
+    expect(seekRide(done, course, 50).finished).toBe(false)
+    expect(seekRide(done, course, 5000).distanceM).toBe(1000)
   })
 })

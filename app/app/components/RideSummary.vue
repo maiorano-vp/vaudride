@@ -10,6 +10,7 @@ const props = defineProps<{
   summary: RideSummary
   elevationGainM: number
   recordable: boolean
+  teleported?: boolean
   saveState: SaveState
   finished: boolean
   efforts: SegmentEffort[]
@@ -99,7 +100,7 @@ const rows = computed(() => [
         {{ $t('summary.saved') }} <NuxtLink to="/rides" class="underline">{{ $t('summary.history') }}</NuxtLink>
       </p>
       <p v-else-if="saveState === 'error'" class="mt-5 text-red-700" role="alert">{{ $t('summary.error') }}</p>
-      <p v-else-if="!recordable" class="mt-5 text-slate-500">{{ $t('summary.tooShort') }}</p>
+      <p v-else-if="!recordable" class="mt-5 text-slate-500">{{ $t(teleported ? 'summary.teleported' : 'summary.tooShort') }}</p>
     </template>
     <template #footer>
       <div class="flex w-full flex-wrap justify-between gap-2">

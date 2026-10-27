@@ -1,5 +1,5 @@
 import type { CourseProfile } from '~/lib/course/profile'
-import { advance, initialRide } from '~/lib/ride'
+import { advance, initialRide, seekRide } from '~/lib/ride'
 
 /** Runs the physics loop (~4 Hz) and pushes the current grade to `onGrade`. */
 export function useRide(course: Ref<CourseProfile | undefined>, powerW: Ref<number>, onGrade: (pct: number) => void) {
@@ -28,5 +28,11 @@ export function useRide(course: Ref<CourseProfile | undefined>, powerW: Ref<numb
     state.value = initialRide(course.value)
     paused.value = false
   }
-  return { state, paused, reset }
+  /** Puts the rider at a distance along the course (sim mode). */
+  function seek(distanceM: number) {
+    if (!course.value) return
+    state.value = seekRide(state.value, course.value, distanceM)
+    onGrade(state.value.gradePct)
+  }
+  return { state, paused, reset, seek }
 }

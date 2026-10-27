@@ -2,7 +2,8 @@
 import { pointAt, type CourseProfile } from '~/lib/course/profile'
 import type { Segment } from '~/lib/segments/tracker'
 
-const props = defineProps<{ course: CourseProfile; distanceM: number; others?: Array<{ id: string; distanceM: number }>; segments?: Segment[]; pois?: Array<{ id: string; distance_m: number }> }>()
+const props = defineProps<{ course: CourseProfile; distanceM: number; others?: Array<{ id: string; distanceM: number }>; segments?: Segment[]; pois?: Array<{ id: string; distance_m: number }>; seekable?: boolean }>()
+const emit = defineEmits<{ seek: [distanceM: number] }>()
 
 const W = 1000
 const H = 200
@@ -42,6 +43,23 @@ const otherMarkers = computed(() =>
   }),
 )
 
+// sim mode: click or drag to choose where to be (the viewBox scales evenly, so x maps linearly to distance)
+let dragging = false
+function seekAt(e: PointerEvent) {
+  const rect = (e.currentTarget as SVGElement).getBoundingClientRect()
+  const ratio = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1)
+  emit('seek', ratio * props.course.distance_m)
+}
+function onDown(e: PointerEvent) {
+  if (!props.seekable) return
+  dragging = true
+  ;(e.currentTarget as SVGElement).setPointerCapture(e.pointerId)
+  seekAt(e)
+}
+function onMove(e: PointerEvent) {
+  if (dragging) seekAt(e)
+}
+
 const marker = computed(() => {
   const here = pointAt(props.course, props.distanceM)
   return { cx: geometry.value.x(props.distanceM), cy: geometry.value.y(here.ele) }
@@ -49,7 +67,17 @@ const marker = computed(() => {
 </script>
 
 <template>
-  <svg :viewBox="`0 0 ${W} ${H}`" role="img" :aria-label="$t('profile.label')" class="profile">
+  <svg
+    :viewBox="`0 0 ${W} ${H}`"
+    role="img"
+    :aria-label="$t('profile.label')"
+    class="profile"
+    :class="{ seekable }"
+    @pointerdown="onDown"
+    @pointermove="onMove"
+    @pointerup="dragging = false"
+    @pointercancel="dragging = false"
+  >
     <polygon :points="geometry.area" class="area" />
     <rect v-for="b in bands" :key="b.id" :x="b.x" y="0" :width="b.width" :height="H" class="segment" />
     <polyline :points="geometry.line" class="line" />
@@ -65,6 +93,10 @@ const marker = computed(() => {
   height: auto;
   background: rgb(255 255 255 / 75%);
   border-radius: 0.5rem;
+}
+.profile.seekable {
+  cursor: pointer;
+  touch-action: none;
 }
 .area {
   fill: #cfe3d4;

@@ -22,6 +22,9 @@ export interface SegmentResult {
 /** The segment's name in `locale`, falling back to French. */
 export const segmentName = (s: Segment, locale: string) => s.name[locale] || s.name.fr || ''
 
+/** The most a rider can cover between two updates (~4 per second): more than this is a jump. */
+const MAX_STEP_M = 100
+
 /**
  * Times the rider on segments: a run starts when the start line is crossed and ends at the finish line.
  * Starting in the middle of a segment (or going back before its start) times nothing.
@@ -36,6 +39,11 @@ export class SegmentTracker {
   update(distanceM: number, elapsedS: number): SegmentResult | undefined {
     const previousM = this.previousM
     this.previousM = distanceM
+    // a jump (sim mode teleport) is not riding: nothing is crossed, nothing is timed
+    if (Math.abs(distanceM - previousM) > MAX_STEP_M) {
+      this.active = undefined
+      return undefined
+    }
     let result: SegmentResult | undefined
 
     if (this.active) {

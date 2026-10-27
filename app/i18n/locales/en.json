@@ -40,6 +40,17 @@
     "paused": "Paused",
     "loading": "Loading course…"
   },
+  "pause": {
+    "continue": "Continue",
+    "devices": "Connect my devices",
+    "kit": "My kit",
+    "account": "My account",
+    "quit": "Quit",
+    "connect": "Connect",
+    "quitHelp": "What do you want to do with this ride?",
+    "finishSave": "Finish and save",
+    "quitWithout": "Quit without saving"
+  },
   "scene": {
     "show3d": "3D view",
     "show2d": "2D view",
@@ -176,6 +187,7 @@
     "history": "See my rides",
     "error": "The ride could not be saved.",
     "tooShort": "Ride for a few seconds at least to be able to save.",
+    "teleported": "Teleported ride (sim mode): it cannot be saved.",
     "resume": "Keep riding",
     "end": "Finish",
     "courses": "Courses",

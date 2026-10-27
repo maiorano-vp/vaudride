@@ -19,6 +19,12 @@ export const initialRide = (course?: CourseProfile): RideState => ({
   finished: false,
 })
 
+/** Puts the rider at `distanceM` (clamped to the course): the clock, speed and climb carry on. Sim mode only. */
+export function seekRide(s: RideState, course: CourseProfile, distanceM: number): RideState {
+  const d = Math.min(Math.max(distanceM, 0), course.distance_m)
+  return { ...s, distanceM: d, gradePct: pointAt(course, d).grade, finished: false }
+}
+
 /** One physics step: power + current grade → new speed, distance, climb. */
 export function advance(
   s: RideState,

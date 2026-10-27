@@ -40,6 +40,17 @@
     "paused": "Pausiert",
     "loading": "Strecke wird geladen…"
   },
+  "pause": {
+    "continue": "Weiter",
+    "devices": "Geräte verbinden",
+    "kit": "Meine Ausrüstung",
+    "account": "Mein Konto",
+    "quit": "Beenden",
+    "connect": "Verbinden",
+    "quitHelp": "Was möchten Sie mit dieser Fahrt tun?",
+    "finishSave": "Beenden und speichern",
+    "quitWithout": "Beenden ohne zu speichern"
+  },
   "scene": {
     "show3d": "3D-Ansicht",
     "show2d": "2D-Ansicht",
@@ -176,6 +187,7 @@
     "history": "Meine Fahrten",
     "error": "Die Fahrt konnte nicht gespeichert werden.",
     "tooShort": "Fahren Sie mindestens ein paar Sekunden, um zu speichern.",
+    "teleported": "Versetzte Fahrt (Simulationsmodus): Sie kann nicht gespeichert werden.",
     "resume": "Weiterfahren",
     "end": "Beenden",
     "courses": "Strecken",

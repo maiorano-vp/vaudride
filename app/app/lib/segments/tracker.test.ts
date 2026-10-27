@@ -14,6 +14,18 @@ function ride(tracker: SegmentTracker, fromM: number, toM: number) {
 }
 
 describe('SegmentTracker', () => {
+  it('times nothing after a jump into or across a segment, then works again', () => {
+    const t = new SegmentTracker([climb])
+    t.update(0, 0)
+    expect(t.update(1500, 10)).toBeUndefined()
+    expect(t.active).toBeUndefined()
+    expect(t.update(1510, 11)).toBeUndefined()
+    // jump back before the start, then ride it for real
+    t.update(500, 20)
+    const [result] = ride(t, 500, 2500)
+    expect(result?.segment.id).toBe('a')
+  })
+
   it('times a segment from the start line to the finish line', () => {
     const t = new SegmentTracker([climb])
     const [result] = ride(t, 0, 2500)

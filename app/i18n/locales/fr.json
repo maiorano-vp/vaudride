@@ -40,6 +40,17 @@
     "paused": "En pause",
     "loading": "Chargement du parcours…"
   },
+  "pause": {
+    "continue": "Continuer",
+    "devices": "Connecter mon matériel",
+    "kit": "Mon équipement",
+    "account": "Mon compte",
+    "quit": "Quitter",
+    "connect": "Connecter",
+    "quitHelp": "Que voulez-vous faire de cette sortie ?",
+    "finishSave": "Terminer et enregistrer",
+    "quitWithout": "Quitter sans enregistrer"
+  },
   "scene": {
     "show3d": "Vue 3D",
     "show2d": "Vue 2D",
@@ -176,6 +187,7 @@
     "history": "Voir mes sorties",
     "error": "La sortie n’a pas pu être enregistrée.",
     "tooShort": "Roulez au moins quelques secondes pour pouvoir enregistrer.",
+    "teleported": "Sortie téléportée (mode simulation) : elle ne peut pas être enregistrée.",
     "resume": "Continuer",
     "end": "Terminer",
     "courses": "Parcours",

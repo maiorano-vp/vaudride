@@ -10,6 +10,7 @@ const { data: course, status } = useCourseProfile(slug)
 const { trainer, powerMeter, strap } = useDevices()
 const { kit } = useKit()
 const summaryOpen = ref(false)
+const menuOpen = ref(false)
 
 // 3D source: remembered per browser; Google is only offered when a key is configured
 const { googleMapsKey, cesiumIonToken } = useRuntimeConfig().public
@@ -28,7 +29,7 @@ const powerW = computed(() => trainer.data.value.powerW ?? powerMeter.data.value
 const cadenceRpm = computed(() => trainer.data.value.cadenceRpm ?? powerMeter.data.value.cadenceRpm)
 const heartRate = computed(() => strap.bpm.value ?? trainer.data.value.heartRate)
 
-const { state, paused, reset } = useRide(computed(() => course.value ?? undefined), powerW, trainer.setGrade)
+const { state, paused, reset, seek } = useRide(computed(() => course.value ?? undefined), powerW, trainer.setGrade)
 
 // 3D needs WebGL; fall back to the 2D layout when unavailable or on request
 const view = ref<'3d' | '2d'>('2d')
@@ -72,6 +73,7 @@ function restart() {
   reset()
   recording.reset()
   summaryOpen.value = false
+  menuOpen.value = false
 }
 
 const { others } = useLiveRiders(
@@ -81,17 +83,28 @@ const { others } = useLiveRiders(
 )
 const gap = (m: number) => `${m >= 0 ? '+' : '−'}${Math.round(Math.abs(m))} m`
 
-// Space toggles the pause
+// sim mode: clicking the profile puts the rider there, and the ride stops counting as a real one
+function onSeek(distanceM: number) {
+  seek(distanceM)
+  recording.teleported.value = true
+}
+
+// the ride stands still while the pause menu or the summary is open
+watch([menuOpen, summaryOpen], ([menu, summary]) => (paused.value = menu || summary))
+
+// Space opens the pause menu, and closes it again (unless a control has the focus: Space presses it)
 function onKey(e: KeyboardEvent) {
-  if (e.code === 'Space' && !(e.target instanceof HTMLButtonElement)) {
-    e.preventDefault()
-    paused.value = !paused.value
-  }
+  if (e.code !== 'Space' || summaryOpen.value || state.value.finished) return
+  if (e.target instanceof HTMLElement && e.target.closest('button, a, input, select, textarea, [role=combobox], [role=option]')) return
+  e.preventDefault()
+  menuOpen.value = !menuOpen.value
 }
 onMounted(() => window.addEventListener('keydown', onKey))
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 const unsupported = computed(() => [trainer, powerMeter, strap].some((d) => d.connection.value === 'unsupported'))
+// ?sim=1 (hardware-free mode): the profile can be clicked to move the rider, without connecting anything
+const simMode = computed(() => route.query.sim === '1')
 // ?sim=1 shows a power slider that drives the fake trainer
 const sim = computed(() => trainer.simDevice.value)
 const simPower = computed({
@@ -172,12 +185,22 @@ const simPower = computed({
       :elevation-gain-m="state.elevationGainM"
       :elapsed-s="state.elapsedS"
     />
-    <ElevationProfile class="hud-bottom" :course="course" :distance-m="state.distanceM" :others="others" :segments="segments" :pois="pois" />
+    <ElevationProfile
+      class="hud-bottom"
+      :course="course"
+      :distance-m="state.distanceM"
+      :others="others"
+      :segments="segments"
+      :pois="pois"
+      :seekable="simMode"
+      @seek="onSeek"
+    />
     <RideSummary
       v-model:open="summaryOpen"
       :summary="recording.summary.value"
       :elevation-gain-m="state.elevationGainM"
       :recordable="recording.recordable.value"
+      :teleported="recording.teleported.value"
       :save-state="recording.saveState.value"
       :efforts="recording.efforts.value"
       :course-name="courseName"
@@ -201,12 +224,12 @@ const simPower = computed({
     </ul>
     <UButton
       class="pause"
-      :icon="paused ? 'i-lucide-play' : 'i-lucide-pause'"
-      :label="$t(paused ? 'ride.resume' : 'ride.pause')"
+      :icon="menuOpen ? 'i-lucide-play' : 'i-lucide-pause'"
+      :label="$t(menuOpen ? 'ride.resume' : 'ride.pause')"
       :disabled="state.finished"
-      @click="paused = !paused"
+      @click="menuOpen = !menuOpen"
     />
-    <p v-if="paused" class="finished" role="status">{{ $t('ride.paused') }}</p>
+    <PauseMenu v-model:open="menuOpen" @finish="summaryOpen = true" />
     <p v-if="state.finished" class="finished" role="status">{{ $t('ride.finished') }}</p>
     <small v-if="view === '2d'">{{ course.attribution }}</small>
   </div>
