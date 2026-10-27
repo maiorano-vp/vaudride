@@ -71,7 +71,7 @@ const dayName = (iso: string) => new Intl.DateTimeFormat(locale.value, { weekday
 <template>
   <section id="real" class="space-y-4" :aria-labelledby="'real-title'">
     <div>
-      <h2 id="real-title" class="font-display text-2xl uppercase tracking-wide text-vaud-800">{{ $t('real.title') }}</h2>
+      <h2 id="real-title" class="section-title">{{ $t('real.title') }}</h2>
       <p class="max-w-prose text-slate-600">{{ $t('real.intro') }}</p>
     </div>
 

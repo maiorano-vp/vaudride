@@ -21,17 +21,7 @@ const choose = (value: string) => navigateTo({ query: { ...route.query, type: va
 
 <template>
   <div class="mx-auto max-w-6xl p-4">
-    <header class="mb-6 flex items-center justify-between">
-      <h1 class="flex items-center gap-3" :aria-label="$t('app.title')">
-        <img src="/vaud-logo.svg" alt="Vaud" class="h-9" >
-        <!-- the logo already spells "Vaud" -->
-        <span class="font-display text-3xl uppercase tracking-wide text-vaud-800">Ride</span>
-      </h1>
-      <div class="flex items-center gap-3">
-        <LocaleSwitcher />
-        <UserMenu />
-      </div>
-    </header>
+    <AppHeader />
     <UButton class="mb-8" :label="$t('intro.title')" :to="{ path: '/intro', query: route.query }" />
 
     <h2 class="mb-4 font-display text-5xl uppercase leading-none text-vaud-800">

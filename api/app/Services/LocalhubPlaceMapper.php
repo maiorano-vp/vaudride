@@ -196,6 +196,37 @@ final readonly class LocalhubPlaceMapper
      */
     public function image(array $hit, ?int $width = null): array
     {
+        $cover = $this->orderedImages($hit)[0] ?? null;
+
+        if ($cover === null) {
+            return ['image_url' => null, 'image_credit' => null];
+        }
+
+        $copy = $this->scaledCopy($cover, $width ?? self::IMAGE_WIDTH);
+
+        return ['image_url' => $copy['url'], 'image_credit' => $copy['credit']];
+    }
+
+    /**
+     * All the pictures of a place or tour, the cover first then the others in their order, as scaled copies with their
+     * copyright line: what a gallery shows.
+     *
+     * @param  array<string, mixed>  $hit
+     * @return list<array{url: string, credit: string|null}>
+     */
+    public function images(array $hit, int $width, int $limit = 12): array
+    {
+        return array_map(fn (array $image): array => $this->scaledCopy($image, $width), array_slice($this->orderedImages($hit), 0, $limit));
+    }
+
+    /**
+     * The valid pictures (documents such as PDFs are no picture), the cover first, the others by their order.
+     *
+     * @param  array<string, mixed>  $hit
+     * @return list<array<string, mixed>>
+     */
+    private function orderedImages(array $hit): array
+    {
         $images = array_values(array_filter(
             $hit['images'] ?? [],
             fn (mixed $image): bool => is_array($image)
@@ -205,15 +236,20 @@ final readonly class LocalhubPlaceMapper
         usort($images, fn (array $a, array $b): int => ((int) ($a['sort'] ?? 0)) <=> ((int) ($b['sort'] ?? 0)));
         $cover = collect($images)->first(fn (array $image): bool => (bool) ($image['is_cover'] ?? false)) ?? ($images[0] ?? null);
 
-        if ($cover === null) {
-            return ['image_url' => null, 'image_credit' => null];
-        }
+        return $cover === null ? [] : [$cover, ...array_values(array_filter($images, fn (array $image): bool => $image['id'] !== $cover['id']))];
+    }
 
-        $credit = mb_trim((string) ($cover['copyright'] ?? ''));
+    /**
+     * @param  array<string, mixed>  $image
+     * @return array{url: string, credit: string|null}
+     */
+    private function scaledCopy(array $image, int $width): array
+    {
+        $credit = mb_trim((string) ($image['copyright'] ?? ''));
 
         return [
-            'image_url' => mb_rtrim((string) config('services.localhub.url'), '/').'/api/image/'.$cover['id'].'/scale/'.($width ?? self::IMAGE_WIDTH),
-            'image_credit' => $credit === '' ? null : $credit,
+            'url' => mb_rtrim((string) config('services.localhub.url'), '/').'/api/image/'.$image['id'].'/scale/'.$width,
+            'credit' => $credit === '' ? null : $credit,
         ];
     }
 

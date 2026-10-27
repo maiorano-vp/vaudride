@@ -427,6 +427,25 @@
     }
   },
   "course": {
+    "breadcrumb": "Fil d'Ariane",
+    "home": "Accueil",
+    "itineraries": "Itinéraires",
+    "pillsLabel": "Découvrir",
+    "sections": "Sections de la page",
+    "photos": "Photos",
+    "mapTitle": "Profil et carte",
+    "info": {
+      "title": "Informations pratiques",
+      "kind": "Type",
+      "destination": "Destination",
+      "distance": "Distance",
+      "climb": "Dénivelé positif",
+      "maxGrade": "Pente maximale",
+      "altitude": "Altitude",
+      "climbs": "Montées chronométrées",
+      "bestMonths": "Meilleure période",
+      "places": "Lieux à découvrir"
+    },
     "sheet": "Fiche du parcours",
     "kind": {
       "velo": "Vélo",

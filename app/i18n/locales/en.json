@@ -427,6 +427,25 @@
     }
   },
   "course": {
+    "breadcrumb": "Breadcrumb",
+    "home": "Home",
+    "itineraries": "Routes",
+    "pillsLabel": "Discover",
+    "sections": "Sections of the page",
+    "photos": "Photos",
+    "mapTitle": "Profile and map",
+    "info": {
+      "title": "Practical information",
+      "kind": "Type",
+      "destination": "Destination",
+      "distance": "Distance",
+      "climb": "Elevation gain",
+      "maxGrade": "Maximum grade",
+      "altitude": "Altitude",
+      "climbs": "Timed climbs",
+      "bestMonths": "Best time",
+      "places": "Places to discover"
+    },
     "sheet": "Course details",
     "kind": {
       "velo": "Bike",
