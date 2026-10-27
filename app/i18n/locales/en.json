@@ -63,7 +63,8 @@
     "ghost": "Ghost"
   },
   "demo": {
-    "speed": "Speed"
+    "speed": "Speed",
+    "muted": "Sound off above {kmh} km/h"
   },
   "ghost": {
     "intro": "Ride against a ghost: it rides next to you at the pace of the recorded ride.",

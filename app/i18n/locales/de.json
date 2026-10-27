@@ -63,7 +63,8 @@
     "ghost": "Geist"
   },
   "demo": {
-    "speed": "Tempo"
+    "speed": "Tempo",
+    "muted": "Ton aus ab {kmh} km/h"
   },
   "ghost": {
     "intro": "Fahren Sie gegen einen Geist: Er fährt neben Ihnen, im Tempo der aufgezeichneten Fahrt.",

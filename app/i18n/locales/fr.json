@@ -63,7 +63,8 @@
     "ghost": "Fantôme"
   },
   "demo": {
-    "speed": "Vitesse"
+    "speed": "Vitesse",
+    "muted": "Son coupé au-delà de {kmh} km/h"
   },
   "ghost": {
     "intro": "Roulez contre un fantôme : il avance à côté de vous, à la vitesse de la sortie enregistrée.",
