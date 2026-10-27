@@ -39,6 +39,26 @@ final readonly class ActivityReportCsv
         return $this->csv([$unit, 'Sorties', 'Joueurs actifs', 'Nouveaux joueurs'], $rows);
     }
 
+    /**
+     * @param  array<string, mixed>  $report
+     */
+    public function realWorld(array $report): string
+    {
+        $rows = array_map(fn (array $row): array => [
+            $row['name'],
+            $row['slug'],
+            $row['rides'],
+            $row['gpx'],
+            $row['transit'],
+            $row['map'],
+            $row['places'],
+            $row['declared'],
+            $row['steps'],
+        ], $report['real_world']['rows']);
+
+        return $this->csv(['Parcours', 'Identifiant', 'Sorties virtuelles', 'GPX', 'Transports publics', 'Départ sur la carte', 'Liens vers des lieux', 'Déclarations', 'Total des pas vers le réel'], $rows);
+    }
+
     /** Decimal comma, as the Swiss spreadsheet expects. */
     private function number(float|int $value): string
     {

@@ -17,6 +17,7 @@ const slug = String(route.params.slug)
 const { locale } = useI18n()
 const { data: profile, status } = useCourseProfile(slug)
 const favorites = useFavorites()
+const { track } = useCourseAction(slug)
 onMounted(favorites.load)
 const onlyFavorites = ref(false)
 const { data: info } = await useFetch<{ data: CourseInfo }>(`/api/courses/${slug}`)
@@ -168,7 +169,7 @@ const km = (m: number) => (m / 1000).toFixed(1)
           </p>
           <p v-if="p.address" class="m-0 text-sm text-slate-500">{{ p.address }}</p>
           <p v-if="poiDescription(p, locale)" class="m-0 text-sm">{{ poiDescription(p, locale) }}</p>
-          <a v-if="p.url" :href="p.url" target="_blank" rel="noopener noreferrer" class="text-sm underline">{{ $t('poi.more') }}</a>
+          <a v-if="p.url" :href="p.url" target="_blank" rel="noopener noreferrer" class="text-sm underline" @click="track(section.key === 'lodging' ? 'lodging_link' : 'place_link')">{{ $t('poi.more') }}</a>
           </div>
         </li>
       </ul>

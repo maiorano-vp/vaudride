@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 use App\Actions\ActivityReportCsv;
 use App\Actions\BuildActivityReport;
+use App\Enums\CourseActionType;
 use App\Filament\Pages\Reports;
 use App\Filament\Reports\Widgets\CoursesReportTable;
+use App\Filament\Reports\Widgets\RealWorldTable;
 use App\Filament\Reports\Widgets\ReportStats;
 use App\Models\Course;
+use App\Models\CourseAction;
 use App\Models\Ride;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -156,4 +159,43 @@ it('downloads the CSV from the page with the period in the file name', function 
     $name = sprintf('vaud-ride-parcours-%s_%s.csv', $report['from']->format('Y-m-d'), $report['to']->format('Y-m-d'));
 
     Livewire::test(Reports::class)->callAction('exportCourses')->assertFileDownloaded($name);
+});
+
+it('lines the steps towards riding for real up with the virtual rides of each course', function (): void {
+    $lavaux = Course::factory()->create(['slug' => 'lavaux', 'name' => ['fr' => 'Lavaux']]);
+    $quiet = Course::factory()->create(['slug' => 'quiet', 'name' => ['fr' => 'Calme']]);
+    Course::factory()->create(['slug' => 'nothing']);
+    Ride::factory()->count(2)->for($lavaux)->create(['started_at' => now()->subDay()]);
+    Ride::factory()->for($quiet)->create(['started_at' => now()->subDay()]);
+    foreach ([
+        [CourseActionType::GpxDownload, 3], [CourseActionType::GpxShare, 2], [CourseActionType::TransitStart, 4], [CourseActionType::TransitEnd, 1],
+        [CourseActionType::MapStart, 1], [CourseActionType::PlaceLink, 2], [CourseActionType::LodgingLink, 1], [CourseActionType::DeclaredReal, 5],
+    ] as [$action, $count]) {
+        CourseAction::factory()->for($lavaux)->create(['action' => $action, 'count' => $count, 'day' => now()->subDay()->toDateString()]);
+    }
+    CourseAction::factory()->for($lavaux)->create(['action' => CourseActionType::GpxDownload, 'count' => 99, 'day' => now()->subDays(200)->toDateString()]); // out of the period
+
+    $real = app(BuildActivityReport::class)->forFilters(null)['real_world'];
+
+    expect(array_column($real['rows'], 'slug'))->toBe(['lavaux', 'quiet']) // ranked by steps, courses with nothing left out
+        ->and($real['rows'][0])->toMatchArray(['rides' => 2, 'gpx' => 5, 'transit' => 5, 'map' => 1, 'places' => 3, 'declared' => 5, 'steps' => 19])
+        ->and($real['rows'][1])->toMatchArray(['rides' => 1, 'gpx' => 0, 'steps' => 0])
+        ->and($real['totals'])->toMatchArray(['rides' => 3, 'gpx' => 5, 'steps' => 19]);
+});
+
+it('shows the passage to the real world on the page and exports it', function (): void {
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+    $lavaux = Course::factory()->create(['slug' => 'lavaux', 'name' => ['fr' => 'Lavaux']]);
+    CourseAction::factory()->for($lavaux)->create(['action' => CourseActionType::GpxDownload, 'count' => 7, 'day' => now()->toDateString()]);
+    $report = app(BuildActivityReport::class)->forFilters(null);
+
+    Livewire::test(RealWorldTable::class, ['pageFilters' => ['preset' => '90d']])->assertSee('Lavaux')->assertSee('Du virtuel au réel');
+
+    $csv = app(ActivityReportCsv::class)->realWorld($report);
+    $lines = array_map(fn (string $line): array => str_getcsv($line, ';', '"', ''), explode("\n", mb_trim(mb_substr($csv, mb_strlen("\u{FEFF}")))));
+    expect($lines[0][0])->toBe('Parcours')
+        ->and($lines[1])->toBe(['Lavaux', 'lavaux', '0', '7', '0', '0', '0', '0', '7']);
+
+    $name = sprintf('vaud-ride-reel-%s_%s.csv', $report['from']->format('Y-m-d'), $report['to']->format('Y-m-d'));
+    Livewire::test(Reports::class)->callAction('exportRealWorld')->assertFileDownloaded($name);
 });

@@ -150,7 +150,7 @@
     },
     "origin": {
       "title": "Was nicht gespeichert wird",
-      "text": "Die App speichert weder Ihr Land noch Ihren Wohnort. Die Nutzungsstatistiken für die Verantwortlichen des Dienstes sind anonyme Summen."
+      "text": "Die App speichert weder Ihr Land noch Ihren Wohnort. Die Nutzungsstatistiken für die Verantwortlichen des Dienstes sind anonyme Summen: zum Beispiel, wie oft das GPX einer Strecke geladen oder ein ÖV-Link geöffnet wurde, gezählt ohne Kennung und ohne Adresse."
     },
     "hosting": {
       "title": "Wo die Daten liegen",

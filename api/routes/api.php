@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\LoginController;
 use App\Http\Controllers\Api\V1\LogoutController;
 use App\Http\Controllers\Api\V1\MeController;
+use App\Http\Controllers\Api\V1\RecordCourseActionController;
 use App\Http\Controllers\Api\V1\RegisterController;
 use App\Http\Controllers\Api\V1\ResetPasswordController;
 use App\Http\Controllers\Api\V1\RideController;
@@ -34,6 +35,7 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
     Route::get('courses', [CourseController::class, 'index'])->name('courses.index');
     Route::get('courses/{slug}', [CourseController::class, 'show'])->name('courses.show');
     Route::get('courses/{slug}/profile', CourseProfileController::class)->name('courses.profile');
+    Route::post('courses/{slug}/actions', RecordCourseActionController::class)->middleware('throttle:60,1')->name('courses.actions');
 
     Route::middleware('throttle:10,1')->group(function (): void {
         Route::post('auth/register', RegisterController::class)->name('auth.register');

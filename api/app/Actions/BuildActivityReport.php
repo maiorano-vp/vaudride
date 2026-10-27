@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Enums\CourseActionType;
 use App\Models\Course;
+use App\Models\CourseAction;
 use App\Models\Ride;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -74,6 +76,7 @@ final class BuildActivityReport
      *     totals: array{rides: int, active_players: int, new_players: int, returning_players: int, km: float, elevation_gain_m: int, duration_s: int, avg_duration_s: int, finished_share: float|null},
      *     courses: list<array{slug: string, name: string, rides: int, players: int, km: float, elevation_gain_m: int, finished_share: float|null}>,
      *     timeline: array{unit: string, rows: list<array{label: string, rides: int, players: int, new_players: int}>},
+     *     real_world: array{rows: list<array{slug: string, name: string, rides: int, gpx: int, transit: int, map: int, places: int, declared: int, steps: int}>, totals: array{rides: int, gpx: int, transit: int, map: int, places: int, declared: int, steps: int}},
      *     weekdays: list<array{label: string, rides: int}>,
      *     months: list<array{label: string, rides: int}>
      * }
@@ -143,10 +146,65 @@ final class BuildActivityReport
                 'finished_share' => $share($rides),
             ],
             'courses' => $courseRows,
+            'real_world' => $this->realWorld($courses, $courseRows, $from, $to),
             'timeline' => $this->timeline($from, $to, $rides, $newPlayers),
             'weekdays' => $this->weekdays($rides),
             'months' => $this->months($rides),
         ];
+    }
+
+    /**
+     * The anonymous steps towards riding for real, per course: GPX taken or shared, transit links opened, the start on
+     * the map, links to places and lodging, and declarations — next to the virtual rides of the course for comparison.
+     *
+     * @param  \Illuminate\Support\Collection<string, Course>  $courses
+     * @param  list<array{slug: string, name: string, rides: int, players: int, km: float, elevation_gain_m: int, finished_share: float|null}>  $courseRows
+     * @return array{rows: list<array{slug: string, name: string, rides: int, gpx: int, transit: int, map: int, places: int, declared: int, steps: int}>, totals: array{rides: int, gpx: int, transit: int, map: int, places: int, declared: int, steps: int}}
+     */
+    private function realWorld($courses, array $courseRows, CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        $counts = CourseAction::query()
+            ->whereBetween('day', [$from->toDateString(), $to->toDateString()])
+            ->get(['course_id', 'action', 'count'])
+            ->groupBy('course_id');
+        $ridesBySlug = array_column($courseRows, 'rides', 'slug');
+
+        $sum = function ($rows, CourseActionType ...$types): int {
+            return (int) $rows->filter(fn (CourseAction $row): bool => in_array($row->action, $types, true))->sum('count');
+        };
+
+        $rows = [];
+
+        foreach ($courses as $course) {
+            $own = $counts->get($course->id, collect());
+            $row = [
+                'slug' => $course->slug,
+                'name' => $course->name['fr'] ?? $course->slug,
+                'rides' => $ridesBySlug[$course->slug] ?? 0,
+                'gpx' => $sum($own, CourseActionType::GpxDownload, CourseActionType::GpxShare),
+                'transit' => $sum($own, CourseActionType::TransitStart, CourseActionType::TransitEnd),
+                'map' => $sum($own, CourseActionType::MapStart),
+                'places' => $sum($own, CourseActionType::PlaceLink, CourseActionType::LodgingLink),
+                'declared' => $sum($own, CourseActionType::DeclaredReal),
+            ];
+            $row['steps'] = $row['gpx'] + $row['transit'] + $row['map'] + $row['places'] + $row['declared'];
+
+            if ($row['steps'] > 0 || $row['rides'] > 0) {
+                $rows[] = $row;
+            }
+        }
+
+        usort($rows, fn (array $a, array $b): int => [$b['steps'], $b['rides']] <=> [$a['steps'], $a['rides']]);
+
+        $totals = array_fill_keys(['rides', 'gpx', 'transit', 'map', 'places', 'declared', 'steps'], 0);
+
+        foreach ($rows as $row) {
+            foreach ($totals as $key => $_) {
+                $totals[$key] += $row[$key];
+            }
+        }
+
+        return ['rows' => $rows, 'totals' => $totals];
     }
 
     /**

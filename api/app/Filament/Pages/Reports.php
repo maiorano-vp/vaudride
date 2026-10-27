@@ -8,6 +8,7 @@ use App\Actions\ActivityReportCsv;
 use App\Actions\BuildActivityReport;
 use App\Filament\Reports\Widgets\ActivityOverTimeChart;
 use App\Filament\Reports\Widgets\CoursesReportTable;
+use App\Filament\Reports\Widgets\RealWorldTable;
 use App\Filament\Reports\Widgets\ReportStats;
 use App\Filament\Reports\Widgets\SeasonalityChart;
 use App\Filament\Reports\Widgets\WeekdaysChart;
@@ -48,7 +49,7 @@ final class Reports extends Dashboard
 
     public function getWidgets(): array
     {
-        return [ReportStats::class, ActivityOverTimeChart::class, CoursesReportTable::class, WeekdaysChart::class, SeasonalityChart::class];
+        return [ReportStats::class, ActivityOverTimeChart::class, CoursesReportTable::class, RealWorldTable::class, WeekdaysChart::class, SeasonalityChart::class];
     }
 
     public function filtersForm(Schema $schema): Schema
@@ -73,6 +74,8 @@ final class Reports extends Dashboard
         return [
             Action::make('exportCourses')->label('Exporter les parcours (CSV)')->icon(Heroicon::OutlinedArrowDownTray)->color('gray')
                 ->action(fn (): StreamedResponse => $this->download('parcours', fn (ActivityReportCsv $csv, array $report): string => $csv->courses($report))),
+            Action::make('exportRealWorld')->label('Exporter le passage au réel (CSV)')->icon(Heroicon::OutlinedArrowDownTray)->color('gray')
+                ->action(fn (): StreamedResponse => $this->download('reel', fn (ActivityReportCsv $csv, array $report): string => $csv->realWorld($report))),
             Action::make('exportTimeline')->label('Exporter l’évolution (CSV)')->icon(Heroicon::OutlinedArrowDownTray)->color('gray')
                 ->action(fn (): StreamedResponse => $this->download('evolution', fn (ActivityReportCsv $csv, array $report): string => $csv->timeline($report))),
         ];
