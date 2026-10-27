@@ -218,7 +218,20 @@
     "progress": "{count} of {total} courses",
     "done": "Already ridden",
     "todo": "To discover",
-    "open": "See my passport"
+    "open": "See my passport",
+    "counterLabel": "courses ridden for real",
+    "start": "To get started",
+    "startHelp": "Nothing in your passport yet. Here are the three shortest and easiest courses to start with: each has its page with the route, the start and the way back by public transport.",
+    "howTo": "See how to ride it",
+    "stamp": "Ridden",
+    "stampLabel": "Ridden for real on {date}",
+    "nothing": "No course matches this filter.",
+    "filter": {
+      "label": "Filter the passport",
+      "all": "All",
+      "done": "Ridden",
+      "todo": "To discover"
+    }
   },
   "workout": {
     "intro": "The trainer holds the workout's power whatever the grade. Without a workout, it follows the course's terrain.",

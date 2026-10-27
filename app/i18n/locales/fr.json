@@ -218,7 +218,20 @@
     "progress": "{count} parcours sur {total}",
     "done": "Déjà roulés",
     "todo": "À découvrir",
-    "open": "Voir mon passeport"
+    "open": "Voir mon passeport",
+    "counterLabel": "parcours roulés pour de vrai",
+    "start": "Pour commencer",
+    "startHelp": "Rien dans votre passeport pour l'instant. Voici les trois parcours les plus courts et les plus faciles pour prendre la route : chacun a sa fiche avec le tracé, le départ et le retour en transports publics.",
+    "howTo": "Voir comment le rouler",
+    "stamp": "Roulé",
+    "stampLabel": "Roulé pour de vrai le {date}",
+    "nothing": "Aucun parcours ne correspond à ce filtre.",
+    "filter": {
+      "label": "Filtrer le passeport",
+      "all": "Tous",
+      "done": "Roulés",
+      "todo": "À découvrir"
+    }
   },
   "workout": {
     "intro": "Le home trainer tient la puissance de la séance, quelle que soit la pente. Sans séance, il suit le relief du parcours.",
