@@ -17,9 +17,19 @@ export function useSpeech() {
     if (supported.value) window.speechSynthesis.cancel()
   }
 
-  function speak(text: string, force = false) {
+  // browsers load their voices late: the list is empty until `voiceschanged`
+  const voicesReady = () =>
+    new Promise<void>((resolve) => {
+      const synth = window.speechSynthesis
+      if (synth.getVoices().length) return resolve()
+      synth.addEventListener('voiceschanged', () => resolve(), { once: true })
+      setTimeout(resolve, 1000)
+    })
+
+  async function speak(text: string, force = false) {
     if (!supported.value || !text || (!enabled.value && !force)) return
     stop()
+    await voicesReady()
     const u = new SpeechSynthesisUtterance(text)
     const voice = pickVoice(window.speechSynthesis.getVoices(), locale.value)
     if (voice) u.voice = voice
