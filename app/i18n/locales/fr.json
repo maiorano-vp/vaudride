@@ -50,7 +50,30 @@
     "quitHelp": "Que voulez-vous faire de cette sortie ?",
     "finishSave": "Terminer et enregistrer",
     "quitWithout": "Quitter sans enregistrer",
-    "sound": "Son"
+    "sound": "Son",
+    "workout": "Séance"
+  },
+  "workout": {
+    "intro": "Le home trainer tient la puissance de la séance, quelle que soit la pente. Sans séance, il suit le relief du parcours.",
+    "ftp": "Mon FTP (W)",
+    "choose": "Séance",
+    "start": "Démarrer la séance",
+    "stop": "Arrêter la séance",
+    "custom": "Ma séance",
+    "edit": "Modifier ma séance",
+    "steps": "Étapes",
+    "minutes": "Durée (min)",
+    "percent": "% du FTP",
+    "addStep": "Ajouter une étape",
+    "removeStep": "Retirer l'étape",
+    "save": "Enregistrer et démarrer",
+    "total": "Durée totale : {min} min",
+    "step": "Étape {n}/{total}",
+    "target": "Cible {watts} W",
+    "next": "Ensuite {watts} W · {min}",
+    "done": "Séance terminée, le home trainer suit à nouveau le relief.",
+    "unsupported": "Ce home trainer ne gère pas le mode ERG : retour à la simulation de pente.",
+    "needsTrainer": "Connectez un home trainer FTMS pour le mode ERG."
   },
   "scene": {
     "show3d": "Vue 3D",

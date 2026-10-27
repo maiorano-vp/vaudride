@@ -48,7 +48,10 @@ export class SimDevice implements BleDevice {
     return {
       write: async (data) => {
         this.commands.push([...data])
-        if (characteristic === CONTROL_POINT) this.emit(key, this.response(data[0]!))
+        if (characteristic !== CONTROL_POINT) return
+        // ERG: the simulated trainer holds the target power, like a real one
+        if (data[0] === 0x05 && data[0] !== this.failOpcode) this.power = new DataView(Uint8Array.from(data).buffer).getInt16(1, true)
+        this.emit(key, this.response(data[0]!))
       },
       subscribe: async (onValue) => {
         const set = this.listeners.get(key) ?? new Set()
