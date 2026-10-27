@@ -97,6 +97,35 @@ You should see 100% test coverage and all quality checks passing.
 ### Maintenance
 - `composer update:requirements` - Updates all PHP and Bun dependencies to latest versions
 
+## Production Database (MariaDB)
+
+After provisioning MariaDB and updating `.env`, run from `api/` on the server:
+
+1. Check the `.env` values (use the native `mariadb` driver, and remove any leftover sqlite `DB_*` lines):
+   ```
+   DB_CONNECTION=mariadb
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=...
+   DB_USERNAME=...
+   DB_PASSWORD=...
+   ```
+2. Rebuild the config cache (a stale cache keeps the old database):
+   ```
+   php artisan config:clear
+   php artisan config:cache
+   ```
+3. Test the connection: `php artisan db:show`
+4. Run the migrations: `php artisan migrate --force`. This also creates the `sessions`, `cache` and `jobs` tables, since those drivers default to `database`.
+5. Create the first admin: `php artisan db:seed --force` if seeders exist, otherwise `php artisan make:filament-user`.
+6. Restart the workers: `php artisan queue:restart`, then PHP-FPM / OPcache.
+7. Smoke test the API and the Filament login, then check `storage/logs/laravel.log`.
+
+Notes:
+- The database user should only have privileges on its own database (not root); use charset `utf8mb4`.
+- The MariaDB server must be hosted in Switzerland (nLPD).
+- If production previously ran on SQLite with data to keep, export and import it before switching.
+
 ## License
 
 **Laravel Starter Kit** was created by **[Nuno Maduro](https://x.com/enunomaduro)** under the **[MIT license](https://opensource.org/licenses/MIT)**.

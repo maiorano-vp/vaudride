@@ -20,9 +20,7 @@ set('sub_directory', 'api');
 // [Optional] Allocate tty for git clone. Default value is false.
 set('git_tty', false);
 
-// Production uses SQLite: the file lives in {{deploy_path}}/shared and is symlinked into every release, so it
-// survives deploys (deploy:shared creates it empty on the first run; migrate then builds the schema).
-add('shared_files', ['database/database.sqlite']);
+// Production uses MariaDB: the connection settings live in {{deploy_path}}/shared/.env (shared by the Laravel recipe).
 
 // Number of releases kept on the server before older ones are pruned.
 set('keep_releases', 5);
@@ -84,14 +82,15 @@ task('deploy:public-symlink', function () {
 
 after('deploy:symlink', 'deploy:public-symlink');
 
-desc('Copies the SQLite database to shared/backups before migrating (keeps the last 10)');
+desc('Dumps the MariaDB database to shared/backups before migrating (keeps the last 10)');
 task('db:backup', function () {
-    $db = '{{deploy_path}}/shared/database/database.sqlite';
+    $env = '{{deploy_path}}/shared/.env';
     $dir = '{{deploy_path}}/shared/backups';
+    $val = fn (string $key) => "$(grep -m1 '^{$key}=' {$env} | cut -d= -f2- | tr -d '\"')";
 
-    // an empty file is the first deploy: nothing worth saving yet
-    run("[ -s {$db} ] && mkdir -p {$dir} && cp {$db} {$dir}/database-$(date +%Y%m%d-%H%M%S).sqlite || true");
-    run("ls -1t {$dir}/database-*.sqlite 2>/dev/null | tail -n +11 | xargs -r rm -f || true");
+    // best effort: a failed dump (first deploy, no tables yet) must not block the release
+    run("mkdir -p {$dir} && MYSQL_PWD=".$val('DB_PASSWORD').' mysqldump -h '.$val('DB_HOST').' -P '.$val('DB_PORT').' -u '.$val('DB_USERNAME').' --single-transaction '.$val('DB_DATABASE')." | gzip > {$dir}/database-$(date +%Y%m%d-%H%M%S).sql.gz || true");
+    run("ls -1t {$dir}/database-*.sql.gz 2>/dev/null | tail -n +11 | xargs -r rm -f || true");
 });
 
 desc('Inserts the launch courses that are missing (idempotent: never overwrites admin edits)');
