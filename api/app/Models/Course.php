@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read string $slug
  * @property-read array{fr: string, de?: string, en?: string} $name
  * @property-read array{fr?: string, de?: string, en?: string}|null $description
+ * @property-read list<int>|null $best_months
  * @property-read int $version
  * @property-read int $distance_m
  * @property-read int $elevation_gain_m
@@ -41,6 +42,7 @@ final class Course extends Model
             'slug' => 'string',
             'name' => 'array',
             'description' => 'array',
+            'best_months' => 'array',
             'version' => 'integer',
             'distance_m' => 'integer',
             'elevation_gain_m' => 'integer',
@@ -57,6 +59,14 @@ final class Course extends Model
     public function pois(): HasMany
     {
         return $this->hasMany(Poi::class)->orderBy('distance_m');
+    }
+
+    /**
+     * @return HasMany<CourseForecast, $this>
+     */
+    public function forecasts(): HasMany
+    {
+        return $this->hasMany(CourseForecast::class)->orderBy('day');
     }
 
     /**

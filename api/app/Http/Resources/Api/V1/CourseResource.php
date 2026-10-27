@@ -23,6 +23,7 @@ final class CourseResource extends JsonResource
             'slug' => $this->slug,
             'name' => $this->name,
             'description' => $this->description,
+            'best_months' => $this->best_months,
             'version' => $this->version,
             'distance_m' => $this->distance_m,
             'elevation_gain_m' => $this->elevation_gain_m,
@@ -30,6 +31,7 @@ final class CourseResource extends JsonResource
             'profile_url' => sprintf('%s/%s/profile.json?v=%d', mb_rtrim(config()->string('services.courses.cdn_url'), '/'), $this->slug, $this->version),
             'pois' => PoiResource::collection($this->whenLoaded('pois')),
             'segments' => SegmentResource::collection($this->whenLoaded('segments')),
+            'forecast' => ForecastResource::collection($this->whenLoaded('forecasts')),
         ];
     }
 }
