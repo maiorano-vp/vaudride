@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { pointAt, type CourseProfile } from '~/lib/course/profile'
-import { bearingRad, distanceAfter, interpolateAt, lerpAngle } from '~/lib/scene/camera'
+import { bearingRad, destination, distanceAfter, interpolateAt, lerpAngle, openness } from '~/lib/scene/camera'
 import { createCyclist, type Cyclist } from '~/lib/scene/cyclist'
 import { DEFAULT_KIT, sanitizeKit, type Kit } from '~/lib/kit/kit'
 import { clamp, corridorQuads, distanceM as metersBetween, pushWindow, ringAround } from '~/lib/scene/mix'
@@ -65,6 +65,14 @@ const PHOTO_MAX_SCREEN_SPACE_ERROR = 8 // default 16: sharper tiles
 const FOV_DEG = 70
 const FOV_SPEED_GAIN = 1.2 // degrees of extra field of view per m/s: speed feels faster
 const FOV_MAX_EXTRA_DEG = 12
+// Open landscape (valley or slope falling away): the camera rises and widens so the view reaches the horizon
+const OPEN_PITCH_RAD = 0.08
+const OPEN_RANGE_GAIN = 0.6
+const OPEN_TARGET_LIFT_M = 10
+const OPEN_FOV_EXTRA_DEG = 10
+const OPEN_BEARINGS_RAD = [-60, -30, 0, 30, 60].map((d) => (d * Math.PI) / 180) // around the travel heading
+const OPEN_DISTANCES_M = [500, 1200, 2500]
+const OPEN_MEASURE_MS = 500
 const AVATAR_SCALE = 1.6
 const MAX_OTHER_MODELS = 8 // the nearest riders get a 3D model, the others stay on the profile
 const MAX_HEIGHT_OFFSET_M = 150 // sanity bound on the correction between the mesh and the terrain heights
@@ -216,6 +224,9 @@ async function start() {
   const photoreal = isPhotorealistic(props.source)
   const basePitch = photoreal ? PHOTO_CAMERA_PITCH_RAD : CAMERA_PITCH_RAD
   let pitch = basePitch
+  let open = 0 // smoothed openness of the landscape, 0..1
+  let openTarget = 0
+  let lastOpenMeasure = 0
 
   // The cyclist: a glTF model in the player's kit. The scene still works if it cannot be loaded.
   const cyclist = await createCyclist(Cesium, scene, sanitizeKit(props.kit), AVATAR_SCALE).catch(() => undefined)
@@ -308,16 +319,31 @@ async function start() {
     cyclist?.animate(dtS, props.speedMs, props.cadenceRpm ?? props.speedMs * 6)
     syncCrowd(dtS, (at) => interpolateAt(ds, hs, at) + heightOffset)
 
+    const frameMs = performance.now()
+    if (frameMs - lastOpenMeasure > OPEN_MEASURE_MS) {
+      lastOpenMeasure = frameMs
+      // terrain heights fanned out ahead and to the sides; tiles not loaded yet answer undefined and are left out
+      const samples = OPEN_BEARINGS_RAD.flatMap((offset) =>
+        OPEN_DISTANCES_M.flatMap((distM) => {
+          const p = destination(here.lat, here.lon, heading + offset, distM)
+          const heightM = scene.globe.getHeight(Cesium.Cartographic.fromDegrees(p.lon, p.lat))
+          return heightM === undefined ? [] : [{ distM, heightM }]
+        }),
+      )
+      openTarget = openness(rider.ground, samples)
+    }
+    open += (openTarget - open) * 0.03
+
     // steeper road → look a little further down so the camera keeps clear of the slope behind
-    pitch += (basePitch - 0.6 * Math.atan(here.grade / 100) - pitch) * 0.05
+    pitch += (basePitch + open * OPEN_PITCH_RAD - 0.6 * Math.atan(here.grade / 100) - pitch) * 0.05
     const lookAt = Cesium.Cartesian3.fromDegrees(
       pointAt(props.course, Math.min(d + TARGET_AHEAD_M, total)).lon,
       pointAt(props.course, Math.min(d + TARGET_AHEAD_M, total)).lat,
-      interpolateAt(ds, hs, Math.min(d + TARGET_AHEAD_M, total)) + heightOffset + (photoreal ? PHOTO_TARGET_LIFT_M : 1.5),
+      interpolateAt(ds, hs, Math.min(d + TARGET_AHEAD_M, total)) + heightOffset + (photoreal ? PHOTO_TARGET_LIFT_M : 1.5) + open * OPEN_TARGET_LIFT_M,
     )
-    fovDeg += (FOV_DEG + Math.min(props.speedMs * FOV_SPEED_GAIN, FOV_MAX_EXTRA_DEG) - fovDeg) * 0.05
+    fovDeg += (FOV_DEG + Math.min(props.speedMs * FOV_SPEED_GAIN, FOV_MAX_EXTRA_DEG) + open * OPEN_FOV_EXTRA_DEG - fovDeg) * 0.05
     frustum.fov = Cesium.Math.toRadians(fovDeg)
-    viewer.camera.lookAt(lookAt, new Cesium.HeadingPitchRange(heading, pitch, photoreal ? PHOTO_CAMERA_RANGE_M : CAMERA_RANGE_M))
+    viewer.camera.lookAt(lookAt, new Cesium.HeadingPitchRange(heading, pitch, (photoreal ? PHOTO_CAMERA_RANGE_M : CAMERA_RANGE_M) * (1 + open * OPEN_RANGE_GAIN)))
   })
 
   // Height measuring uses depth picks, which must not run in the middle of a render: do it right after each frame.

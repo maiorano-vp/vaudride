@@ -33,3 +33,25 @@ export function interpolateAt(xs: number[], ys: number[], x: number): number {
   }
   return ys[lo]! + ((ys[hi]! - ys[lo]!) * (x - xs[lo]!)) / (xs[hi]! - xs[lo]!)
 }
+
+const EARTH_RADIUS_M = 6_371_000
+
+/** The point `distM` away from (lat, lon) along a compass bearing (radians); fine for a few kilometres. */
+export function destination(lat: number, lon: number, bearing: number, distM: number): { lat: number; lon: number } {
+  const dLat = ((distM * Math.cos(bearing)) / EARTH_RADIUS_M) * (180 / Math.PI)
+  const dLon = ((distM * Math.sin(bearing)) / (EARTH_RADIUS_M * Math.cos((lat * Math.PI) / 180))) * (180 / Math.PI)
+  return { lat: lat + dLat, lon: lon + dLon }
+}
+
+/** Mean fall of the terrain around the rider that counts as a fully open view (rise over run). */
+const OPEN_SLOPE = 0.15
+
+/**
+ * How much the landscape opens up below the rider, 0 (flat, or walled in) to 1 (valley or slope falling away).
+ * `samples` are terrain heights around the rider, each at its ground distance; only terrain below the rider counts.
+ */
+export function openness(riderHeightM: number, samples: { distM: number; heightM: number }[]): number {
+  if (samples.length === 0) return 0
+  const fall = samples.reduce((sum, s) => sum + Math.max((riderHeightM - s.heightM) / s.distM, 0), 0) / samples.length
+  return Math.min(fall / OPEN_SLOPE, 1)
+}
