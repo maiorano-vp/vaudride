@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="vaudride" xmlns="http://www.topografix.com/GPX/1/1">
+ <metadata>
+  <name>Avenches-Vallon - A vélo entre les musées romains</name>
+  <desc>Imported route; altitudes are re-sampled by the pipeline.</desc>
+ </metadata>
+ <trk>
+  <name>Avenches-Vallon - A vélo entre les musées romains</name>
+  <trkseg>
+   <trkpt lat="46.880930" lon="7.043590"/>
+   <trkpt lat="46.880610" lon="7.043020"/>
+   <trkpt lat="46.880700" lon="7.042130"/>
+   <trkpt lat="46.880000" lon="7.040650"/>
+   <trkpt lat="46.880820" lon="7.039800"/>
+   <trkpt lat="46.881020" lon="7.039760"/>
+   <trkpt lat="46.881330" lon="7.039970"/>
+   <trkpt lat="46.882060" lon="7.041030"/>
+   <trkpt lat="46.882490" lon="7.041340"/>
+   <trkpt lat="46.882880" lon="7.041290"/>
+   <trkpt lat="46.883910" lon="7.040590"/>
+   <trkpt lat="46.884190" lon="7.040600"/>
+   <trkpt lat="46.883530" lon="7.039310"/>
+   <trkpt lat="46.881600" lon="7.036619"/>
+   <trkpt lat="46.881550" lon="7.036340"/>
+   <trkpt lat="46.879290" lon="7.032901"/>
+   <trkpt lat="46.879060" lon="7.032860"/>
+   <trkpt lat="46.879250" lon="7.032600"/>
+   <trkpt lat="46.879440" lon="7.032840"/>
+   <trkpt lat="46.878431" lon="7.031220"/>
+   <trkpt lat="46.877870" lon="7.029870"/>
+   <trkpt lat="46.876930" lon="7.025450"/>
+   <trkpt lat="46.877041" lon="7.025170"/>
+   <trkpt lat="46.878050" lon="7.024790"/>
+   <trkpt lat="46.878910" lon="7.023430"/>
+   <trkpt lat="46.880541" lon="7.021743"/>
+   <trkpt lat="46.878578" lon="7.013463"/>
+   <trkpt lat="46.876380" lon="6.997270"/>
+   <trkpt lat="46.876320" lon="6.997001"/>
+   <trkpt lat="46.873070" lon="7.000527"/>
+   <trkpt lat="46.873000" lon="7.000400"/>
+   <trkpt lat="46.875694" lon="6.997444"/>
+   <trkpt lat="46.878020" lon="6.994550"/>
+   <trkpt lat="46.877120" lon="6.993741"/>
+   <trkpt lat="46.875960" lon="6.992221"/>
+   <trkpt lat="46.875870" lon="6.991911"/>
+   <trkpt lat="46.870060" lon="6.984629"/>
+   <trkpt lat="46.872930" lon="6.981470"/>
+   <trkpt lat="46.875162" lon="6.979535"/>
+   <trkpt lat="46.872610" lon="6.974070"/>
+   <trkpt lat="46.871280" lon="6.970379"/>
+   <trkpt lat="46.868940" lon="6.964860"/>
+   <trkpt lat="46.876600" lon="6.958570"/>
+   <trkpt lat="46.877260" lon="6.958171"/>
+   <trkpt lat="46.876769" lon="6.955478"/>
+   <trkpt lat="46.876050" lon="6.955779"/>
+   <trkpt lat="46.876449" lon="6.956396"/>
+  </trkseg>
+ </trk>
+</gpx>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="vaudride" xmlns="http://www.topografix.com/GPX/1/1">
+ <metadata>
+  <name>En trottinette depuis l'Afterwork jusqu'à la ville de Morges</name>
+  <desc>Imported route; altitudes are re-sampled by the pipeline.</desc>
+ </metadata>
+ <trk>
+  <name>En trottinette depuis l'Afterwork jusqu'à la ville de Morges</name>
+  <trkseg>
+   <trkpt lat="46.474860" lon="6.410979"/>
+   <trkpt lat="46.474850" lon="6.410641"/>
+   <trkpt lat="46.473931" lon="6.410120"/>
+   <trkpt lat="46.473990" lon="6.412950"/>
+   <trkpt lat="46.472760" lon="6.413380"/>
+   <trkpt lat="46.472460" lon="6.415100"/>
+   <trkpt lat="46.471670" lon="6.417830"/>
+   <trkpt lat="46.471580" lon="6.425340"/>
+   <trkpt lat="46.472020" lon="6.427390"/>
+   <trkpt lat="46.472060" lon="6.429870"/>
+   <trkpt lat="46.472390" lon="6.430650"/>
+   <trkpt lat="46.472380" lon="6.431830"/>
+   <trkpt lat="46.473550" lon="6.434241"/>
+   <trkpt lat="46.473770" lon="6.436380"/>
+   <trkpt lat="46.474880" lon="6.441240"/>
+   <trkpt lat="46.476310" lon="6.444770"/>
+   <trkpt lat="46.476830" lon="6.448490"/>
+   <trkpt lat="46.479530" lon="6.454500"/>
+   <trkpt lat="46.479360" lon="6.457670"/>
+   <trkpt lat="46.479460" lon="6.458180"/>
+   <trkpt lat="46.480400" lon="6.460080"/>
+   <trkpt lat="46.480760" lon="6.460460"/>
+   <trkpt lat="46.483440" lon="6.461191"/>
+   <trkpt lat="46.484860" lon="6.461380"/>
+   <trkpt lat="46.486060" lon="6.461270"/>
+   <trkpt lat="46.486130" lon="6.460970"/>
+   <trkpt lat="46.486910" lon="6.460109"/>
+   <trkpt lat="46.488591" lon="6.462370"/>
+   <trkpt lat="46.493147" lon="6.469180"/>
+   <trkpt lat="46.492970" lon="6.469431"/>
+   <trkpt lat="46.495641" lon="6.473360"/>
+   <trkpt lat="46.495780" lon="6.473820"/>
+   <trkpt lat="46.495480" lon="6.474370"/>
+   <trkpt lat="46.495580" lon="6.474710"/>
+   <trkpt lat="46.495820" lon="6.474721"/>
+   <trkpt lat="46.495680" lon="6.475070"/>
+   <trkpt lat="46.495730" lon="6.476500"/>
+   <trkpt lat="46.494970" lon="6.476950"/>
+   <trkpt lat="46.495050" lon="6.477181"/>
+   <trkpt lat="46.494480" lon="6.477490"/>
+   <trkpt lat="46.493520" lon="6.478590"/>
+   <trkpt lat="46.493080" lon="6.478889"/>
+   <trkpt lat="46.492780" lon="6.478780"/>
+   <trkpt lat="46.492450" lon="6.479020"/>
+   <trkpt lat="46.491921" lon="6.480250"/>
+   <trkpt lat="46.492220" lon="6.480661"/>
+   <trkpt lat="46.492110" lon="6.480950"/>
+   <trkpt lat="46.492340" lon="6.481380"/>
+   <trkpt lat="46.492260" lon="6.481860"/>
+   <trkpt lat="46.492821" lon="6.482320"/>
+   <trkpt lat="46.495850" lon="6.482281"/>
+   <trkpt lat="46.498090" lon="6.482900"/>
+   <trkpt lat="46.499610" lon="6.484751"/>
+   <trkpt lat="46.500960" lon="6.486070"/>
+   <trkpt lat="46.501750" lon="6.486560"/>
+   <trkpt lat="46.501640" lon="6.486930"/>
+   <trkpt lat="46.503500" lon="6.487900"/>
+   <trkpt lat="46.503620" lon="6.487670"/>
+   <trkpt lat="46.504080" lon="6.487990"/>
+   <trkpt lat="46.505670" lon="6.489660"/>
+   <trkpt lat="46.506970" lon="6.492679"/>
+   <trkpt lat="46.507320" lon="6.495270"/>
+   <trkpt lat="46.507716" lon="6.495339"/>
+   <trkpt lat="46.507810" lon="6.496210"/>
+   <trkpt lat="46.508340" lon="6.496177"/>
+  </trkseg>
+ </trk>
+</gpx>

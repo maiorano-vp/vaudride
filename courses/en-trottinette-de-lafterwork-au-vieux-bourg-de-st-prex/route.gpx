@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="vaudride" xmlns="http://www.topografix.com/GPX/1/1">
+ <metadata>
+  <name>En trottinette de l'Afterwork au vieux bourg de St-Prex</name>
+  <desc>Imported route; altitudes are re-sampled by the pipeline.</desc>
+ </metadata>
+ <trk>
+  <name>En trottinette de l'Afterwork au vieux bourg de St-Prex</name>
+  <trkseg>
+   <trkpt lat="46.475021" lon="6.410713"/>
+   <trkpt lat="46.473931" lon="6.410120"/>
+   <trkpt lat="46.473990" lon="6.412950"/>
+   <trkpt lat="46.472760" lon="6.413380"/>
+   <trkpt lat="46.472430" lon="6.415100"/>
+   <trkpt lat="46.471620" lon="6.417821"/>
+   <trkpt lat="46.471570" lon="6.425141"/>
+   <trkpt lat="46.472020" lon="6.427390"/>
+   <trkpt lat="46.472060" lon="6.429870"/>
+   <trkpt lat="46.472390" lon="6.430690"/>
+   <trkpt lat="46.472400" lon="6.431919"/>
+   <trkpt lat="46.473550" lon="6.434241"/>
+   <trkpt lat="46.473740" lon="6.436210"/>
+   <trkpt lat="46.474840" lon="6.441070"/>
+   <trkpt lat="46.476310" lon="6.444770"/>
+   <trkpt lat="46.476830" lon="6.448490"/>
+   <trkpt lat="46.479530" lon="6.454500"/>
+   <trkpt lat="46.479370" lon="6.457760"/>
+   <trkpt lat="46.480015" lon="6.459265"/>
+   <trkpt lat="46.479357" lon="6.460019"/>
+  </trkseg>
+ </trk>
+</gpx>

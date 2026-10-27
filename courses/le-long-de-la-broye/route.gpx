@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="vaudride" xmlns="http://www.topografix.com/GPX/1/1">
+ <metadata>
+  <name>Le long de la Broye</name>
+  <desc>Imported route; altitudes are re-sampled by the pipeline.</desc>
+ </metadata>
+ <trk>
+  <name>Le long de la Broye</name>
+  <trkseg>
+   <trkpt lat="46.667216" lon="6.801953"/>
+   <trkpt lat="46.667330" lon="6.801920"/>
+   <trkpt lat="46.666990" lon="6.806370"/>
+   <trkpt lat="46.670370" lon="6.810520"/>
+   <trkpt lat="46.671150" lon="6.811140"/>
+   <trkpt lat="46.673690" lon="6.812310"/>
+   <trkpt lat="46.674370" lon="6.813130"/>
+   <trkpt lat="46.675270" lon="6.814710"/>
+   <trkpt lat="46.675740" lon="6.815170"/>
+   <trkpt lat="46.676310" lon="6.815500"/>
+   <trkpt lat="46.677760" lon="6.815820"/>
+   <trkpt lat="46.678530" lon="6.816300"/>
+   <trkpt lat="46.684710" lon="6.823750"/>
+   <trkpt lat="46.688690" lon="6.826740"/>
+   <trkpt lat="46.691010" lon="6.828980"/>
+   <trkpt lat="46.690430" lon="6.829860"/>
+   <trkpt lat="46.689420" lon="6.832660"/>
+   <trkpt lat="46.691430" lon="6.834980"/>
+   <trkpt lat="46.691840" lon="6.836160"/>
+   <trkpt lat="46.694450" lon="6.838720"/>
+   <trkpt lat="46.694780" lon="6.839440"/>
+   <trkpt lat="46.695690" lon="6.840030"/>
+   <trkpt lat="46.698410" lon="6.843430"/>
+   <trkpt lat="46.699980" lon="6.845790"/>
+   <trkpt lat="46.701021" lon="6.847713"/>
+   <trkpt lat="46.702370" lon="6.847380"/>
+   <trkpt lat="46.702900" lon="6.846920"/>
+   <trkpt lat="46.705080" lon="6.843810"/>
+   <trkpt lat="46.707490" lon="6.841630"/>
+   <trkpt lat="46.708340" lon="6.839930"/>
+   <trkpt lat="46.708450" lon="6.839210"/>
+   <trkpt lat="46.709080" lon="6.839680"/>
+   <trkpt lat="46.709720" lon="6.839890"/>
+   <trkpt lat="46.710800" lon="6.840830"/>
+   <trkpt lat="46.711540" lon="6.843130"/>
+   <trkpt lat="46.712820" lon="6.844720"/>
+   <trkpt lat="46.711042" lon="6.848390"/>
+   <trkpt lat="46.712510" lon="6.848850"/>
+   <trkpt lat="46.714140" lon="6.849740"/>
+   <trkpt lat="46.718630" lon="6.852870"/>
+   <trkpt lat="46.725220" lon="6.858370"/>
+   <trkpt lat="46.725580" lon="6.858490"/>
+   <trkpt lat="46.725718" lon="6.858748"/>
+   <trkpt lat="46.725580" lon="6.858490"/>
+   <trkpt lat="46.725240" lon="6.858380"/>
+   <trkpt lat="46.718630" lon="6.852870"/>
+   <trkpt lat="46.714140" lon="6.849740"/>
+   <trkpt lat="46.712510" lon="6.848850"/>
+   <trkpt lat="46.711170" lon="6.848510"/>
+   <trkpt lat="46.711060" lon="6.848340"/>
+   <trkpt lat="46.711460" lon="6.847530"/>
+   <trkpt lat="46.713660" lon="6.848700"/>
+   <trkpt lat="46.717960" lon="6.851700"/>
+   <trkpt lat="46.719520" lon="6.852830"/>
+   <trkpt lat="46.725157" lon="6.857650"/>
+   <trkpt lat="46.719520" lon="6.852830"/>
+   <trkpt lat="46.713800" lon="6.848790"/>
+   <trkpt lat="46.711800" lon="6.847800"/>
+   <trkpt lat="46.711300" lon="6.847390"/>
+   <trkpt lat="46.711040" lon="6.847410"/>
+   <trkpt lat="46.708460" lon="6.846310"/>
+   <trkpt lat="46.707130" lon="6.845600"/>
+   <trkpt lat="46.706120" lon="6.844400"/>
+   <trkpt lat="46.703360" lon="6.839080"/>
+   <trkpt lat="46.702610" lon="6.838300"/>
+   <trkpt lat="46.702080" lon="6.838080"/>
+   <trkpt lat="46.701440" lon="6.838080"/>
+   <trkpt lat="46.698390" lon="6.839360"/>
+   <trkpt lat="46.697500" lon="6.839540"/>
+   <trkpt lat="46.697230" lon="6.839430"/>
+   <trkpt lat="46.696920" lon="6.838840"/>
+   <trkpt lat="46.696650" lon="6.835260"/>
+   <trkpt lat="46.696130" lon="6.833850"/>
+   <trkpt lat="46.695510" lon="6.832890"/>
+   <trkpt lat="46.689690" lon="6.826760"/>
+   <trkpt lat="46.684860" lon="6.823030"/>
+   <trkpt lat="46.678630" lon="6.815550"/>
+   <trkpt lat="46.677760" lon="6.815070"/>
+   <trkpt lat="46.676100" lon="6.814620"/>
+   <trkpt lat="46.675590" lon="6.814150"/>
+   <trkpt lat="46.674650" lon="6.812510"/>
+   <trkpt lat="46.673970" lon="6.811800"/>
+   <trkpt lat="46.673260" lon="6.811320"/>
+   <trkpt lat="46.671350" lon="6.810580"/>
+   <trkpt lat="46.670620" lon="6.810010"/>
+   <trkpt lat="46.668550" lon="6.807380"/>
+   <trkpt lat="46.667720" lon="6.804970"/>
+   <trkpt lat="46.667850" lon="6.802930"/>
+   <trkpt lat="46.667290" lon="6.802410"/>
+   <trkpt lat="46.667330" lon="6.801920"/>
+   <trkpt lat="46.667216" lon="6.801953"/>
+  </trkseg>
+ </trk>
+</gpx>

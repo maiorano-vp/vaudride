@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="vaudride" xmlns="http://www.topografix.com/GPX/1/1">
+ <metadata>
+  <name>La Voie des Sens</name>
+  <desc>Imported route; altitudes are re-sampled by the pipeline.</desc>
+ </metadata>
+ <trk>
+  <name>La Voie des Sens</name>
+  <trkseg>
+   <trkpt lat="46.595999" lon="6.393409"/>
+   <trkpt lat="46.595259" lon="6.396021"/>
+   <trkpt lat="46.595055" lon="6.397395"/>
+   <trkpt lat="46.594733" lon="6.401512"/>
+   <trkpt lat="46.594585" lon="6.403055"/>
+   <trkpt lat="46.594618" lon="6.404647"/>
+   <trkpt lat="46.594353" lon="6.406192"/>
+   <trkpt lat="46.593584" lon="6.407655"/>
+   <trkpt lat="46.592553" lon="6.409110"/>
+   <trkpt lat="46.591487" lon="6.411558"/>
+   <trkpt lat="46.590188" lon="6.414218"/>
+   <trkpt lat="46.589567" lon="6.416109"/>
+   <trkpt lat="46.589455" lon="6.417651"/>
+   <trkpt lat="46.589185" lon="6.419666"/>
+   <trkpt lat="46.588155" lon="6.422204"/>
+   <trkpt lat="46.587302" lon="6.423355"/>
+   <trkpt lat="46.585916" lon="6.424308"/>
+   <trkpt lat="46.584320" lon="6.425930"/>
+   <trkpt lat="46.583706" lon="6.426659"/>
+   <trkpt lat="46.582408" lon="6.426448"/>
+   <trkpt lat="46.581442" lon="6.427066"/>
+   <trkpt lat="46.581149" lon="6.427437"/>
+   <trkpt lat="46.580618" lon="6.427473"/>
+   <trkpt lat="46.580365" lon="6.427374"/>
+   <trkpt lat="46.579942" lon="6.428295"/>
+   <trkpt lat="46.580104" lon="6.429349"/>
+   <trkpt lat="46.579456" lon="6.431357"/>
+   <trkpt lat="46.578631" lon="6.431646"/>
+   <trkpt lat="46.577993" lon="6.431684"/>
+   <trkpt lat="46.577718" lon="6.432159"/>
+   <trkpt lat="46.577270" lon="6.432428"/>
+   <trkpt lat="46.576461" lon="6.432483"/>
+   <trkpt lat="46.571505" lon="6.433553"/>
+   <trkpt lat="46.570786" lon="6.433619"/>
+   <trkpt lat="46.568923" lon="6.433614"/>
+   <trkpt lat="46.567672" lon="6.433546"/>
+   <trkpt lat="46.567583" lon="6.433626"/>
+   <trkpt lat="46.563012" lon="6.433503"/>
+   <trkpt lat="46.556633" lon="6.433491"/>
+   <trkpt lat="46.554840" lon="6.432129"/>
+   <trkpt lat="46.553513" lon="6.430615"/>
+   <trkpt lat="46.552923" lon="6.429035"/>
+   <trkpt lat="46.552331" lon="6.428211"/>
+   <trkpt lat="46.552155" lon="6.427615"/>
+   <trkpt lat="46.551383" lon="6.428777"/>
+   <trkpt lat="46.551455" lon="6.428841"/>
+   <trkpt lat="46.549392" lon="6.431591"/>
+   <trkpt lat="46.545673" lon="6.432182"/>
+   <trkpt lat="46.543605" lon="6.432273"/>
+   <trkpt lat="46.541365" lon="6.434335"/>
+   <trkpt lat="46.539767" lon="6.434756"/>
+   <trkpt lat="46.538056" lon="6.434501"/>
+   <trkpt lat="46.535694" lon="6.436044"/>
+   <trkpt lat="46.533456" lon="6.437246"/>
+   <trkpt lat="46.532390" lon="6.437761"/>
+   <trkpt lat="46.531977" lon="6.437847"/>
+   <trkpt lat="46.530676" lon="6.439318"/>
+   <trkpt lat="46.528608" lon="6.442484"/>
+   <trkpt lat="46.522525" lon="6.451589"/>
+   <trkpt lat="46.520929" lon="6.453274"/>
+   <trkpt lat="46.520309" lon="6.454302"/>
+   <trkpt lat="46.519775" lon="6.454950"/>
+   <trkpt lat="46.519381" lon="6.455244"/>
+   <trkpt lat="46.518776" lon="6.455998"/>
+   <trkpt lat="46.518253" lon="6.456880"/>
+   <trkpt lat="46.518447" lon="6.457528"/>
+   <trkpt lat="46.518666" lon="6.457850"/>
+   <trkpt lat="46.518239" lon="6.458405"/>
+   <trkpt lat="46.518404" lon="6.458793"/>
+   <trkpt lat="46.518373" lon="6.459341"/>
+   <trkpt lat="46.518740" lon="6.460103"/>
+   <trkpt lat="46.520650" lon="6.463614"/>
+   <trkpt lat="46.521257" lon="6.465115"/>
+   <trkpt lat="46.521818" lon="6.465508"/>
+   <trkpt lat="46.522335" lon="6.465981"/>
+   <trkpt lat="46.523097" lon="6.466750"/>
+   <trkpt lat="46.523952" lon="6.467803"/>
+   <trkpt lat="46.523926" lon="6.467986"/>
+   <trkpt lat="46.524165" lon="6.470693"/>
+   <trkpt lat="46.524665" lon="6.471296"/>
+   <trkpt lat="46.524966" lon="6.471721"/>
+   <trkpt lat="46.524761" lon="6.473054"/>
+  </trkseg>
+ </trk>
+</gpx>
