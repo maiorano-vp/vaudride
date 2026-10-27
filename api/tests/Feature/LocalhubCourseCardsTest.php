@@ -141,3 +141,50 @@ it('shows the card fields in the course resource', function (): void {
     $this->getJson('/api/v1/courses')->assertOk()->assertJsonPath('data.0.image_url', 'https://img.test/a.jpg')
         ->assertJsonPath('data.0.image_credit', 'Credit')->assertJsonPath('data.0.destination', 'Morges')->assertJsonPath('data.0.kind', 'mtb');
 });
+
+it('keeps every picture of the tour for the course page, the cover first, with their credits', function (): void {
+    $course = courseFromTour('morges', 'https://gpx.test/1.gpx');
+    fakeTours(['velo' => [cardTour('https://gpx.test/1.gpx')]]);
+
+    $this->artisan('localhub:course-cards')->assertSuccessful();
+
+    expect($course->refresh()->images)->toBe([
+        ['url' => 'https://localhub.test/api/image/img-1/scale/800', 'credit' => 'Raphaël Dupertuis'], // the cover, though listed second
+        ['url' => 'https://localhub.test/api/image/other/scale/800', 'credit' => 'Someone else'],
+    ]);
+});
+
+it('keeps no more than twelve pictures, and leaves out what is not a picture', function (): void {
+    $course = courseFromTour('morges', 'https://gpx.test/1.gpx');
+    $tour = cardTour('https://gpx.test/1.gpx');
+    $tour['images'] = [
+        ...array_map(fn (int $i): array => ['id' => "p{$i}", 'url' => "https://cdn.test/{$i}.jpg", 'sort' => $i, 'copyright' => ''], range(1, 15)),
+        ['id' => 'pdf', 'url' => 'https://cdn.test/leaflet.pdf', 'sort' => 0],
+    ];
+    fakeTours(['velo' => [$tour]]);
+
+    $this->artisan('localhub:course-cards')->assertSuccessful();
+
+    $images = $course->refresh()->images;
+    expect($images)->toHaveCount(12)
+        ->and($images[0]['url'])->toBe('https://localhub.test/api/image/p1/scale/800')
+        ->and($images[0]['credit'])->toBeNull()
+        ->and(collect($images)->pluck('url')->contains(fn (string $url): bool => str_contains($url, '/pdf/')))->toBeFalse();
+});
+
+it('does not replace the pictures an admin chose unless forced', function (): void {
+    $course = courseFromTour('morges', 'https://gpx.test/1.gpx', ['images' => [['url' => 'https://mine.test/a.jpg', 'credit' => null]]]);
+    fakeTours(['velo' => [cardTour('https://gpx.test/1.gpx')]]);
+
+    $this->artisan('localhub:course-cards')->assertSuccessful();
+    expect($course->refresh()->images)->toBe([['url' => 'https://mine.test/a.jpg', 'credit' => null]]);
+
+    $this->artisan('localhub:course-cards', ['--force' => true])->assertSuccessful();
+    expect($course->refresh()->images)->toHaveCount(2);
+});
+
+it('gives an empty gallery, not null, in the course resource', function (): void {
+    Course::factory()->create(['slug' => 'bare']);
+
+    $this->getJson('/api/v1/courses')->assertOk()->assertJsonPath('data.0.images', []);
+});

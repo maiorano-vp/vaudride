@@ -57,7 +57,12 @@ final readonly class ApplyLocalhubCourseCards
 
                 $result['matched']++;
                 $card = $this->mapper->image($tour, self::IMAGE_WIDTH) + ['destination' => $this->destination($tour), 'kind' => $this->guessKind($course) ?? $kind];
+                $gallery = $this->mapper->images($tour, self::IMAGE_WIDTH);
                 $changes = $this->changes($course, $card, $force);
+
+                if ($gallery !== [] && ($force || blank($course->images))) {
+                    $changes['images'] = $gallery;
+                }
 
                 if ($changes !== []) {
                     $result['updated']++;
@@ -116,7 +121,7 @@ final readonly class ApplyLocalhubCourseCards
      * The fields to write: the ones that have a new value and are empty on the course (or all of them when forced).
      *
      * @param  array<string, string|null>  $card
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     private function changes(Course $course, array $card, bool $force): array
     {

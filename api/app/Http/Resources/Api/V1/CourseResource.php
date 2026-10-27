@@ -32,6 +32,7 @@ final class CourseResource extends JsonResource
             'image_credit' => $this->image_credit,
             'destination' => $this->destination,
             'kind' => $this->kind,
+            'images' => $this->images ?? [],
             'profile_url' => sprintf('%s/%s/profile.json?v=%d', mb_rtrim(config()->string('services.courses.cdn_url'), '/'), $this->slug, $this->version),
             'pois' => PoiResource::collection($this->whenLoaded('pois')),
             'segments' => SegmentResource::collection($this->whenLoaded('segments')),

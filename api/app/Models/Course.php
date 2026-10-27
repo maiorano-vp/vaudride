@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read string|null $image_credit
  * @property-read string|null $destination
  * @property-read string|null $kind
+ * @property-read list<array{url: string, credit: string|null}>|null $images
  * @property-read bool $published
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
@@ -55,6 +56,7 @@ final class Course extends Model
             'image_credit' => 'string',
             'destination' => 'string',
             'kind' => 'string',
+            'images' => 'array',
             'published' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
