@@ -3,7 +3,7 @@ import { pointAt, type CourseProfile } from '~/lib/course/profile'
 import { bearingRad, distanceAfter, interpolateAt, lerpAngle } from '~/lib/scene/camera'
 import { createCyclist, type Cyclist } from '~/lib/scene/cyclist'
 import { DEFAULT_KIT, sanitizeKit, type Kit } from '~/lib/kit/kit'
-import { clamp, distanceM as metersBetween, pushWindow, ringAround } from '~/lib/scene/mix'
+import { clamp, corridorQuads, distanceM as metersBetween, pushWindow, ringAround } from '~/lib/scene/mix'
 import { isPhotorealistic, SceneSource, usesGoogle, usesSwissBuildings } from '~/lib/scene/source'
 
 /** A rider seen through live tracking, drawn in their own kit. */
@@ -73,6 +73,12 @@ const MIX_HOLE_RADIUS_M = 180
 const MIX_HOLE_MOVE_M = 40 // re-cut the hole once the rider moved this far
 const MIX_MEASURE_MS = 2500
 const MIX_WINDOW = 6 // the lowest of the last measures is the ground (trees and roofs only add height)
+// Forest roads: the canopy would hide the rider, so the trees are cleared over the road around them
+const TREE_CORRIDOR_HALF_WIDTH_M = 7
+const TREE_CORRIDOR_BEHIND_M = 50 // the camera is behind the rider
+const TREE_CORRIDOR_AHEAD_M = 120
+const TREE_CORRIDOR_MOVE_M = 20 // re-cut the corridor once the rider moved this far
+const TREE_CORRIDOR_STEP_M = 20
 const SAMPLE_EVERY = 8 // route points between terrain height samples (~40 m)
 
 const container = ref<HTMLDivElement>()
@@ -180,11 +186,27 @@ async function start() {
         if (customShader) tileset.customShader = customShader
         viewer.scene.primitives.add(tileset)
         swiss.push(tileset)
+        return tileset
       })
-      .catch(() => {}) // optional layers: the terrain scene still works without them
+      .catch(() => undefined) // optional layers: the terrain scene still works without them
+  // the trees only: a lane of them is cut away over the road (see cutTrees), the buildings stay
+  let trees: InstanceType<typeof Cesium.ClippingPolygonCollection> | undefined
+  let treesCutAt = Number.NaN
+  const cutTrees = (d: number) => {
+    if (!trees) return
+    trees.removeAll()
+    for (const quad of corridorQuads(props.course, d - TREE_CORRIDOR_BEHIND_M, d + TREE_CORRIDOR_AHEAD_M, TREE_CORRIDOR_HALF_WIDTH_M, TREE_CORRIDOR_STEP_M)) {
+      trees.add(new Cesium.ClippingPolygon({ positions: quad.map((p) => Cesium.Cartesian3.fromDegrees(p.lon, p.lat)) }))
+    }
+    treesCutAt = d
+  }
   if (usesSwissBuildings(props.source)) {
     void addTileset(BUILDINGS_URL, new Cesium.CustomShader({ fragmentShaderText: BUILDING_SHADER }))
-    void addTileset(VEGETATION_URL)
+    void addTileset(VEGETATION_URL).then((tileset) => {
+      if (tileset && Cesium.ClippingPolygonCollection.isSupported(scene)) {
+        trees = tileset.clippingPolygons = new Cesium.ClippingPolygonCollection({ polygons: [] })
+      }
+    })
   }
   const frustum = viewer.camera.frustum as InstanceType<typeof Cesium.PerspectiveFrustum>
   let fovDeg = FOV_DEG
@@ -272,6 +294,7 @@ async function start() {
       : bearingRad(behind.lat, behind.lon, here.lat, here.lon)
     heading = lerpAngle(heading, target, 0.05)
 
+    if (trees && !(Math.abs(d - treesCutAt) <= TREE_CORRIDOR_MOVE_M)) cutTrees(d) // also true while treesCutAt is NaN
     rider.lon = here.lon
     rider.lat = here.lat
     rider.ground = interpolateAt(ds, hs, d)
