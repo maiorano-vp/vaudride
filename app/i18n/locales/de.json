@@ -250,6 +250,22 @@
     "test": "Stimme testen",
     "mute": "Stimme ausschalten",
     "unmute": "Stimme einschalten",
-    "testPhrase": "Willkommen im Kanton Waadt."
+    "testPhrase": "Willkommen im Kanton Waadt.",
+    "voiceCommand": "„Favorit“ sagen, um einen Ort zu merken",
+    "voiceCommandNote": "Die Spracherkennung übernimmt der Browser; bei Chrome wird das Audio an Server gesendet, die sich ausserhalb der Schweiz befinden können."
+  },
+  "favorites": {
+    "title": "Meine Orte",
+    "menu": "Meine Orte",
+    "empty": "Noch keine Orte gespeichert. Drücken Sie während einer Fahrt F oder sagen Sie „Favorit“, wenn ein Ort angezeigt wird.",
+    "error": "Ihre Orte konnten nicht geladen werden.",
+    "hint": "F oder „Favorit“, um diesen Ort zu merken",
+    "kept": "Ort gespeichert",
+    "saved": "Ort gespeichert.",
+    "kept_title": "Während der Fahrt gespeicherte Orte",
+    "all": "Alle meine Orte",
+    "filter": "Favoriten",
+    "add": "Zu Favoriten hinzufügen",
+    "remove": "Aus Favoriten entfernen"
   }
 }

@@ -5,6 +5,7 @@ import type { CourseProfile } from '~/lib/course/profile'
 import { fileSlug } from '~/lib/course/gpx'
 import { renderCard, shareCard } from '~/lib/share/card'
 import { segmentName } from '~/lib/segments/tracker'
+import { poiTitle, type Poi } from '~/lib/pois/nearby'
 
 const props = defineProps<{
   summary: RideSummary
@@ -16,6 +17,8 @@ const props = defineProps<{
   efforts: SegmentEffort[]
   courseName: string
   courseProfile?: CourseProfile
+  /** The places the rider kept during the ride. */
+  keptPlaces?: Poi[]
 }>()
 const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ save: [uploadToStrava: boolean]; restart: [] }>()
@@ -91,6 +94,17 @@ const rows = computed(() => [
             <UButton size="md" variant="link" color="neutral" :label="$t('segment.leaderboard')" @click="showBoard(e)" />
           </li>
         </ul>
+      </section>
+      <section v-if="keptPlaces?.length" class="mt-5">
+        <h3 class="mb-1 font-display uppercase tracking-wide">{{ $t('favorites.kept_title') }}</h3>
+        <ul class="space-y-1">
+          <li v-for="p in keptPlaces" :key="p.id" class="flex items-baseline gap-3">
+            <UIcon name="i-lucide-star" class="size-4 flex-none self-center text-amber-500" />
+            <span class="flex-1">{{ poiTitle(p, locale) }}</span>
+            <a v-if="p.url" :href="p.url" target="_blank" rel="noopener noreferrer" class="text-sm underline">{{ $t('poi.more') }}</a>
+          </li>
+        </ul>
+        <NuxtLink to="/favorites" class="mt-1 inline-block text-sm underline">{{ $t('favorites.all') }}</NuxtLink>
       </section>
       <label v-if="strava?.connected && recordable && saveState !== 'saved'" class="mt-5 flex items-center gap-2">
         <input v-model="toStrava" type="checkbox" >

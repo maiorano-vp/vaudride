@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { poiDescription, poiTitle, type Poi } from '~/lib/pois/nearby'
 
-defineProps<{ poi: Poi; aheadM: number }>()
+defineProps<{ poi: Poi; aheadM: number; favorite?: boolean }>()
 const { locale } = useI18n()
 
 const icons: Record<string, string> = {
@@ -32,6 +32,10 @@ const icons: Record<string, string> = {
         {{ aheadM > 20 ? $t('poi.ahead', { m: Math.round(aheadM / 10) * 10 }) : $t('poi.here') }}
       </p>
       <p v-if="poiDescription(poi, locale)" class="description">{{ poiDescription(poi, locale) }}</p>
+      <p class="favorite" :class="{ kept: favorite }">
+        <UIcon name="i-lucide-star" class="star" :class="{ filled: favorite }" />
+        {{ favorite ? $t('favorites.kept') : $t('favorites.hint') }}
+      </p>
       <p class="links">
         <a v-if="poi.url" :href="poi.url" target="_blank" rel="noopener noreferrer">{{ $t('poi.more') }}</a>
         <small v-if="poi.source === 'osm'">© OpenStreetMap contributors</small>
@@ -78,6 +82,26 @@ const icons: Record<string, string> = {
 .links {
   margin: 0;
   font-size: 0.85rem;
+}
+.favorite {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: #667;
+}
+.favorite.kept {
+  font-weight: 700;
+  color: #0a4069;
+}
+.star {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+.star.filled {
+  color: #e8a317;
+  fill: #e8a317;
 }
 .links {
   display: flex;

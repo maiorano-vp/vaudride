@@ -15,6 +15,9 @@ const route = useRoute()
 const slug = String(route.params.slug)
 const { locale } = useI18n()
 const { data: profile, status } = useCourseProfile(slug)
+const favorites = useFavorites()
+onMounted(favorites.load)
+const onlyFavorites = ref(false)
 const { data: info } = await useFetch<{ data: CourseInfo }>(`/api/courses/${slug}`)
 
 const course = computed(() => info.value?.data)
@@ -24,7 +27,9 @@ const pois = computed(() => [...(course.value?.pois ?? [])].sort((a, b) => a.dis
 const segments = computed(() => course.value?.segments ?? [])
 const selectedCategories = ref<string[]>([])
 const categories = computed(() => categoryCounts(pois.value))
-const shownPois = computed(() => filterPois(pois.value, selectedCategories.value))
+const shownPois = computed(() =>
+  filterPois(pois.value, selectedCategories.value).filter((p) => !onlyFavorites.value || favorites.isFavorite(p.id)),
+)
 const toggleCategory = (category: string) => {
   selectedCategories.value = selectedCategories.value.includes(category)
     ? selectedCategories.value.filter((c) => c !== category)
@@ -106,7 +111,7 @@ function downloadGpx() {
       </ul>
     </section>
 
-    <nav v-if="categories.length > 1" :aria-label="$t('course.filter')" class="flex flex-wrap items-center gap-2">
+    <nav v-if="categories.length > 1 || favorites.ids.value.length" :aria-label="$t('course.filter')" class="flex flex-wrap items-center gap-2">
       <UButton
         size="md"
         :variant="selectedCategories.length ? 'outline' : 'solid'"
@@ -114,6 +119,15 @@ function downloadGpx() {
         :label="$t('course.filterAll')"
         :aria-pressed="!selectedCategories.length"
         @click="selectedCategories = []"
+      />
+      <UButton
+        size="md"
+        color="neutral"
+        icon="i-lucide-star"
+        :variant="onlyFavorites ? 'solid' : 'outline'"
+        :aria-pressed="onlyFavorites"
+        :label="$t('favorites.filter')"
+        @click="onlyFavorites = !onlyFavorites"
       />
       <UButton
         v-for="c in categories"
@@ -139,6 +153,16 @@ function downloadGpx() {
           <div>
           <p class="m-0">
             <span class="font-semibold">{{ poiTitle(p, locale) }}</span>
+            <UButton
+              size="xs"
+              variant="link"
+              color="neutral"
+              icon="i-lucide-star"
+              :class="{ 'fill-amber-400 text-amber-500': favorites.isFavorite(p.id) }"
+              :aria-pressed="favorites.isFavorite(p.id)"
+              :aria-label="$t(favorites.isFavorite(p.id) ? 'favorites.remove' : 'favorites.add')"
+              @click="favorites.toggle(p.id)"
+            />
             <span class="text-sm text-slate-500">
               <template v-if="section.key === 'lodging'">· {{ p.distance_m < 1500 ? $t('course.nearStart') : $t('course.nearFinish') }}</template>
               <template v-else>· km {{ km(p.distance_m) }}</template>

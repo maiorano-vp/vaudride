@@ -250,6 +250,22 @@
     "test": "Test the voice",
     "mute": "Mute the voice",
     "unmute": "Unmute the voice",
-    "testPhrase": "Welcome to the canton of Vaud."
+    "testPhrase": "Welcome to the canton of Vaud.",
+    "voiceCommand": "Say “favorite” to keep a place",
+    "voiceCommandNote": "Speech recognition is done by the browser; with Chrome the audio is sent to servers that may be outside Switzerland."
+  },
+  "favorites": {
+    "title": "My places",
+    "menu": "My places",
+    "empty": "No place saved yet. During a ride, press F or say “favorite” when a place appears.",
+    "error": "Your places could not be loaded.",
+    "hint": "F or “favorite” to keep this place",
+    "kept": "Place saved",
+    "saved": "Place saved.",
+    "kept_title": "Places saved during the ride",
+    "all": "See all my places",
+    "filter": "Favorites",
+    "add": "Add to favorites",
+    "remove": "Remove from favorites"
   }
 }

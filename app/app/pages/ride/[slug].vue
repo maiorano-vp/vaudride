@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nearbyPoi, SHEET_ONLY_CATEGORIES, type Poi } from '~/lib/pois/nearby'
+import { isFavoriteCommand } from '~/lib/pois/favorites'
 import { speechText } from '~/lib/pois/speech'
 import type { Segment } from '~/lib/segments/tracker'
 import { availableSceneSources, resolveSceneSource, type SceneSource } from '~/lib/scene/source'
@@ -109,8 +110,20 @@ function onSeek(distanceM: number) {
 // the ride stands still while the pause menu or the summary is open
 watch([menuOpen, summaryOpen], ([menu, summary]) => (paused.value = menu || summary))
 
+// a place is kept with the F key or by voice, because the rider has no hand free for the mouse
+const favorites = useFavorites()
+onMounted(favorites.load)
+function keepPlace() {
+  if (!poiNearby.value || paused.value) return
+  favorites.add(poiNearby.value.poi.id)
+  speech.speak(t('favorites.saved'), true)
+}
+const voice = useVoiceCommand((heard) => isFavoriteCommand(heard, locale.value) && keepPlace())
+watch([() => voice.enabled.value, paused, voice.supported], ([on, isPaused, ok]) => (on && !isPaused && ok ? voice.start() : voice.stop()), { immediate: true })
+
 // Space opens the pause menu, and closes it again (unless a control has the focus: Space presses it)
 function onKey(e: KeyboardEvent) {
+  if (e.code === 'KeyF' && !e.metaKey && !e.ctrlKey && !e.altKey) return keepPlace()
   if (e.code !== 'Space' || summaryOpen.value || state.value.finished) return
   if (e.target instanceof HTMLElement && e.target.closest('button, a, input, select, textarea, [role=combobox], [role=option]')) return
   e.preventDefault()
@@ -222,11 +235,12 @@ const simPower = computed({
       :efforts="recording.efforts.value"
       :course-name="courseName"
       :course-profile="course ?? undefined"
+      :kept-places="pois.filter((p) => favorites.added.value.includes(p.id))"
       :finished="state.finished"
       @save="recording.save($event)"
       @restart="restart()"
     />
-    <PoiCard v-if="poiNearby" class="poi-card-slot" :poi="poiNearby.poi" :ahead-m="poiNearby.aheadM" />
+    <PoiCard v-if="poiNearby" class="poi-card-slot" :poi="poiNearby.poi" :ahead-m="poiNearby.aheadM" :favorite="favorites.isFavorite(poiNearby.poi.id)" />
     <SegmentHud
       class="segment-hud"
       :active="activeSegment"

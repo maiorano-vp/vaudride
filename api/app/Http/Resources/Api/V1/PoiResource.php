@@ -31,6 +31,7 @@ final class PoiResource extends JsonResource
             'image_url' => $this->image_url,
             'image_credit' => $this->image_credit,
             'source' => $this->source,
+            'course' => $this->whenLoaded('course', fn (): array => ['slug' => $this->course->slug, 'name' => $this->course->name]),
         ];
     }
 }

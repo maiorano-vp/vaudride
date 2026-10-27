@@ -12,6 +12,7 @@ const volumePct = computed({
   get: () => Math.round(speech.volume.value * 100),
   set: (v: number) => (speech.volume.value = v / 100),
 })
+const voice = useVoiceCommand(() => {})
 const testVoice = () => speech.speak(t('sound.testPhrase'), true)
 
 const view = ref<View>('menu')
@@ -105,6 +106,10 @@ function finish() {
           <USlider v-model="volumePct" :min="0" :max="100" :step="5" class="mt-2" />
         </label>
         <UButton color="neutral" variant="outline" icon="i-lucide-play" :label="$t('sound.test')" @click="testVoice" />
+        <div v-if="voice.supported.value">
+          <USwitch v-model="voice.enabled.value" :label="$t('sound.voiceCommand')" />
+          <p class="mt-1 text-sm text-slate-500">{{ $t('sound.voiceCommandNote') }}</p>
+        </div>
       </div>
 
       <div v-else-if="view === 'account'" class="space-y-4">

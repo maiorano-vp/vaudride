@@ -250,6 +250,22 @@
     "test": "Tester la voix",
     "mute": "Couper la voix",
     "unmute": "Activer la voix",
-    "testPhrase": "Bienvenue dans le canton de Vaud."
+    "testPhrase": "Bienvenue dans le canton de Vaud.",
+    "voiceCommand": "Dire « favori » pour garder un lieu",
+    "voiceCommandNote": "La reconnaissance vocale est assurée par le navigateur ; avec Chrome, l’audio est envoyé à des serveurs qui peuvent se trouver hors de Suisse."
+  },
+  "favorites": {
+    "title": "Mes lieux",
+    "menu": "Mes lieux",
+    "empty": "Aucun lieu enregistré. Pendant une sortie, appuyez sur F ou dites « favori » quand un lieu s’affiche.",
+    "error": "Impossible de charger vos lieux.",
+    "hint": "F ou « favori » pour garder ce lieu",
+    "kept": "Lieu enregistré",
+    "saved": "Lieu enregistré.",
+    "kept_title": "Lieux enregistrés pendant la sortie",
+    "all": "Voir tous mes lieux",
+    "filter": "Favoris",
+    "add": "Ajouter aux favoris",
+    "remove": "Retirer des favoris"
   }
 }

@@ -18,6 +18,7 @@ const items = computed(() => [
   [
     { label: t('intro.menu'), icon: 'i-lucide-bluetooth', to: '/intro' },
     { label: t('rides.menu'), icon: 'i-lucide-history', to: '/rides' },
+    { label: t('favorites.menu'), icon: 'i-lucide-star', to: '/favorites' },
     { label: t('kit.menu'), icon: 'i-lucide-shirt', to: '/kit' },
     { label: t('auth.account'), icon: 'i-lucide-settings', to: '/account' },
     {

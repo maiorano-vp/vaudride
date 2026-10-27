@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\CourseController;
 use App\Http\Controllers\Api\V1\CourseProfileController;
 use App\Http\Controllers\Api\V1\DisconnectStravaController;
 use App\Http\Controllers\Api\V1\ExportRideController;
+use App\Http\Controllers\Api\V1\FavoritePoiController;
 use App\Http\Controllers\Api\V1\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\LoginController;
 use App\Http\Controllers\Api\V1\LogoutController;
@@ -42,6 +43,9 @@ Route::prefix('v1')->name('v1.')->group(function (): void {
         Route::post('auth/logout', LogoutController::class)->name('auth.logout');
         Route::get('me', MeController::class)->name('me');
         Route::get('segments/{segment}/leaderboard', SegmentLeaderboardController::class)->name('segments.leaderboard');
+        Route::get('me/favorites', [FavoritePoiController::class, 'index'])->name('me.favorites.index');
+        Route::put('me/favorites/{poi}', [FavoritePoiController::class, 'store'])->name('me.favorites.store');
+        Route::delete('me/favorites/{poi}', [FavoritePoiController::class, 'destroy'])->name('me.favorites.destroy');
         Route::put('me/avatar', UpdateAvatarController::class)->name('me.avatar');
         Route::post('broadcasting/auth', AuthorizeLiveChannelController::class)->middleware('throttle:30,1')->name('broadcasting.auth');
         Route::apiResource('rides', RideController::class)->only(['index', 'store', 'show']);
