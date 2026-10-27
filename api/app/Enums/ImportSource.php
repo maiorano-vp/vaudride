@@ -8,4 +8,5 @@ enum ImportSource: string
 {
     case GpxUpload = 'gpx_upload';
     case Komoot = 'komoot';
+    case Localhub = 'localhub';
 }

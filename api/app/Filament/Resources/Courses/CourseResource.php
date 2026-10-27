@@ -12,6 +12,9 @@ use App\Filament\Resources\Courses\RelationManagers\PoisRelationManager;
 use App\Filament\Resources\Courses\RelationManagers\SegmentsRelationManager;
 use App\Models\Course;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
@@ -23,7 +26,9 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 final class CourseResource extends Resource
@@ -93,7 +98,25 @@ final class CourseResource extends Resource
                 IconColumn::make('published')->label('Publié')->boolean(),
             ])
             ->defaultSort('slug')
-            ->recordActions([EditAction::make(), DeleteAction::make()]);
+            ->filters([TernaryFilter::make('published')->label('Publié')])
+            ->recordActions([
+                Action::make('togglePublished')
+                    ->label(fn (Course $record): string => $record->published ? 'Dépublier' : 'Publier')
+                    ->icon(fn (Course $record): Heroicon => $record->published ? Heroicon::OutlinedEyeSlash : Heroicon::OutlinedEye)
+                    ->action(fn (Course $record) => $record->update(['published' => ! $record->published])),
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('publish')->label('Publier')->icon(Heroicon::OutlinedEye)
+                        ->action(fn (Collection $records) => $records->each->update(['published' => true]))
+                        ->deselectRecordsAfterCompletion(),
+                    BulkAction::make('unpublish')->label('Dépublier')->icon(Heroicon::OutlinedEyeSlash)
+                        ->action(fn (Collection $records) => $records->each->update(['published' => false]))
+                        ->deselectRecordsAfterCompletion(),
+                ]),
+            ]);
     }
 
     public static function getRelations(): array
