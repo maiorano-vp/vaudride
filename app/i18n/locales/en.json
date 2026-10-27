@@ -54,6 +54,9 @@
     "workout": "Workout",
     "ghost": "Ghost"
   },
+  "demo": {
+    "speed": "Speed"
+  },
   "ghost": {
     "intro": "Ride against a ghost: it rides next to you at the pace of the recorded ride.",
     "needsAccount": "Sign in to find your rides.",
@@ -260,6 +263,7 @@
   "course": {
     "sheet": "Course details",
     "ride": "Ride this course",
+    "fly": "Fly over without equipment",
     "gpx": "Download the GPX",
     "transit": "Get to the start by public transport",
     "start": "See the start on the map",

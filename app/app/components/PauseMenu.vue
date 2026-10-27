@@ -5,6 +5,8 @@ import { totalDuration, workoutName, type Workout } from '~/lib/workout/workout'
 type View = 'menu' | 'devices' | 'kit' | 'workout' | 'ghost' | 'sound' | 'account' | 'quit'
 
 const open = defineModel<boolean>('open', { required: true })
+/** Discovery mode: no devices, workouts, ghosts or account, and leaving does not save anything. */
+const props = defineProps<{ demo?: boolean }>()
 const emit = defineEmits<{ finish: [] }>()
 
 const { trainer, powerMeter, strap } = useDevices()
@@ -87,16 +89,19 @@ const devices = computed(() => [
   { key: 'heartRate', label: t('ble.heartRate'), icon: 'i-lucide-heart-pulse', device: strap },
 ])
 
-const items = computed(() => [
-  { key: 'continue', icon: 'i-lucide-play', action: () => (open.value = false) },
-  { key: 'devices', icon: 'i-lucide-bluetooth', action: () => (view.value = 'devices') },
-  { key: 'kit', icon: 'i-lucide-shirt', action: () => (view.value = 'kit') },
-  { key: 'workout', icon: 'i-lucide-timer', action: () => (view.value = 'workout') },
-  { key: 'ghost', icon: 'i-lucide-ghost', action: () => (view.value = 'ghost') },
-  ...(speech.supported.value ? [{ key: 'sound', icon: 'i-lucide-volume-2', action: () => (view.value = 'sound') }] : []),
-  { key: 'account', icon: 'i-lucide-user', action: () => (view.value = 'account') },
-  { key: 'quit', icon: 'i-lucide-log-out', action: () => (view.value = 'quit') },
-])
+const DEMO_HIDDEN = ['devices', 'workout', 'ghost', 'account']
+const items = computed(() =>
+  [
+    { key: 'continue', icon: 'i-lucide-play', action: () => (open.value = false) },
+    { key: 'devices', icon: 'i-lucide-bluetooth', action: () => (view.value = 'devices') },
+    { key: 'kit', icon: 'i-lucide-shirt', action: () => (view.value = 'kit') },
+    { key: 'workout', icon: 'i-lucide-timer', action: () => (view.value = 'workout') },
+    { key: 'ghost', icon: 'i-lucide-ghost', action: () => (view.value = 'ghost') },
+    ...(speech.supported.value ? [{ key: 'sound', icon: 'i-lucide-volume-2', action: () => (view.value = 'sound') }] : []),
+    { key: 'account', icon: 'i-lucide-user', action: () => (view.value = 'account') },
+    { key: 'quit', icon: 'i-lucide-log-out', action: () => (view.value = 'quit') },
+  ].filter((item) => !props.demo || !DEMO_HIDDEN.includes(item.key)),
+)
 
 function finish() {
   open.value = false
@@ -256,8 +261,8 @@ function finish() {
       </div>
 
       <div v-else class="space-y-3">
-        <p>{{ $t('pause.quitHelp') }}</p>
-        <UButton block size="lg" icon="i-lucide-flag" :label="$t('pause.finishSave')" @click="finish" />
+        <p v-if="!demo">{{ $t('pause.quitHelp') }}</p>
+        <UButton v-if="!demo" block size="lg" icon="i-lucide-flag" :label="$t('pause.finishSave')" @click="finish" />
         <UButton block size="lg" color="error" variant="outline" icon="i-lucide-door-open" :label="$t('pause.quitWithout')" to="/" />
       </div>
     </template>

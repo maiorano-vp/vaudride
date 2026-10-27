@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const props = defineProps<{
   overlay?: boolean
+  /** Discovery mode: no rider, so no power, cadence or heart rate. */
+  demo?: boolean
   powerW?: number
   cadenceRpm?: number
   heartRate?: number
@@ -19,9 +21,13 @@ const time = computed(() => {
   return s >= 3600 ? `${Math.floor(s / 3600)}:${mm}:${ss}` : `${mm}:${ss}`
 })
 const tiles = computed(() => [
-  { key: 'power', value: props.powerW?.toFixed(0) ?? dash, unit: 'W' },
-  { key: 'cadence', value: props.cadenceRpm?.toFixed(0) ?? dash, unit: 'rpm' },
-  { key: 'heartRate', value: props.heartRate?.toString() ?? dash, unit: 'bpm' },
+  ...(props.demo
+    ? []
+    : [
+        { key: 'power', value: props.powerW?.toFixed(0) ?? dash, unit: 'W' },
+        { key: 'cadence', value: props.cadenceRpm?.toFixed(0) ?? dash, unit: 'rpm' },
+        { key: 'heartRate', value: props.heartRate?.toString() ?? dash, unit: 'bpm' },
+      ]),
   { key: 'speed', value: (props.speedMs * 3.6).toFixed(1), unit: 'km/h' },
   { key: 'grade', value: props.gradePct.toFixed(1), unit: '%' },
   { key: 'distance', value: (props.distanceM / 1000).toFixed(2), unit: 'km' },
