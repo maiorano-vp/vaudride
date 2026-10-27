@@ -53,6 +53,7 @@ describe('levels', () => {
     expect(PROFILES.high.resolutionScale).toBeGreaterThan(PROFILES.balanced.resolutionScale)
     expect(PROFILES.balanced.resolutionScale).toBeGreaterThan(PROFILES.low.resolutionScale)
     expect(PROFILES.high.maxOtherModels).toBeGreaterThan(PROFILES.low.maxOtherModels)
+    expect(PROFILES.high.maxPins).toBeGreaterThan(PROFILES.low.maxPins)
     expect(PROFILES.low.targetFrameRate).toBe(30)
   })
 
