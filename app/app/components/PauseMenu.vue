@@ -48,6 +48,8 @@ const qualityItems = computed(() =>
   })),
 )
 const qualityChoice = computed({ get: () => sceneQuality.choice.value, set: sceneQuality.choose })
+const motion = useReducedMotion()
+const reducedMotion = computed({ get: () => motion.reduced.value, set: motion.set })
 
 // rider settings: the difficulty can be changed on the fly; the rest is on the settings page
 const rider = useRiderSettings()
@@ -144,20 +146,32 @@ function finish() {
         @click="view = 'menu'"
       />
 
-      <ul v-if="view === 'menu'" class="space-y-2">
-        <li v-for="item in items" :key="item.key">
-          <UButton
-            block
-            size="xl"
-            :color="item.key === 'continue' ? 'primary' : 'neutral'"
-            :variant="item.key === 'continue' ? 'solid' : 'outline'"
-            :icon="item.icon"
-            :label="$t(`pause.${item.key}`)"
-            class="justify-start"
-            @click="item.action()"
-          />
-        </li>
-      </ul>
+      <div v-if="view === 'menu'" class="space-y-4">
+        <ul class="space-y-2">
+          <li v-for="item in items" :key="item.key">
+            <UButton
+              block
+              size="xl"
+              :color="item.key === 'continue' ? 'primary' : 'neutral'"
+              :variant="item.key === 'continue' ? 'solid' : 'outline'"
+              :icon="item.icon"
+              :label="$t(`pause.${item.key}`)"
+              class="justify-start"
+              @click="item.action()"
+            />
+          </li>
+        </ul>
+        <dl class="text-sm text-slate-500" :aria-label="$t('pause.shortcuts')">
+          <div class="flex items-center gap-2">
+            <dt><kbd class="rounded border border-slate-300 px-1.5">{{ $t('pause.keySpace') }}</kbd></dt>
+            <dd>{{ $t('pause.shortcutSpace') }}</dd>
+          </div>
+          <div class="flex items-center gap-2">
+            <dt><kbd class="rounded border border-slate-300 px-1.5">F</kbd></dt>
+            <dd>{{ $t('pause.shortcutF') }}</dd>
+          </div>
+        </dl>
+      </div>
 
       <div v-else-if="view === 'devices'" class="space-y-3">
         <p v-if="unsupported" role="alert" class="text-red-700">{{ $t('ble.unsupported') }}</p>
@@ -276,6 +290,10 @@ function finish() {
         <p class="text-sm text-slate-500">{{ $t('quality.intro') }}</p>
         <p v-if="!sceneQuality.device.value.webgl2" role="alert" class="text-sm text-red-700">{{ $t('quality.noWebgl') }}</p>
         <URadioGroup v-model="qualityChoice" :items="qualityItems" />
+        <div>
+          <USwitch v-model="reducedMotion" :label="$t('quality.reduceMotion')" />
+          <p class="mt-1 text-sm text-slate-500">{{ $t(motion.system.value ? 'quality.reduceMotionSystemOn' : 'quality.reduceMotionHelp') }}</p>
+        </div>
       </div>
 
       <div v-else-if="view === 'ghost'" class="space-y-4">

@@ -98,6 +98,9 @@ small {
   padding: 0.3rem 0.6rem 0.4rem;
   background: rgb(255 255 255 / 92%);
 }
+.overlay small {
+  color: var(--color-vaud-600);
+}
 .overlay dt {
   font-size: 0.8rem;
 }

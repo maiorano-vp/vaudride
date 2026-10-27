@@ -56,6 +56,10 @@
     "workout": "Séance",
     "rider": "Réglages",
     "display": "Affichage",
+    "shortcuts": "Raccourcis clavier",
+    "keySpace": "Espace",
+    "shortcutSpace": "mettre en pause ou reprendre",
+    "shortcutF": "garder le lieu affiché en favori",
     "ghost": "Fantôme"
   },
   "demo": {
@@ -193,7 +197,10 @@
     "lowHelp": "Scène simple, 30 images par seconde : pour les petits appareils ou pour ménager la batterie.",
     "2d": "Vue 2D",
     "2dHelp": "Le profil et les chiffres, sans 3D.",
-    "lowered": "Scène allégée ({level}) pour rester fluide."
+    "lowered": "Scène allégée ({level}) pour rester fluide.",
+    "reduceMotion": "Réduire les mouvements de la caméra",
+    "reduceMotionHelp": "La caméra reste à hauteur et à champ de vision constants. Par défaut, suit le réglage de votre système.",
+    "reduceMotionSystemOn": "Votre système demande de réduire les mouvements : la caméra reste fixe sauf si vous le changez ici."
   },
   "scene": {
     "show3d": "Vue 3D",

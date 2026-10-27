@@ -63,12 +63,13 @@ watch(trainer.ergRefused, (refused) => refused && workout.stop())
 const quality = useSceneQuality()
 const toast = useToast()
 const view = ref<'3d' | '2d'>('2d')
-let stopListening: (() => void) | undefined
+const motion = useReducedMotion()
+let stopListening: Array<() => void> = []
 onMounted(() => {
-  stopListening = quality.detect()
+  stopListening = [quality.detect(), motion.followSystem()]
   view.value = quality.effective.value === '2d' ? '2d' : '3d'
 })
-onBeforeUnmount(() => stopListening?.())
+onBeforeUnmount(() => stopListening.forEach((stop) => stop()))
 watch(
   () => quality.effective.value === '2d',
   (is2d) => (view.value = is2d ? '2d' : '3d'),
@@ -238,6 +239,7 @@ watch(
       :speed-ms="state.speedMs"
       :source="sceneSource"
       :quality="quality.profile.value"
+      :reduced-motion="motion.reduced.value"
       :google-key="googleMapsKey"
       :ion-token="cesiumIonToken"
       :cadence-rpm="cadenceRpm"
@@ -480,7 +482,7 @@ watch(
   gap: 0.25rem;
   padding: 0.5rem 0.9rem;
   color: #fff;
-  background: rgb(10 64 105 / 85%);
+  background: rgb(10 64 105 / 92%);
   border-radius: 0.5rem;
 }
 .immersive .demo-speed {

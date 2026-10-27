@@ -56,6 +56,10 @@
     "workout": "Training",
     "rider": "Einstellungen",
     "display": "Anzeige",
+    "shortcuts": "Tastenkürzel",
+    "keySpace": "Leertaste",
+    "shortcutSpace": "pausieren oder fortsetzen",
+    "shortcutF": "den angezeigten Ort als Favorit merken",
     "ghost": "Geist"
   },
   "demo": {
@@ -193,7 +197,10 @@
     "lowHelp": "Einfache Szene mit 30 Bildern pro Sekunde: für kleine Geräte oder um den Akku zu schonen.",
     "2d": "2D-Ansicht",
     "2dHelp": "Profil und Zahlen, ohne 3D.",
-    "lowered": "Szene vereinfacht ({level}), damit es flüssig bleibt."
+    "lowered": "Szene vereinfacht ({level}), damit es flüssig bleibt.",
+    "reduceMotion": "Kamerabewegungen reduzieren",
+    "reduceMotionHelp": "Die Kamera bleibt auf gleicher Höhe und mit gleichem Blickfeld. Standardmässig folgt sie der Einstellung Ihres Systems.",
+    "reduceMotionSystemOn": "Ihr System verlangt weniger Bewegung: Die Kamera bleibt ruhig, ausser Sie ändern das hier."
   },
   "scene": {
     "show3d": "3D-Ansicht",

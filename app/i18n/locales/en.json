@@ -56,6 +56,10 @@
     "workout": "Workout",
     "rider": "Settings",
     "display": "Display",
+    "shortcuts": "Keyboard shortcuts",
+    "keySpace": "Space",
+    "shortcutSpace": "pause or resume",
+    "shortcutF": "keep the place shown as a favourite",
     "ghost": "Ghost"
   },
   "demo": {
@@ -193,7 +197,10 @@
     "lowHelp": "A simple scene at 30 frames per second: for small devices or to save the battery.",
     "2d": "2D view",
     "2dHelp": "The profile and the figures, no 3D.",
-    "lowered": "Scene made lighter ({level}) to stay smooth."
+    "lowered": "Scene made lighter ({level}) to stay smooth.",
+    "reduceMotion": "Reduce camera movement",
+    "reduceMotionHelp": "The camera keeps a constant height and field of view. By default it follows your system setting.",
+    "reduceMotionSystemOn": "Your system asks for less motion: the camera stays steady unless you change it here."
   },
   "scene": {
     "show3d": "3D view",

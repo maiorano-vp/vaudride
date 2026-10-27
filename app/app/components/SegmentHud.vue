@@ -47,7 +47,7 @@ const runS = computed(() => (props.active ? props.elapsedS - props.active.starte
 .segment {
   padding: 0.5rem 0.9rem;
   color: #fff;
-  background: rgb(10 64 105 / 85%);
+  background: rgb(10 64 105 / 92%);
   border-radius: 0.5rem;
 }
 .name {

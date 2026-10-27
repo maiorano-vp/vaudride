@@ -20,7 +20,9 @@ export function useVoiceCommand(onHear: (transcript: string) => void) {
   const maxAge = 60 * 60 * 24 * 365
   const storedOn = useCookie<boolean>('voice-command', { maxAge, default: () => false })
   const enabled = useState('voice-command', () => storedOn.value)
-  const { locale } = useI18n()
+  const { locale, locales } = useI18n()
+  // the full language tag of the locale (fr-CH, de-CH, en), which the recognition understands better than "de"
+  const language = computed(() => locales.value.find((l) => typeof l !== 'string' && l.code === locale.value) as { language?: string } | undefined)
   // known once mounted, so the server and the first client render agree
   const supported = ref(false)
   let recognition: Recognition | undefined
@@ -38,7 +40,7 @@ export function useVoiceCommand(onHear: (transcript: string) => void) {
     if (!Ctor) return
     recognition = new Ctor()
     recognition.continuous = true
-    recognition.lang = locale.value
+    recognition.lang = language.value?.language ?? locale.value
     recognition.onresult = (e) => {
       // the voice of the app itself must not be taken for a command
       if (window.speechSynthesis.speaking) return
