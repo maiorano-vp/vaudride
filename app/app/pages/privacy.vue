@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // what the app keeps about a player; the texts are in the locale files so DE and EN say the same as FR
-const SECTIONS = ['account', 'rides', 'settings', 'live', 'extras', 'origin', 'hosting', 'rights'] as const
+const SECTIONS = ['account', 'rides', 'real', 'settings', 'live', 'extras', 'origin', 'hosting', 'rights'] as const
 const { privacyContact } = useRuntimeConfig().public
 </script>
 

@@ -136,6 +136,10 @@
       "title": "Ihre Fahrten",
       "text": "Nur wenn Sie sie speichern: Strecke, Datum, Dauer, Distanz, Höhenmeter und, Sekunde für Sekunde, Leistung, Trittfrequenz und Herzfrequenz. Sie sind nur für Sie sichtbar. Nur Ihre Zeiten auf Abschnitten (mit Ihrem Pseudonym) erscheinen in den Ranglisten."
     },
+    "real": {
+      "title": "In echt gefahrene Strecken",
+      "text": "Wenn Sie angeben, eine Strecke in echt gefahren zu sein: die Strecke und der Tag. Nur Sie sehen sie in Ihrem Pass, Sie können sie jederzeit entfernen, und sie verschwinden mit Ihrem Konto. In den Statistiken bleibt nur die Anzahl der Angaben pro Strecke."
+    },
     "settings": {
       "title": "Ihre Einstellungen, auch Ihr Gewicht",
       "text": "Gewicht von Fahrerin / Fahrer und Velo, Position, FTP und Schwierigkeit. Das Gewicht ist eine besonders schützenswerte persönliche Angabe: Es dient nur zur Berechnung von Tempo und Widerstand, wird nie angezeigt oder geteilt und erscheint nicht in Ihrem öffentlichen Profil. Angemeldet werden Ihre Einstellungen in Ihrem Konto gespeichert, damit Sie sie auf allen Geräten finden; ohne Anmeldung bleiben sie auf Ihrem Gerät. Sie können sie jederzeit auf der Seite «Meine Einstellungen» löschen."
@@ -183,7 +187,23 @@
     "summaryInvite": "Sie sind soeben «{name}» gefahren: fahren Sie sie in echt.",
     "summaryLink": "So fahren Sie sie vor Ort",
     "demoFinished": "Lust, sie in echt zu fahren? Code scannen.",
-    "demoQr": "Diese Strecke in echt fahren: scannen"
+    "demoQr": "Diese Strecke in echt fahren: scannen",
+    "iDidIt": "Ich bin sie in echt gefahren",
+    "when": "An welchem Tag",
+    "declare": "In meinen Pass eintragen",
+    "declareError": "Im Moment nicht möglich: bitte später erneut versuchen.",
+    "rodeOn": "Gefahren am {date}",
+    "remove": "Entfernen",
+    "signIn": "Melden Sie sich an, um diese Strecke in Ihrem Waadtländer Pass zu vermerken."
+  },
+  "passport": {
+    "menu": "Mein Pass",
+    "title": "Mein Waadtländer Pass",
+    "intro": "Die Strecken, die Sie in echt gefahren sind, nach Ihren Angaben. Nur Sie sehen sie.",
+    "progress": "{count} von {total} Strecken",
+    "done": "Schon gefahren",
+    "todo": "Zu entdecken",
+    "open": "Meinen Pass ansehen"
   },
   "workout": {
     "intro": "Der Heimtrainer hält die Leistung des Trainings, unabhängig von der Steigung. Ohne Training folgt er dem Profil der Strecke.",

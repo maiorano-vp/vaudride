@@ -136,6 +136,10 @@
       "title": "Vos sorties",
       "text": "Seulement quand vous choisissez de les enregistrer : le parcours, la date, la durée, la distance, le dénivelé et, seconde par seconde, la puissance, la cadence et la fréquence cardiaque. Elles ne sont visibles que de vous. Seuls vos temps sur les segments (avec votre pseudo) figurent dans les classements."
     },
+    "real": {
+      "title": "Parcours roulés pour de vrai",
+      "text": "Si vous déclarez avoir roulé un parcours pour de vrai : le parcours et le jour. Vous seul les voyez dans votre passeport, vous pouvez les retirer à tout moment, et ils disparaissent avec votre compte. Les statistiques n'en gardent que le nombre de déclarations par parcours."
+    },
     "settings": {
       "title": "Vos réglages, dont votre poids",
       "text": "Poids du cycliste et du vélo, position, FTP et difficulté. Le poids est une donnée personnelle sensible : il ne sert qu'à calculer votre vitesse et la résistance, n'est jamais affiché ni partagé, et n'apparaît pas dans votre profil public. Connecté, vos réglages sont enregistrés sur votre compte pour les retrouver sur tous vos appareils ; non connecté, ils restent sur votre appareil. Vous pouvez les supprimer à tout moment depuis la page « Mes réglages »."
@@ -183,7 +187,23 @@
     "summaryInvite": "Vous venez de rouler « {name} » : faites-le pour de vrai.",
     "summaryLink": "Voir comment le rouler sur place",
     "demoFinished": "Envie de le rouler pour de vrai ? Scannez le code.",
-    "demoQr": "Rouler ce parcours pour de vrai : scannez"
+    "demoQr": "Rouler ce parcours pour de vrai : scannez",
+    "iDidIt": "Je l'ai roulé pour de vrai",
+    "when": "Le jour où vous l'avez roulé",
+    "declare": "Ajouter à mon passeport",
+    "declareError": "Impossible d'enregistrer pour le moment : réessayez plus tard.",
+    "rodeOn": "Roulé le {date}",
+    "remove": "Retirer",
+    "signIn": "Connectez-vous pour noter ce parcours dans votre passeport vaudois."
+  },
+  "passport": {
+    "menu": "Mon passeport",
+    "title": "Mon passeport vaudois",
+    "intro": "Les parcours que vous avez roulés pour de vrai, d'après ce que vous avez déclaré. Vous seul les voyez.",
+    "progress": "{count} parcours sur {total}",
+    "done": "Déjà roulés",
+    "todo": "À découvrir",
+    "open": "Voir mon passeport"
   },
   "workout": {
     "intro": "Le home trainer tient la puissance de la séance, quelle que soit la pente. Sans séance, il suit le relief du parcours.",

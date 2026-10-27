@@ -147,6 +147,14 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
     }
 
     /**
+     * @return HasMany<RealRide, $this>
+     */
+    public function realRides(): HasMany
+    {
+        return $this->hasMany(RealRide::class);
+    }
+
+    /**
      * @return BelongsToMany<Poi, $this>
      */
     public function favoritePois(): BelongsToMany
