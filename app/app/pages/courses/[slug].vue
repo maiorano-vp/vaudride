@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { fileSlug, startLinks, toGpx } from '~/lib/course/gpx'
 import { categoryCounts, filterPois, poiDescription, poiTitle, sheetSection, type Poi } from '~/lib/pois/nearby'
 import { segmentName, type Segment } from '~/lib/segments/tracker'
 
@@ -7,6 +6,8 @@ interface CourseInfo {
   name: Record<string, string>
   description: Record<string, string> | null
   attribution: string
+  best_months?: number[] | null
+  forecast?: Array<{ day: string; temp_min: number | null; temp_max: number | null; precipitation_mm: number | null; place?: string | null }>
   pois?: Poi[]
   segments?: Segment[]
 }
@@ -40,22 +41,8 @@ const sections = computed(() =>
     .map((key) => ({ key, pois: shownPois.value.filter((p) => sheetSection(p) === key) }))
     .filter((s) => s.pois.length),
 )
-const links = computed(() => (profile.value ? startLinks(profile.value.points[0]!) : undefined))
 const maxGrade = computed(() => (profile.value ? Math.max(...profile.value.points.map((p) => p.grade)) : 0))
 const km = (m: number) => (m / 1000).toFixed(1)
-
-function downloadGpx() {
-  if (!profile.value) return
-  const blob = new Blob([toGpx({ name: name.value, attribution: profile.value.attribution, points: profile.value.points })], {
-    type: 'application/gpx+xml',
-  })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${fileSlug(name.value)}.gpx`
-  a.click()
-  URL.revokeObjectURL(url)
-}
 </script>
 
 <template>
@@ -97,10 +84,16 @@ function downloadGpx() {
     <div class="flex flex-wrap gap-3">
       <UButton :to="`/ride/${slug}`" :label="$t('course.ride')" />
       <UButton :to="{ path: `/ride/${slug}`, query: { demo: '1' } }" color="neutral" variant="outline" icon="i-lucide-plane" :label="$t('course.fly')" />
-      <UButton v-if="profile" color="neutral" variant="outline" :label="$t('course.gpx')" @click="downloadGpx" />
-      <UButton v-if="links" color="neutral" variant="outline" :to="links.transit" target="_blank" rel="noopener" :label="$t('course.transit')" />
-      <UButton v-if="links" color="neutral" variant="outline" :to="links.map" target="_blank" rel="noopener" :label="$t('course.start')" />
     </div>
+
+    <RealRideBlock
+      :slug="slug"
+      :name="name"
+      :profile="profile"
+      :pois="pois"
+      :best-months="course.best_months"
+      :forecast="course.forecast"
+    />
 
     <section v-if="segments.length">
       <h2 class="mb-2 font-display text-xl uppercase tracking-wide text-vaud-800">{{ $t('course.climbs') }}</h2>
@@ -146,7 +139,7 @@ function downloadGpx() {
     </nav>
     <p v-if="pois.length && !sections.length" class="text-slate-500">{{ $t('course.noMatch') }}</p>
 
-    <section v-for="section in sections" :key="section.key">
+    <section v-for="section in sections" :id="section.key" :key="section.key">
       <h2 class="mb-2 font-display text-xl uppercase tracking-wide text-vaud-800">{{ $t(`course.${section.key}`) }}</h2>
       <ul class="space-y-3">
         <li v-for="p in section.pois" :key="p.id" class="flex gap-3">

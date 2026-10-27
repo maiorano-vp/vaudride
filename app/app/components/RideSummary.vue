@@ -16,6 +16,8 @@ const props = defineProps<{
   finished: boolean
   efforts: SegmentEffort[]
   courseName: string
+  /** To invite the rider to ride the course for real once it is finished. */
+  courseSlug?: string
   courseProfile?: CourseProfile
   /** The places the rider kept during the ride. */
   keptPlaces?: Poi[]
@@ -94,6 +96,11 @@ const rows = computed(() => [
             <UButton size="md" variant="link" color="neutral" :label="$t('segment.leaderboard')" @click="showBoard(e)" />
           </li>
         </ul>
+      </section>
+      <section v-if="finished && courseSlug" class="mt-5 rounded border border-vaud-100 bg-vaud-50 p-3">
+        <p class="m-0 font-semibold text-vaud-800">{{ $t('real.summaryInvite', { name: courseName }) }}</p>
+        <!-- a new tab: leaving this page would lose the ride that has not been saved yet -->
+        <UButton class="mt-1" size="md" variant="link" icon="i-lucide-bike" :to="`/courses/${courseSlug}#real`" target="_blank" :label="$t('real.summaryLink')" />
       </section>
       <section v-if="keptPlaces?.length" class="mt-5">
         <h3 class="mb-1 font-display uppercase tracking-wide">{{ $t('favorites.kept_title') }}</h3>
