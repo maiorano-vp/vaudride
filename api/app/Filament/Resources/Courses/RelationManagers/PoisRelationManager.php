@@ -6,8 +6,10 @@ namespace App\Filament\Resources\Courses\RelationManagers;
 
 use App\Actions\ImportLocalhubPois;
 use App\Actions\ImportOsmPois;
+use App\Actions\ImportTerroirPois;
 use App\Enums\PoiCategory;
 use App\Models\Course;
+use App\Services\TerroirClient;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -66,6 +68,7 @@ final class PoisRelationManager extends RelationManager
                 TextColumn::make('source')->label('Origine')->badge()->formatStateUsing(fn (string $state): string => match ($state) {
                     'osm' => 'OpenStreetMap',
                     'localhub' => 'Local Hub',
+                    'terroir' => 'Terroir Vaud',
                     default => 'Vaud Promotion',
                 }),
                 IconColumn::make('published')->label('Publié')->boolean(),
@@ -111,6 +114,36 @@ final class PoisRelationManager extends RelationManager
                         }
 
                         Notification::make()->title($result['created'].' lieu(x) importé(s), '.$result['skipped'].' ignoré(s). Publiés: masquez ceux que vous ne voulez pas.')->success()->send();
+                    }),
+                Action::make('importTerroir')->label('Importer les partenaires Terroir')->icon(Heroicon::OutlinedShoppingBag)
+                    ->requiresConfirmation()
+                    ->modalDescription('Les partenaires Terroir (agritourisme, boulangeries, épiceries) à moins de 300 m du tracé sont ajoutés non publiés, à relire avant publication.')
+                    ->action(function (): void {
+                        /** @var Course $course */
+                        $course = $this->getOwnerRecord();
+                        $import = resolve(ImportTerroirPois::class);
+
+                        if (! resolve(TerroirClient::class)->configured()) {
+                            Notification::make()->title('TERROIR_TOKEN n’est pas configuré sur ce serveur.')->warning()->send();
+
+                            return;
+                        }
+
+                        try {
+                            $result = $import->handle($course, $import->partners());
+                        } catch (Throwable) {
+                            Notification::make()->title('L’API Terroir ne répond pas, réessayez dans quelques minutes.')->danger()->send();
+
+                            return;
+                        }
+
+                        if ($result === null) {
+                            Notification::make()->title('Ce parcours n’a pas encore de profil.')->warning()->send();
+
+                            return;
+                        }
+
+                        Notification::make()->title($result['created'].' lieu(x) importé(s), '.$result['skipped'].' déjà présent(s). À relire avant publication.')->success()->send();
                     }),
                 CreateAction::make(),
             ])

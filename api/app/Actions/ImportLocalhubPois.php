@@ -7,7 +7,7 @@ namespace App\Actions;
 use App\Enums\PoiCategory;
 use App\Models\Course;
 use App\Models\LocalhubPlace;
-use Illuminate\Support\Facades\Storage;
+use App\Services\CourseCorridor;
 
 /**
  * Adds the Local Hub places near a course as points of interest. They are the destination's own data, so they are
@@ -27,30 +27,22 @@ final readonly class ImportLocalhubPois
      */
     public function handle(Course $course, bool $dryRun = false, bool $publish = true): ?array
     {
-        $disk = Storage::disk(StoreCourseProfile::DISK);
-        $path = StoreCourseProfile::path($course->slug);
+        $corridor = CourseCorridor::forCourse($course);
 
-        if (! $disk->exists($path) || ! LocalhubPlace::query()->exists()) {
+        if (! $corridor instanceof CourseCorridor || ! LocalhubPlace::query()->exists()) {
             return null;
         }
 
-        /** @var array{points: list<array{d: float|int, lat: float|int, lon: float|int}>} $profile */
-        $profile = json_decode((string) $disk->get($path), true, flags: JSON_THROW_ON_ERROR);
-        $points = $profile['points'];
-        $first = $points[0];
-        $last = $points[array_key_last($points)];
         $known = $dryRun ? [] : $course->pois()->pluck('external_id')->filter()->all();
         $created = 0;
         $skipped = 0;
         $preview = [];
 
         // a box around the route (with the lodging margin) keeps the database from handing over the whole catalogue
-        $margin = 0.04; // about 4.4 km
-        $lats = array_column($points, 'lat');
-        $lons = array_column($points, 'lon');
+        $box = $corridor->box(0.04);
         $candidates = LocalhubPlace::query()
-            ->whereBetween('lat', [min($lats) - $margin, max($lats) + $margin])
-            ->whereBetween('lon', [min($lons) - $margin, max($lons) + $margin])
+            ->whereBetween('lat', $box['lat'])
+            ->whereBetween('lon', $box['lon'])
             ->get();
 
         foreach ($candidates as $place) {
@@ -60,12 +52,10 @@ final readonly class ImportLocalhubPois
                 continue;
             }
 
-            [$distance, $offset] = $this->alongCourse($points, $place->lat, $place->lon);
-            $nearEnds = min(
-                $this->metres($first['lat'], $first['lon'], $place->lat, $place->lon),
-                $this->metres($last['lat'], $last['lon'], $place->lat, $place->lon),
-            );
-            $relevant = $place->category === PoiCategory::Lodging ? $nearEnds <= self::LODGING_AROUND_ENDS_M : $offset <= self::ALONG_ROUTE_M;
+            [$distance, $offset] = $corridor->along($place->lat, $place->lon);
+            $relevant = $place->category === PoiCategory::Lodging
+                ? $corridor->nearEnds($place->lat, $place->lon) <= self::LODGING_AROUND_ENDS_M
+                : $offset <= self::ALONG_ROUTE_M;
 
             if (! $relevant) {
                 $skipped++;
@@ -99,34 +89,5 @@ final readonly class ImportLocalhubPois
         }
 
         return ['created' => $created, 'skipped' => $skipped, 'preview' => $preview];
-    }
-
-    /**
-     * Distance along the course of the nearest route point, and how far off the road the place is (m).
-     *
-     * @param  list<array{d: float|int, lat: float|int, lon: float|int}>  $points
-     * @return array{float, float}
-     */
-    private function alongCourse(array $points, float $lat, float $lon): array
-    {
-        $best = [0.0, INF];
-
-        foreach ($points as $p) {
-            $meters = $this->metres($p['lat'], $p['lon'], $lat, $lon);
-
-            if ($meters < $best[1]) {
-                $best = [(float) $p['d'], $meters];
-            }
-        }
-
-        return $best;
-    }
-
-    private function metres(float|int $lat1, float|int $lon1, float $lat2, float $lon2): float
-    {
-        $dy = ($lat2 - $lat1) * 111_320;
-        $dx = ($lon2 - $lon1) * 111_320 * cos(deg2rad($lat2));
-
-        return sqrt($dx * $dx + $dy * $dy);
     }
 }

@@ -441,6 +441,9 @@
       "shop": "Commerce",
       "activity": "Activité",
       "service": "Service pratique",
+      "agritourism": "Agritourisme",
+      "bakery": "Boulangerie",
+      "grocery": "Épicerie",
       "other": "Autre"
     }
   },

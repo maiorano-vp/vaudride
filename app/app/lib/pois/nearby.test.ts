@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { categoryCounts, filterPois, nearbyPoi, poiDescription, poiTitle, type Poi } from './nearby'
+import {
+  categoryCounts,
+  filterPois,
+  nearbyPoi,
+  poiDescription,
+  poiTitle,
+  type Poi,
+} from './nearby'
 
 const poi = (id: string, distance_m: number): Poi => ({
   id,
@@ -48,16 +55,36 @@ describe('sheetSection', () => {
   it('puts lodging, services and the rest in their own sections', async () => {
     const { sheetSection, SHEET_ONLY_CATEGORIES } = await import('./nearby')
     expect(sheetSection(of('lodging'))).toBe('lodging')
-    expect(['water', 'bike', 'station', 'shop', 'service'].map((c) => sheetSection(of(c)))).toEqual(Array(5).fill('services'))
-    expect([null, 'wine', 'viewpoint', 'activity'].map((c) => sheetSection(of(c)))).toEqual(Array(4).fill('discover'))
-    expect(SHEET_ONLY_CATEGORIES).toEqual(expect.arrayContaining(['lodging', 'shop', 'service', 'activity']))
+    expect(
+      ['water', 'bike', 'station', 'shop', 'service', 'bakery', 'grocery'].map(
+        (c) => sheetSection(of(c)),
+      ),
+    ).toEqual(Array(7).fill('services'))
+    expect(
+      [null, 'wine', 'viewpoint', 'activity', 'agritourism'].map((c) =>
+        sheetSection(of(c)),
+      ),
+    ).toEqual(Array(5).fill('discover'))
+    expect(SHEET_ONLY_CATEGORIES).toEqual(
+      expect.arrayContaining(['lodging', 'shop', 'service', 'activity']),
+    )
     expect(SHEET_ONLY_CATEGORIES).not.toContain('viewpoint')
   })
 })
 
 describe('category filter', () => {
-  const of = (id: string, category: string | null): Poi => ({ ...poi(id, 0), category })
-  const pois = [of('a', 'wine'), of('b', 'food'), of('c', 'wine'), of('d', null), of('e', 'wine'), of('f', 'food')]
+  const of = (id: string, category: string | null): Poi => ({
+    ...poi(id, 0),
+    category,
+  })
+  const pois = [
+    of('a', 'wine'),
+    of('b', 'food'),
+    of('c', 'wine'),
+    of('d', null),
+    of('e', 'wine'),
+    of('f', 'food'),
+  ]
 
   it('counts the places per category, the biggest first', () => {
     expect(categoryCounts(pois)).toEqual([
@@ -68,9 +95,20 @@ describe('category filter', () => {
   })
 
   it('keeps the places of the selected categories, or all when none is selected', () => {
-    expect(filterPois(pois, []).map((p) => p.id)).toEqual(['a', 'b', 'c', 'd', 'e', 'f'])
+    expect(filterPois(pois, []).map((p) => p.id)).toEqual([
+      'a',
+      'b',
+      'c',
+      'd',
+      'e',
+      'f',
+    ])
     expect(filterPois(pois, ['food']).map((p) => p.id)).toEqual(['b', 'f'])
-    expect(filterPois(pois, ['food', 'other']).map((p) => p.id)).toEqual(['b', 'd', 'f'])
+    expect(filterPois(pois, ['food', 'other']).map((p) => p.id)).toEqual([
+      'b',
+      'd',
+      'f',
+    ])
     expect(filterPois(pois, ['nature'])).toEqual([])
   })
 })
