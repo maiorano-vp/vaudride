@@ -4,6 +4,7 @@ import { advance, fly, initialRide, seekRide } from './ride'
 import { connectDevice } from './ble/connect'
 import { FTMS_SERVICE } from './ble/ftms'
 import { createSimTransport } from './ble/sim'
+import { DEFAULT_PARAMS } from './physics/speed'
 
 // 1 km straight climb at 8 %, points every 100 m
 const course: CourseProfile = {
@@ -40,6 +41,28 @@ describe('advance', () => {
   it('does not move without power on a climb', () => {
     const s = advance(initialRide(course), 0, course, 0.25)
     expect(s.distanceM).toBeLessThan(0.1)
+  })
+})
+
+describe('difficulty', () => {
+  it('goes faster up the same climb at the same power when the grade is scaled down, with the real grade still shown', () => {
+    const run = (scale: number) => {
+      let s = initialRide(course)
+      for (let i = 0; i < 40; i++) s = advance(s, 200, course, 0.25, undefined, scale)
+      return s
+    }
+    const real = run(1)
+    const easier = run(0.5)
+
+    expect(easier.speedMs).toBeGreaterThan(real.speedMs * 1.5)
+    expect(easier.gradePct).toBe(real.gradePct) // the course is what it is
+    expect(easier.elevationGainM).toBeGreaterThan(real.elevationGainM) // and so is the climb, it just takes less time
+  })
+
+  it('weighs more on a heavier rider', () => {
+    const light = advance(initialRide(course), 200, course, 5, { ...DEFAULT_PARAMS, riderKg: 55 })
+    const heavy = advance(initialRide(course), 200, course, 5, { ...DEFAULT_PARAMS, riderKg: 95 })
+    expect(light.speedMs).toBeGreaterThan(heavy.speedMs)
   })
 })
 

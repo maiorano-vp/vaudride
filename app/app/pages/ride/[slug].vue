@@ -42,14 +42,17 @@ const heartRate = computed(() => strap.bpm.value ?? trainer.data.value.heartRate
 const workout = useWorkout()
 onMounted(workout.load)
 onBeforeUnmount(workout.stop)
-const { state, paused, reset, seek } = useRide(
-  computed(() => course.value ?? undefined),
-  powerW,
-  trainer.setGrade,
-  workout.targetW,
-  trainer.setTargetPower,
+const rider = useRiderSettings()
+onMounted(rider.load)
+const { state, paused, reset, seek } = useRide(computed(() => course.value ?? undefined), powerW, trainer.setGrade, {
+  targetW: workout.targetW,
+  onTarget: trainer.setTargetPower,
   flyMs,
-)
+  params: rider.params,
+  difficultyPct: rider.difficultyPct,
+})
+// weight and drag area also reach the trainer (the wind and rolling resistance of its simulation)
+watch(rider.params, trainer.setParams, { immediate: true })
 watch(() => state.value.elapsedS, workout.tick)
 // a trainer without ERG support: the workout stops and the grade takes over again
 watch(trainer.ergRefused, (refused) => refused && workout.stop())
@@ -276,6 +279,7 @@ watch(
       class="hud-top"
       :overlay="view === '3d'"
       :demo="demo"
+      :difficulty-pct="rider.difficultyPct.value"
       :power-w="powerW"
       :cadence-rpm="cadenceRpm"
       :heart-rate="heartRate"

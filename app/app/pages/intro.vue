@@ -83,6 +83,8 @@ const devices = computed(() => [
       </label>
     </UCard>
 
+    <UButton color="neutral" variant="outline" icon="i-lucide-sliders-horizontal" :label="$t('rider.menu')" to="/settings" />
+
     <UButton
       size="xl"
       :label="$t('intro.start')"

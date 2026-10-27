@@ -30,6 +30,8 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read string $password
  * @property-read bool $is_admin
  * @property-read array<string, string>|null $avatar
+ * @property-read array{weightKg: int|float, bikeKg: int|float, position: string, cda: int|float, ftp: int, difficultyPct: int}|null $rider_settings
+ * @property-read CarbonInterface|null $rider_settings_updated_at
  * @property-read string|null $app_authentication_secret
  * @property-read list<string>|null $app_authentication_recovery_codes
  * @property-read string|null $remember_token
@@ -40,6 +42,8 @@ use Laravel\Sanctum\HasApiTokens;
     'password',
     'remember_token',
     'is_admin',
+    'rider_settings',
+    'rider_settings_updated_at',
     'app_authentication_secret',
     'app_authentication_recovery_codes',
 ])]
@@ -66,6 +70,8 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'avatar' => 'array',
+            'rider_settings' => 'array',
+            'rider_settings_updated_at' => 'datetime',
             'app_authentication_secret' => 'encrypted',
             'app_authentication_recovery_codes' => 'encrypted:array',
             'remember_token' => 'string',

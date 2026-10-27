@@ -10,7 +10,8 @@
     "grade": "Grade",
     "distance": "Distance",
     "climb": "Climb",
-    "time": "Time"
+    "time": "Time",
+    "difficulty": "Difficulty"
   },
   "profile": {
     "label": "Course elevation profile"
@@ -52,6 +53,7 @@
     "quitWithout": "Quit without saving",
     "sound": "Sound",
     "workout": "Workout",
+    "rider": "Settings",
     "ghost": "Ghost"
   },
   "demo": {
@@ -67,6 +69,91 @@
     "komHelp": "The next timed segment, with the record holder.",
     "none": "No finished ride",
     "label": "Ghost"
+  },
+  "rider": {
+    "menu": "My settings",
+    "title": "My settings",
+    "intro": "Your weight, position and reference power make speed and resistance more accurate. Difficulty softens the climbs for beginners or lower-powered trainers.",
+    "privacyAccount": "Your weight and these settings are personal data: they are saved on your account, on a server in Switzerland, so you find them on every device. They are only used to work out your speed and the resistance, are visible to you alone and are shared with nobody. You can delete them at any time.",
+    "privacyLocal": "These settings stay on this device. Sign in to find them everywhere.",
+    "you": "You and your bike",
+    "weight": "Rider weight (kg)",
+    "weightHelp": "With your kit. The heavier you are, the harder the climbs.",
+    "bike": "Bike weight (kg)",
+    "bikeHelp": "A road bike weighs 8 to 10 kg.",
+    "position": {
+      "label": "Riding position",
+      "hoods": "Hands on the hoods",
+      "drops": "Hands in the drops",
+      "aero": "Aerodynamic position",
+      "tops": "Hands on the tops",
+      "custom": "Custom value"
+    },
+    "positionHelp": "The lower you are, the less the air slows you down: it matters most on the flat and downhill.",
+    "cda": "Frontal area (CdA, m²)",
+    "cdaHelp": "From 0.25 (very aero) to 0.45 (upright).",
+    "power": "Power",
+    "ftp": "FTP (W)",
+    "ftpHelp": "The power you can hold for about an hour. If you do not know it: 95 % of your best 20-minute average.",
+    "ftpEstimate": "Estimated FTP: {watts} W",
+    "ftpEstimateFrom": "From your best 20-minute effort ({watts} W average, on {date}).",
+    "ftpUse": "Use this value",
+    "ftpNone": "Ride 20 minutes flat out in one go and save the ride: we will suggest an FTP.",
+    "difficulty": "Difficulty",
+    "difficultyHelp": "At 100 % you ride the real grade. At 50 %, an 8 % climb pedals like a 4 % one, and you move accordingly. Ideal to start or for a lower-powered trainer. The terrain you see stays the course's.",
+    "difficultyNow": "Difficulty: {pct} % of the grade",
+    "reset": "Restore the defaults",
+    "eraseAccount": "Delete my settings from my account",
+    "eraseLocal": "Delete my settings from this device",
+    "erase": {
+      "done": "Settings deleted.",
+      "error": "Cannot delete right now: please try again later."
+    },
+    "allSettings": "All settings",
+    "sync": {
+      "idle": "",
+      "saving": "Saving…",
+      "saved": "Saved on your account.",
+      "error": "Not saved on the account: will retry with the next change."
+    }
+  },
+  "privacy": {
+    "link": "Data protection",
+    "title": "Data protection",
+    "intro": "This is what Vaud Ride keeps about you, why, and how to delete it. The app follows the Swiss data protection act (nLPD / FADP). Without an account nothing is sent: your settings stay on your device.",
+    "account": {
+      "title": "Your account",
+      "text": "Your nickname, your e-mail address and your password (kept in an encrypted form that cannot be read back). The nickname shows in the leaderboards and to the other riders on the same course; the e-mail address is never shown."
+    },
+    "rides": {
+      "title": "Your rides",
+      "text": "Only when you choose to save them: the course, the date, the duration, the distance, the climb and, second by second, power, cadence and heart rate. They are visible to you alone. Only your times on segments (with your nickname) appear in the leaderboards."
+    },
+    "settings": {
+      "title": "Your settings, including your weight",
+      "text": "Rider and bike weight, position, FTP and difficulty. Weight is sensitive personal data: it is only used to work out your speed and the resistance, is never displayed or shared, and is not in your public profile. Signed in, your settings are saved on your account so you find them on every device; signed out, they stay on your device. You can delete them at any time from the \"My settings\" page."
+    },
+    "live": {
+      "title": "During a ride",
+      "text": "Your nickname, your position on the course and your power are shown live to the other riders on the same course. This is not kept."
+    },
+    "extras": {
+      "title": "Kit, favourites and Strava",
+      "text": "The colours of your kit, the places you favourite and, if you connect Strava, the authorisation needed to send your rides there. You can disconnect Strava at any time."
+    },
+    "origin": {
+      "title": "What is not kept",
+      "text": "The app does not record your country or where you live. The usage statistics shown to those in charge of the service are anonymous totals."
+    },
+    "hosting": {
+      "title": "Where the data is",
+      "text": "The server and the database holding this information are hosted in Switzerland."
+    },
+    "rights": {
+      "title": "Your rights",
+      "text": "You can ask to see, correct or delete your data. You delete your settings (weight included) yourself from the \"My settings\" page; for the rest, write to us."
+    },
+    "contact": "For any request:"
   },
   "workout": {
     "intro": "The trainer holds the workout's power whatever the grade. Without a workout, it follows the course's terrain.",

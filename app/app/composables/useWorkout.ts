@@ -1,8 +1,6 @@
 import { progressAt, targetWatts, type Workout } from '~/lib/workout/workout'
 
-const FTP_KEY = 'vaudride.ftp'
 const CUSTOM_KEY = 'vaudride.workout'
-export const DEFAULT_FTP = 200
 
 const read = (key: string): unknown => {
   try {
@@ -27,15 +25,16 @@ const isWorkout = (w: unknown): w is Workout =>
 
 /**
  * The structured workout of the current ride (ERG), shared between the ride page and the pause menu.
- * The clock is the ride's own, so pausing the ride pauses the workout. FTP and the rider's own workout stay in this
- * browser only (no personal data on the server).
+ * The clock is the ride's own, so pausing the ride pauses the workout. The rider's own workout stays in this browser;
+ * the FTP is one of the rider settings, which follow the account.
  */
 export function useWorkout() {
   const active = useState<Workout | undefined>('workout-active', () => undefined)
   const startedAtS = useState('workout-started', () => 0)
   const elapsedS = useState('workout-elapsed', () => 0)
   const completed = useState('workout-completed', () => false)
-  const ftp = useState('workout-ftp', () => DEFAULT_FTP)
+  const rider = useRiderSettings()
+  const ftp = rider.ftp
   const custom = useState<Workout | undefined>('workout-custom', () => undefined)
 
   const progress = computed(() => (active.value ? progressAt(active.value, elapsedS.value - startedAtS.value) : undefined))
@@ -59,16 +58,12 @@ export function useWorkout() {
     active.value = undefined
     completed.value = false
   }
+  /** The rider's own workout; the FTP comes with the rider settings (`useRiderSettings().load()`). */
   function load() {
-    const savedFtp = Number(read(FTP_KEY))
-    if (savedFtp >= 50 && savedFtp <= 600) ftp.value = savedFtp
     const saved = read(CUSTOM_KEY)
     if (isWorkout(saved)) custom.value = saved
   }
-  function setFtp(watts: number) {
-    ftp.value = Math.min(600, Math.max(50, Math.round(watts)))
-    write(FTP_KEY, ftp.value)
-  }
+  const setFtp = (watts: number) => rider.update({ ftp: watts })
   function saveCustom(workout: Workout) {
     custom.value = workout
     write(CUSTOM_KEY, workout)
