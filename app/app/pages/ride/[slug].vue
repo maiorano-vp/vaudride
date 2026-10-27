@@ -70,6 +70,11 @@ const poiNearby = computed(() =>
 )
 const { active: activeSegment, finished: finishedSegment } = useSegments(slug, segments, state)
 
+// the ghost (own best or last ride, or the segment record) rides next to the live riders
+const ghost = useGhost()
+onMounted(() => ghost.load(slug))
+const ghostRider = useGhostRider(ghost, state, segments, activeSegment, computed(() => t('ghost.label')))
+
 // each place is read aloud once, when it comes up; silence while paused or when it leaves
 const speech = useSpeech()
 const spoken = new Set<string>()
@@ -113,7 +118,10 @@ const { others } = useLiveRiders(
   { distanceM: computed(() => state.value.distanceM), powerW },
   paused,
 )
+const riders = computed(() => (ghostRider.value ? [ghostRider.value, ...others.value] : others.value))
 const gap = (m: number) => `${m >= 0 ? '+' : '−'}${Math.round(Math.abs(m))} m`
+const ghostGapS = (o: object) => (o as { gapS?: number }).gapS
+const gapSeconds = (s: number) => `${s >= 0 ? '+' : '−'}${Math.round(Math.abs(s))} s`
 
 // sim mode: clicking the profile puts the rider there, and the ride stops counting as a real one
 function onSeek(distanceM: number) {
@@ -194,7 +202,7 @@ watch(
       :ion-token="cesiumIonToken"
       :cadence-rpm="cadenceRpm"
       :kit="kit"
-      :others="others"
+      :others="riders"
     />
 
     <details class="panel" :open="trainer.connection.value === 'idle'">
@@ -256,7 +264,7 @@ watch(
       class="hud-bottom"
       :course="course"
       :distance-m="state.distanceM"
-      :others="others"
+      :others="riders"
       :segments="segments"
       :pois="pois"
       :seekable="simMode"
@@ -294,9 +302,12 @@ watch(
       :completed="workout.completed.value"
       :refused="trainer.ergRefused.value"
     />
-    <ul v-if="others.length" class="riders" :aria-label="$t('live.riders')">
-      <li v-for="o in others.slice(0, 5)" :key="o.id">
-        <span>{{ o.nickname }}</span> <span>{{ o.powerW }} W</span> <strong>{{ gap(o.gapM) }}</strong>
+    <ul v-if="riders.length" class="riders" :aria-label="$t('live.riders')">
+      <li v-for="o in riders.slice(0, 5)" :key="o.id">
+        <span>{{ o.nickname }}</span>
+        <span v-if="ghostGapS(o) !== undefined">{{ gapSeconds(ghostGapS(o)!) }}</span>
+        <span v-else-if="o.id !== 'ghost'">{{ o.powerW }} W</span>
+        <strong>{{ gap(o.gapM) }}</strong>
       </li>
     </ul>
     <UButton

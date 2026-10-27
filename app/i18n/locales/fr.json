@@ -51,7 +51,19 @@
     "finishSave": "Terminer et enregistrer",
     "quitWithout": "Quitter sans enregistrer",
     "sound": "Son",
-    "workout": "Séance"
+    "workout": "Séance",
+    "ghost": "Fantôme"
+  },
+  "ghost": {
+    "intro": "Roulez contre un fantôme : il avance à côté de vous, à la vitesse de la sortie enregistrée.",
+    "needsAccount": "Connectez-vous pour retrouver vos sorties.",
+    "off": "Pas de fantôme",
+    "best": "Ma meilleure sortie",
+    "last": "Ma dernière sortie",
+    "kom": "Record du segment (KOM)",
+    "komHelp": "Le prochain segment chronométré, avec le détenteur du record.",
+    "none": "Aucune sortie terminée",
+    "label": "Fantôme"
   },
   "workout": {
     "intro": "Le home trainer tient la puissance de la séance, quelle que soit la pente. Sans séance, il suit le relief du parcours.",

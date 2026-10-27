@@ -2,7 +2,7 @@
 import { TEMPLATES } from '~/lib/workout/templates'
 import { totalDuration, workoutName, type Workout } from '~/lib/workout/workout'
 
-type View = 'menu' | 'devices' | 'kit' | 'workout' | 'sound' | 'account' | 'quit'
+type View = 'menu' | 'devices' | 'kit' | 'workout' | 'ghost' | 'sound' | 'account' | 'quit'
 
 const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ finish: [] }>()
@@ -43,6 +43,24 @@ function startSelected() {
 }
 const minutes = (w: Workout) => Math.round(totalDuration(w) / 60)
 
+// ghosts: own best or last finished ride on this course, or the record of the next segment
+const ghost = useGhost()
+const fmtTime = (s: number) => `${Math.floor(s / 3600) ? `${Math.floor(s / 3600)}:` : ''}${String(Math.floor((s % 3600) / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`
+const ghostItems = computed(() => {
+  const mine = ghost.course.value
+  const when = (g?: { duration_s: number } | null) => (g ? fmtTime(g.duration_s) : t('ghost.none'))
+  return [
+    { value: 'none', label: t('ghost.off') },
+    { value: 'best', label: t('ghost.best'), description: when(mine?.best), disabled: !mine?.best },
+    { value: 'last', label: t('ghost.last'), description: when(mine?.last), disabled: !mine?.last },
+    { value: 'kom', label: t('ghost.kom'), description: t('ghost.komHelp') },
+  ]
+})
+const ghostChoice = computed({
+  get: () => ghost.choice.value,
+  set: (v) => ghost.choose(v as 'none' | 'best' | 'last' | 'kom'),
+})
+
 const editing = ref(false)
 const draft = ref<Array<{ min: number; pct: number }>>([])
 function edit() {
@@ -74,6 +92,7 @@ const items = computed(() => [
   { key: 'devices', icon: 'i-lucide-bluetooth', action: () => (view.value = 'devices') },
   { key: 'kit', icon: 'i-lucide-shirt', action: () => (view.value = 'kit') },
   { key: 'workout', icon: 'i-lucide-timer', action: () => (view.value = 'workout') },
+  { key: 'ghost', icon: 'i-lucide-ghost', action: () => (view.value = 'ghost') },
   ...(speech.supported.value ? [{ key: 'sound', icon: 'i-lucide-volume-2', action: () => (view.value = 'sound') }] : []),
   { key: 'account', icon: 'i-lucide-user', action: () => (view.value = 'account') },
   { key: 'quit', icon: 'i-lucide-log-out', action: () => (view.value = 'quit') },
@@ -202,6 +221,12 @@ function finish() {
             <UButton icon="i-lucide-play" :label="$t('workout.save')" :disabled="!trainerReady || !draftSteps.length" @click="saveDraft" />
           </div>
         </div>
+      </div>
+
+      <div v-else-if="view === 'ghost'" class="space-y-4">
+        <p class="text-sm text-slate-500">{{ $t('ghost.intro') }}</p>
+        <p v-if="!user" role="alert" class="text-sm text-red-700">{{ $t('ghost.needsAccount') }}</p>
+        <URadioGroup v-model="ghostChoice" :items="ghostItems" />
       </div>
 
       <div v-else-if="view === 'sound'" class="space-y-4">
