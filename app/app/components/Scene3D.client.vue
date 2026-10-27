@@ -17,8 +17,8 @@ interface OtherRider {
 }
 
 const props = withDefaults(
-  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string; kit?: Kit; cadenceRpm?: number; others?: OtherRider[]; quality?: QualityProfile }>(),
-  { source: SceneSource.Swisstopo, googleKey: '', ionToken: '', kit: () => DEFAULT_KIT, cadenceRpm: undefined, others: () => [], quality: () => PROFILES.high },
+  defineProps<{ course: CourseProfile; distanceM: number; speedMs: number; source?: SceneSource; googleKey?: string; ionToken?: string; kit?: Kit; cadenceRpm?: number; others?: OtherRider[]; quality?: QualityProfile; reducedMotion?: boolean }>(),
+  { source: SceneSource.Swisstopo, googleKey: '', ionToken: '', kit: () => DEFAULT_KIT, cadenceRpm: undefined, others: () => [], quality: () => PROFILES.high, reducedMotion: false },
 )
 // the scene noticed it cannot keep up: the page decides whether to make it lighter
 const emit = defineEmits<{ slow: [] }>()
@@ -357,17 +357,20 @@ async function start() {
       openTarget = openness(rider.ground, samples)
     }
     open += (openTarget - open) * 0.03
+    // reduced motion: the camera keeps a steady height and field of view (no widening with speed or open landscape)
+    const o = props.reducedMotion ? 0 : open
+    const speedFovDeg = props.reducedMotion ? 0 : Math.min(props.speedMs * FOV_SPEED_GAIN, FOV_MAX_EXTRA_DEG)
 
     // steeper road → look a little further down so the camera keeps clear of the slope behind
-    pitch += (basePitch + open * OPEN_PITCH_RAD - 0.6 * Math.atan(here.grade / 100) - pitch) * 0.05
+    pitch += (basePitch + o * OPEN_PITCH_RAD - 0.6 * Math.atan(here.grade / 100) - pitch) * 0.05
     const lookAt = Cesium.Cartesian3.fromDegrees(
       pointAt(props.course, Math.min(d + TARGET_AHEAD_M, total)).lon,
       pointAt(props.course, Math.min(d + TARGET_AHEAD_M, total)).lat,
-      interpolateAt(ds, hs, Math.min(d + TARGET_AHEAD_M, total)) + heightOffset + (photoreal ? PHOTO_TARGET_LIFT_M : 1.5) + open * OPEN_TARGET_LIFT_M,
+      interpolateAt(ds, hs, Math.min(d + TARGET_AHEAD_M, total)) + heightOffset + (photoreal ? PHOTO_TARGET_LIFT_M : 1.5) + o * OPEN_TARGET_LIFT_M,
     )
-    fovDeg += (FOV_DEG + Math.min(props.speedMs * FOV_SPEED_GAIN, FOV_MAX_EXTRA_DEG) + open * OPEN_FOV_EXTRA_DEG - fovDeg) * 0.05
+    fovDeg += (FOV_DEG + speedFovDeg + o * OPEN_FOV_EXTRA_DEG - fovDeg) * 0.05
     frustum.fov = Cesium.Math.toRadians(fovDeg)
-    viewer.camera.lookAt(lookAt, new Cesium.HeadingPitchRange(heading, pitch, (photoreal ? PHOTO_CAMERA_RANGE_M : CAMERA_RANGE_M) * (1 + open * OPEN_RANGE_GAIN)))
+    viewer.camera.lookAt(lookAt, new Cesium.HeadingPitchRange(heading, pitch, (photoreal ? PHOTO_CAMERA_RANGE_M : CAMERA_RANGE_M) * (1 + o * OPEN_RANGE_GAIN)))
   })
 
   // Height measuring uses depth picks, which must not run in the middle of a render: do it right after each frame.

@@ -35,3 +35,21 @@ body {
   background: #f3f5f8;
   color: #272e3d;
 }
+
+/* a visible keyboard focus on every control that does not draw its own (Nuxt UI's buttons keep theirs) */
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--color-vaud-500);
+  outline-offset: 2px;
+}
+
+/* the system asks for less motion: transitions and animations are cut to nothing */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
