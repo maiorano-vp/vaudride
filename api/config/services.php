@@ -69,6 +69,12 @@ return [
         'token' => env('LOCALHUB_TOKEN', ''),
     ],
 
+    // Terroir (eDirekt): the partners of Vaud Promotion (agritourism, bakeries, grocers), read with a bearer token
+    'terroir' => [
+        'url' => env('TERROIR_URL', 'https://ds-edirekt.myvaud.dev/api'),
+        'token' => env('TERROIR_TOKEN', ''),
+    ],
+
     'frontend' => [
         'url' => env('APP_FRONTEND_URL', 'http://localhost:3000'),
     ],

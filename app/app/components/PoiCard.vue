@@ -18,26 +18,57 @@ const icons: Record<string, string> = {
   shop: 'i-lucide-shopping-basket',
   activity: 'i-lucide-bike',
   service: 'i-lucide-info',
+  agritourism: 'i-lucide-tractor',
+  bakery: 'i-lucide-croissant',
+  grocery: 'i-lucide-shopping-basket',
 }
 </script>
 
 <template>
   <aside class="poi-card" role="status">
-    <img v-if="poi.image_url" :src="poi.image_url" :alt="poiTitle(poi, locale)" class="photo" loading="lazy" >
-    <UIcon v-else :name="icons[poi.category ?? ''] ?? 'i-lucide-map-pin'" class="icon" />
+    <img
+      v-if="poi.image_url"
+      :src="poi.image_url"
+      :alt="poiTitle(poi, locale)"
+      class="photo"
+      loading="lazy"
+    >
+    <UIcon
+      v-else
+      :name="icons[poi.category ?? ''] ?? 'i-lucide-map-pin'"
+      class="icon"
+    />
     <div>
       <p class="title">{{ poiTitle(poi, locale) }}</p>
       <p class="meta">
-        <span v-if="poi.category">{{ $t(`poi.category.${poi.category}`) }} · </span>
-        {{ aheadM > 20 ? $t('poi.ahead', { m: Math.round(aheadM / 10) * 10 }) : $t('poi.here') }}
+        <span v-if="poi.category"
+          >{{ $t(`poi.category.${poi.category}`) }} ·
+        </span>
+        {{
+          aheadM > 20
+            ? $t('poi.ahead', { m: Math.round(aheadM / 10) * 10 })
+            : $t('poi.here')
+        }}
       </p>
-      <p v-if="poiDescription(poi, locale)" class="description">{{ poiDescription(poi, locale) }}</p>
+      <p v-if="poiDescription(poi, locale)" class="description">
+        {{ poiDescription(poi, locale) }}
+      </p>
       <p class="favorite" :class="{ kept: favorite }">
-        <UIcon name="i-lucide-star" class="star" :class="{ filled: favorite }" />
+        <UIcon
+          name="i-lucide-star"
+          class="star"
+          :class="{ filled: favorite }"
+        />
         {{ favorite ? $t('favorites.kept') : $t('favorites.hint') }}
       </p>
       <p class="links">
-        <a v-if="poi.url" :href="poi.url" target="_blank" rel="noopener noreferrer">{{ $t('poi.more') }}</a>
+        <a
+          v-if="poi.url"
+          :href="poi.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          >{{ $t('poi.more') }}</a
+        >
         <small v-if="poi.source === 'osm'">© OpenStreetMap contributors</small>
         <small v-if="poi.image_credit">{{ poi.image_credit }}</small>
       </p>
