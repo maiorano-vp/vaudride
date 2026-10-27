@@ -177,6 +177,10 @@
       "all": "All"
     }
   },
+  "menu": {
+    "ride": "Ride",
+    "profile": "My profile"
+  },
   "real": {
     "title": "Ride it for real",
     "intro": "You rode this course at home? Here is how to ride it on the spot, in four steps.",

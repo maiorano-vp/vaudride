@@ -93,9 +93,4 @@ const { loggedIn } = useAuth()
   gap: 1.25rem;
   align-items: center;
 }
-/* the language buttons in the size of vaud.ch's menu entries */
-.tools :deep(nav button) {
-  font-size: 1.375rem;
-  line-height: 1;
-}
 </style>
