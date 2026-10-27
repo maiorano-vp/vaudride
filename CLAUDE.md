@@ -22,11 +22,11 @@ Légende : ✅ fait · 🟡 partiel / à valider · ⬜ à faire (état au 2026-
 6. ✅ Comptes (pseudo unique), historique, export FIT/TCX, sync Strava
 7. ✅ POI le long du parcours (OpenStreetMap + catalogue Local Hub, relecture dans l'admin, favoris, lecture vocale, carte du parcours)
 
-Fait en plus du périmètre initial : segments chronométrés et classements/KOM, riders en direct sur le même parcours (Pusher), pause, commandes vocales, image de fin de sortie à partager, tableau de bord d'activité anonyme dans l'admin, page « Rapports » de l'admin (période au choix, parcours les plus roulés, saisonnalité, export CSV, sans aucune donnée d'origine des joueurs), admin Filament avec 2FA, PWA configurée, mode découverte sans matériel (`/ride/<slug>?demo=1`, survol à vitesse libre pour salons et vaud.ch).
+Fait en plus du périmètre initial : segments chronométrés et classements/KOM, riders en direct sur le même parcours (Pusher), pause, commandes vocales, image de fin de sortie à partager, tableau de bord d'activité anonyme dans l'admin, page « Rapports » de l'admin (période au choix, parcours les plus roulés, saisonnalité, export CSV, sans aucune donnée d'origine des joueurs), admin Filament avec 2FA, PWA configurée, mode découverte sans matériel (`/ride/<slug>?demo=1`, survol à vitesse libre pour salons et vaud.ch ; la voix se coupe au-delà de 45 km/h), réglages du cycliste (poids, position/CdA, FTP, difficulté) synchronisés sur le compte avec FTP estimé d'après les sorties et suppression possible, page « Protection des données », niveaux de qualité 3D (Auto, Élevée, Équilibrée, Économie, 2D) avec bascule automatique selon l'appareil, la batterie et la fluidité, interface FR/DE/EN avec sélecteur sur toutes les pages et widget admin « Traductions », accessibilité (contrastes AA, mouvements réduits, raccourcis clavier), pins des lieux dans la scène 3D.
 
 Hors MVP (V2) :
 - ✅ segments chronométrés et classements · ✅ rides de groupe (riders en direct)
-- ✅ mode ERG / séances structurées (modèles livrés + éditeur simple, FTP gardé dans le navigateur)
+- ✅ mode ERG / séances structurées (modèles livrés + éditeur simple ; le FTP vient des réglages du cycliste)
 - ✅ ghosts (meilleure sortie, dernière sortie, record du segment)
 - ⬜ création libre de parcours
 - ⬜ app iOS native (Capacitor) — nécessaire pour Safari/iPhone
@@ -175,9 +175,21 @@ Commencer par **Marchairuz** pour le prototype.
 3. ✅ Catalogue de parcours, POI, écran de fin de sortie
 4. ✅ API : comptes, historique, export FIT/TCX, Strava
 5. ✅ Admin Filament pour gérer parcours et POI (+ imports Local Hub, segments, joueurs, activité)
-6. 🟡 PWA (configurée), perfs (niveaux de détail, fallback 2D sur machines modestes : ⬜), beta : ⬜
+6. 🟡 PWA (configurée), perfs (niveaux de qualité et repli 2D : ✅), beta : ⬜
 
-Prochaines étapes proposées : « rouler pour de vrai » (suivi des parcours virtuels → réels) · fallback 2D · tests E2E en mode `?sim=1` · Capacitor iOS (écarté pour l'instant ; le mode découverte marche déjà sur Safari/iPhone).
+Prochaines étapes proposées : « rouler pour de vrai » (suivi des parcours virtuels → réels) · tests E2E en mode `?sim=1` · suivi de la limite gratuite Cloudflare (10 ms de processeur par requête, 100 000 requêtes par jour) · Capacitor iOS (écarté pour l'instant ; le mode découverte marche déjà sur Safari/iPhone).
+
+## À vérifier à la main
+
+Livré et en production, mais jamais essayé dans un navigateur ni sur un vrai matériel :
+
+- Home trainer FTMS réel : résistance en mode ERG, difficulté à 50 %, renvoi de la simulation quand le poids ou le CdA changent.
+- Pins des lieux en 3D : emplacement exact (lieu hors route), sources photoréalistes, changement de langue.
+- Réglages : enregistrement et retour sur un autre appareil, hors ligne, suppression ; FTP proposé après une sortie de 20 minutes d'effort.
+- Qualité d'affichage : bascule automatique sous limitation du processeur, niveau Économie sur batterie faible.
+- Mode découverte sur Safari/iPhone ; voix coupée au-delà de 45 km/h.
+- Langue allemande à la première visite, mouvements réduits, navigation au clavier, lecteur d'écran.
+- Admin : page « Rapports » (exports CSV dans Excel), widgets « Traductions ».
 
 ## Questions ouvertes
 
