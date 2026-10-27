@@ -42,6 +42,7 @@ const tiles = computed(() => [
 </template>
 
 <style scoped>
+/* vaud.ch look: white cards, vaud blue, Staatliches for labels and figures */
 .dashboard {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
@@ -49,42 +50,47 @@ const tiles = computed(() => [
   margin: 0;
 }
 .tile {
-  background: #f3f3f3;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
+  background: #fff;
+  border-top: 3px solid var(--color-vaud-800);
+  border-radius: 4px;
+  padding: 0.6rem 1rem 0.75rem;
+  box-shadow: 0 1px 3px rgb(39 46 61 / 12%);
 }
 dt {
-  font-size: 0.8rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  opacity: 0.6;
+  color: var(--color-vaud-600);
 }
 dd {
   margin: 0;
-  font-size: 2rem;
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  line-height: 1.1;
   font-variant-numeric: tabular-nums;
+  color: var(--color-vaud-800);
 }
 small {
-  font-size: 0.9rem;
   margin-left: 0.25rem;
-  opacity: 0.6;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--color-vaud-500);
 }
 
-/* HUD over the 3D scene: glass tiles, light text, compact */
+/* HUD over the 3D scene: same cards, a bit denser and translucent */
 .overlay {
   grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
   gap: 0.4rem;
 }
 .overlay .tile {
-  padding: 0.4rem 0.6rem;
-  color: #fff;
-  background: rgb(0 0 0 / 50%);
-  backdrop-filter: blur(6px);
-  text-shadow: 0 1px 2px rgb(0 0 0 / 60%);
+  padding: 0.3rem 0.6rem 0.4rem;
+  background: rgb(255 255 255 / 92%);
 }
 .overlay dt {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
 }
 .overlay dd {
-  font-size: 2.1rem;
+  font-size: 2rem;
 }
 </style>
