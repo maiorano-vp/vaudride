@@ -29,14 +29,16 @@ export function useGpx(profile: Ref<GpxSource | null | undefined>, name: Ref<str
     URL.revokeObjectURL(url)
   }
 
-  /** True once the share sheet took the file; false if it was dismissed or is not available. */
+  /** True once the share sheet took the file; false if it was dismissed, failed (downloads instead) or is not available. */
   async function share(): Promise<boolean> {
     if (!profile.value || !canShare.value) return false
     try {
       await navigator.share({ files: [file(profile.value)], title: name.value })
       return true
-    } catch {
-      return false // dismissed
+    } catch (e) {
+      if ((e as DOMException).name === 'AbortError') return false // dismissed
+      download() // the share sheet refused the file: still hand it over
+      return false
     }
   }
 
